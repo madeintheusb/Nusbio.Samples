@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+ <!--
+    Copyright (C) 2015 MadeInTheUSB.net
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+    associated documentation files (the "Software"), to deal in the Software without restriction, 
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, 
+    sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is 
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial 
+    portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+    LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+<head>
+    <meta charset="utf-8">
+    <title>Nusbio WebSite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Nusbio Internal Web Site">
+    <meta name="keywords" content="LED GPIO C# .NET WINDOWS IOT">
+    <meta name="author" content="(C) MadeInTheUSB 2015">
+    <!--
+        Based on Thomas Park's Slate template. Based on Bootstrap. Icons from Font Awesome. Web fonts from Google.
+    -->
+    <style>
+        [bootswatch.min.css]
+    </style>
+    <style>
+        [bootstrap.slate.css]
+    </style>
+
+    <style>
+        /* Override setting from bootswatch.min.css */
+        .page-header h1 {
+            font-size: 2.4em;
+        }
+    </style>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../bower_components/html5shiv/dist/html5shiv.js"></script>
+      <script src="../bower_components/respond/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <div class="navbar-collapse collapse" id="navbar-main">
+                <ul class="nav navbar-nav">
+
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="api">Nusbio <span class="caret"></span></a>
+                        <ul class="dropdown-menu" aria-labelledby="download">
+                            <li><a id="MainTitle" onclick="return false;">SN</a></li>
+                            <li><a id="MainTitleSub" onclick="return false;">EPROM</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="madeintheusb.blogspot.com" target="_blank">Blog</a></li>
+                    <li><a href="twitter.com" target="_blank">Tweeter</a></li>
+                    <li><a href="http://www.MadeInTheUSB.net" target="_blank">Website</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="bs-docs-section">
+
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h1>GPIOs</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="bs-component" style="margin: 0;">
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio0" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">0</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio1" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">1</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio2" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">2</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio3" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">3</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio4" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">4</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio5" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">5</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio6" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">6</a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="#" id="Gpio7" style="width:125px" onclick="nusbio.reverseGpio(this.id);return false;" class="btn btn-info">7</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <p class="bs-component">
+
+                    <a href="#" id="AllOff" style="width:125px" onclick="nusbio.allGpioOff();return false;" class="btn btn-primary">All Off</a>
+                    <a href="#" id="GpioState" style="width:125px" onclick="nusbio.getState();return false;" class="btn btn-primary">Get State</a>
+                </p>
+            </div>
+        </div>
+
+
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h1>JavaScript Console</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="bs-component" style="margin: 0;">
+                    <textarea id="jsScript" cols="80" rows="8"></textarea>
+                    <div class="btn-group">
+                        <a href="#" id="RunJsScript" style="width:125px" onclick="RunJsScript();"
+                           class="btn btn-primary">Run</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-unstyled">
+                    <!--<li><a href="../help/#api">API</a></li>
+                    <li><a href="../help/#support">Support</a></li>-->
+                </ul>
+                <p><b>Nusbio Internal WebSite - (C) MadeInTheUSB 2015</b></p>
+            </div>
+        </div>
+    </footer>
+    </div>
+
+    <script>[jquery-1.10.2.min.js]</script>
+    <script>[bootstrap.min.js]</script>
+    <script>[bootswatch.js]</script>
+    <script>[String.js]</script>
+    <script>[Sys.js]</script>
+
+    <script>
+        var HOST         = "localhost";
+        var HOST_PORT    = 1964;
+        var AUTO_REFRESH = 2;
+        var BLINK_SLOW   = 500;
+        var BLINK_FAST   = 100;
+        var BLINK_OFF    = 000;
+        var nusbio = null;
+
+        function RunJsScript() {
+            var jsScript = $("#jsScript").val();
+            try {
+                eval(jsScript);
+            }
+            catch (ex) {
+                alert(ex);
+            }
+        }
+        function allLedOffUI() {
+
+            allLedUI(false);
+            nusbio.getDeviceState();
+        }
+        function allLedUI(state) {
+
+            nusbio.LedNames.forEach(function(ledName) {
+                updateGpioUI(ledName, state);
+            });
+        }
+        function updateGpioUI(name, state) {
+
+            var val = "";
+            if (state === null)
+                val = "?";
+            else if (state === "b")
+                val = "Blinking";
+            else
+                val = state ? "High " : "Low  ";
+
+            $("#" + name).text("{0}".format(val));
+        }
+        function Nusbio__callBack(r) {
+
+            if (r.Succeeded) {
+
+                if (r.Url.match(/\/gpio\/.*\/reverse/g)) { // /led/red/reverse
+
+                    updateGpioUI(r.Url.split('/')[2], r.Result);
+                }
+                else if (r.Url.match(/\/gpio\/all\/animate/g) || r.Url.match(/\/gpio\/all\/off/g)) { // "/led/all/animate" or "/led/all/off"
+
+                    allLedOffUI();
+                }
+                else if (r.Url.match(/\/button\/clear/g)) { // /button/clear
+
+                    nusbio.getState();
+                }
+                else if (r.Url.match(/\/nusbio\/state/g)) { // /nusbio/state
+
+                    $("#MainTitle").html("&nbsp; SerialNumber: {0}".format(r.Result.SerialNumber));
+                    $("#MainTitleSub").html("&nbsp; Description: {0}".format(r.Result.EEPROM));
+
+                    r.Result.GPIOS.forEach(function(g) {
+                        updateGpioUI(g.Name, g.State);
+                    });
+                }
+            }
+        }
+
+        [Nusbio.js]
+
+        (function($) {
+            $(document).ready(function () {
+                nusbio = new NusbioClass(HOST, HOST_PORT, Nusbio__callBack);
+                nusbio.getDeviceState();
+
+                setInterval(function() { nusbio.getDeviceState(); }, 1000 * AUTO_REFRESH);
+
+                //gpio3State = false;
+                //setInterval(function() {
+                //    gpio3State = !gpio3State;
+                //    nusbio.digitalWrite(Gpio3, gpio3State);
+                //}, 1000);
+
+                setInterval(function() { nusbio.getDeviceState(); }, 1000 * AUTO_REFRESH);
+
+                var jsScriptDemo =
+                    "nusbio.digitalWrite(Gpio0, true);\r" +
+                    "nusbio.digitalWrite(Gpio1, true);\r" +
+                    "nusbio.digitalWrite(Gpio2, true);\r" +
+                    "" +
+                    "gpio3State = false;\r" +
+                    "setInterval(function() {  \r" +
+                    "    gpio3State = !gpio3State;\r" +
+                    "    nusbio.digitalWrite(Gpio3, gpio3State);\r" +
+                    "}, 1000);\r"
+                ;
+                $("#jsScript").val(jsScriptDemo);
+            });
+        })(jQuery);
+    </script>
+</body>
+</html>

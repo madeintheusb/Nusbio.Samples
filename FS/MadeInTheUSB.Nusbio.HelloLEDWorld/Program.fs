@@ -1,0 +1,37 @@
+﻿open System
+open System.Threading
+open MadeInTheUSB
+
+let Show(x) =
+    Console.WriteLine(sprintf "%40A" x)
+
+let Pause(unit) =
+    Console.ReadKey()
+
+let Cls(nusbio : Nusbio) = 
+    Console.Clear()
+    ConsoleEx.TitleBar(0, "Nusbio - F# Hello LED World", ConsoleColor.Yellow, ConsoleColor.DarkBlue)
+    ConsoleEx.TitleBar(   ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+    ConsoleEx.WriteMenu(-1, 2, "Gpios: 0) 1) 2) 3) 4) 5) 6) 7) [Shift:Blink Mode]");
+    ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation 3  F4) Animation 4");
+    ConsoleEx.WriteMenu(-1, 6, "Q)uit");
+
+let blinkAllLed(nusbio : Nusbio, wait : int) = 
+    let gpioIndexes  = [0..7]
+    ignore [for i in gpioIndexes -> nusbio.GetGpio(i).High()]
+    Thread.Sleep(wait)
+    ignore [for i in gpioIndexes -> nusbio.GetGpio(i).Low()]
+    Thread.Sleep(wait)
+
+let Demo(unit) =
+    let serialNumber = Nusbio.Detect()
+    use nusbio = new Nusbio(serialNumber)
+    Cls(nusbio)
+    ignore [for c in [0..7] -> blinkAllLed(nusbio, 200)]
+    Pause()
+
+[<EntryPoint>]
+let main argv = 
+    MadeInTheUSB.Devices.Initialize();
+    Demo()
+    0 // return an integer exit code

@@ -1,0 +1,113 @@
+﻿// Learn more about F# at http://fsharp.net
+// See the 'F# Tutorial' project for more help.
+
+open System
+open MadeInTheUSB
+
+let Show(x) =
+    Console.WriteLine(sprintf "%40A" x)
+
+let tableOfSquares (n) = 
+    [for x in 1 .. n do
+        yield (x, x*x)]
+
+////////////////////////////////////////////////////
+// Random type 
+let g = System.Random()
+let rnd() = g.NextDouble()
+rnd()
+let rec randomWalk x =
+    seq { yield x
+          yield! randomWalk (x+rnd()-0.5)
+        }
+randomWalk 0.0 |> Seq.take 32 |> Seq.toList
+
+////////////////////////////////////////////////////
+// Enum / Union
+type LedState =
+    | On
+    | Off
+
+type LedSequence =
+    | Led0 of LedState
+    | Led1 of LedState
+    | Led2 of LedState
+    | Led3 of LedState
+    | Led4 of LedState
+    | Led5 of LedState
+    | Led6 of LedState
+    | Led7 of LedState
+
+let ledStates = [On; Off]
+
+let deckOfLeds = 
+    [ for ledState in ledStates do
+        yield Led0 ledState
+        yield Led1 ledState
+        yield Led2 ledState
+        yield Led3 ledState
+        yield Led4 ledState
+        yield Led5 ledState
+        yield Led6 ledState
+        yield Led7 ledState
+    ]
+
+deckOfLeds |> Show
+[for d in deckOfLeds do -> Show(d)]
+
+////////////////////////////
+// Object
+type Person = {
+    Name : string;
+    Birth : DateTime
+}
+let bob = {
+    Name = "Bob";
+    Birth = DateTime(15, 8, 1980)
+}
+
+////////////////////////////////////////////////////
+
+let Pause(unit) = 
+    Console.ReadKey()
+
+let Cls(nusbio : Nusbio) = 
+    Console.Clear()
+    ConsoleEx.TitleBar(0, "Nusbio - F# Hello LED World", ConsoleColor.Yellow, ConsoleColor.DarkBlue)
+    ConsoleEx.TitleBar(   ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+    ConsoleEx.WriteMenu(-1, 2, "Gpios: 0) 1) 2) 3) 4) 5) 6) 7) [Shift:Blink Mode]");
+    ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation 3  F4) Animation 4");
+    ConsoleEx.WriteMenu(-1, 6, "Q)uit");
+    
+let serialNumber = Nusbio.Detect()
+let nusbio = new Nusbio(serialNumber)
+
+let ledOn(indexes) =
+    [ for i in indexes -> nusbio.GetGpio(i).High() ]
+
+let Demo(unit) = 
+    Console.Clear()
+    let gpioIndexes  = [0..7]
+
+//    Show (gpioIndexes)
+//    [0.0..2.0..100.0] |> Show
+//    [ for i in 0..99 -> (i, i*i)] |> Show
+
+    let rgbColors() = 
+        [ for r in 0..255 do
+            for g in 0..255 do
+                for b in 0..255 do
+                    yield (r, g, b) ]
+
+    rgbColors() |> Show
+    Pause()
+   
+    Cls(nusbio)
+    ignore [ for i in gpioIndexes -> nusbio.GetGpio(i).High() ]
+    Pause()
+
+
+let main argv = 
+    MadeInTheUSB.Devices.Initialize();
+    Demo()
+    0 // return an integer exit code

@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{89AAC166-2058-4657-9A64-AAF602F06327}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MadeInTheUSB.Nusbio.Components</RootNamespace>
+    <AssemblyName>MadeInTheUSB.Nusbio.Components</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.25.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Components\GPioToneExtensionMethods.cs">
+      <Link>GPioToneExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\Components\MachineInfo.cs">
+      <Link>MachineInfo.cs</Link>
+    </Compile>
+    <Compile Include="Adafruit\4Digits7Segments.cs" />
+    <Compile Include="Adafruit\Adafruit_GFX.cs" />
+    <Compile Include="Adafruit\IS31FL3731.LedDriver.cs" />
+    <Compile Include="Adafruit\LEDBackpack.cs" />
+    <Compile Include="Adafruit\MCP4725_12BitDac.cs" />
+    <Compile Include="Adafruit\MCP9808 _Temperature Sensor.cs" />
+    <Compile Include="Adafruit\MultiLEDBackpackManager.cs" />
+    <Compile Include="AnalogToDigitalConverter\MCP3008.cs" />
+    <Compile Include="APA102_RGB_LED\APA102LEDStrip.cs" />
+    <Compile Include="APA102_RGB_LED\RGBHelper.cs" />
+    <Compile Include="APA102_RGB_LED\RgbLedAutomaticSmoothColorCycling.cs" />
+    <Compile Include="BUTTONS\AnalogButton.cs" />
+    <Compile Include="BUTTONS\Button.cs" />
+    <Compile Include="BUTTONS\GenericButton.cs" />
+    <Compile Include="EEPROM\I2C\EEPROM_24LC256.cs" />
+    <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
+    <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
+    <Compile Include="EEPROM\EEPROM_24LCXXX_BASE.cs" />
+    <Compile Include="Oled\OLED.cs" />
+    <Compile Include="Oled\OLED_SSD1306.cs" />
+    <Compile Include="SENSOR\Temperature\SPI.TC77.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AA1024.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AA1204.UnitTests.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AA256.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AA256.UnitTests.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.cs" />
+    <Compile Include="EEPROM\EEPROM_BUFFER.cs" />
+    <Compile Include="GpioExpander\MCP230XX.cs" />
+    <Compile Include="GpioExpander\Shift.cs" />
+    <Compile Include="GpioExpander\ShiftRegister74HC595.cs" />
+    <Compile Include="LCD.Display\ILiquidCrystal.cs" />
+    <Compile Include="LCD.Display\ILiquidCrystal_i2c.cs" />
+    <Compile Include="LCD.Display\LiquidCrystal.cs" />
+    <Compile Include="LCD.Display\LiquidCrystal.Demo.cs" />
+    <Compile Include="LCD.Display\LiquidCrystalBase.cs" />
+    <Compile Include="LED\BiColorLed.cs" />
+    <Compile Include="LED\BiColorLedMCP4231Manager.cs" />
+    <Compile Include="LED\Led.cs" />
+    <Compile Include="MAX7219\MAX7219.cs" />
+    <Compile Include="NusbioLedMatrix\NusbioSevenSegmentDisplay.cs" />
+    <Compile Include="NusbioLedMatrix\NusbioLedMatrix.cs" />
+    <Compile Include="Oled\OLED_SH1106.cs" />
+    <Compile Include="POTENTIOMETER\MCP413x.cs" />
+    <Compile Include="POTENTIOMETER\Potentiometer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExpEval\Nusbio.ExpressionEval.cs" />
+    <Compile Include="Relay\Relay.cs" />
+    <Compile Include="SENSOR\AnalogSensor.cs" />
+    <Compile Include="SENSOR\Motion\DigitalMotionSensorPIR.cs" />
+    <Compile Include="SENSOR\Temperature\AnalogTemperatureSensor.cs" />
+    <Compile Include="SENSOR\Temperature\TMP36_Analog_Temperature Sensor.cs" />
+    <None Include="packages.config" />
+    <None Include="SDCard\README.md" />
+    <Compile Include="SDCard\FatStruct.cs" />
+    <Compile Include="SDCard\SDCard.cs" />
+    <Compile Include="SDCard\SDFat16.cs" />
+    <Compile Include="SDCard\SDFat.cs" />
+    <Compile Include="SENSOR\Light\AnalogLightSensor.cs" />
+    <Compile Include="SENSOR\Light\LightSensorWithCapacitor.cs" />
+    <Compile Include="SENSOR\Motion\AnalogMotionSensorPIR .cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>::set BIN_FOLDER=..\Components\Bin
+::if "$(ConfigurationName)" == "Release" echo Updating folder:%25BIN_FOLDER%25
+::if "$(ConfigurationName)" == "Release" echo "$(TargetPath)" 
+::if "$(ConfigurationName)" == "Release" copy "$(TargetPath)" "%25BIN_FOLDER%25"
+
+
+Copy "$(TargetPath)" "$(ProjectDir)\..\Components\bin"
+::::Copy "$(TargetDir)\ColorMine.dll" "$(ProjectDir)\..\Components\bin"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

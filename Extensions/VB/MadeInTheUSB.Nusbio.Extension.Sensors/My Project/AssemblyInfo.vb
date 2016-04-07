@@ -1,0 +1,35 @@
+﻿Imports System
+Imports System.Reflection
+Imports System.Runtime.InteropServices
+
+' General Information about an assembly is controlled through the following 
+' set of attributes. Change these attribute values to modify the information
+' associated with an assembly.
+
+' Review the values of the assembly attributes
+
+<Assembly: AssemblyTitle("MadeInTheUSB.Nusbio.Extension.RgbLedPanel.VB")> 
+<Assembly: AssemblyDescription("")> 
+<Assembly: AssemblyCompany("MadeInTheUSB LLC")> 
+<Assembly: AssemblyProduct("MadeInTheUSB.Nusbio.Extension.RgbLedPanel.VB")> 
+<Assembly: AssemblyCopyright("Copyright © MadeInTheUSB LLC 2015")> 
+<Assembly: AssemblyTrademark("")> 
+
+<Assembly: ComVisible(False)>
+
+'The following GUID is for the ID of the typelib if this project is exposed to COM
+<Assembly: Guid("633fd689-2f2e-4cbe-8991-7cab506728e7")> 
+
+' Version information for an assembly consists of the following four values:
+'
+'      Major Version
+'      Minor Version 
+'      Build Number
+'      Revision
+'
+' You can specify all the values or you can default the Build and Revision Numbers 
+' by using the '*' as shown below:
+' <Assembly: AssemblyVersion("1.0.*")> 
+
+<Assembly: AssemblyVersion("1.0.0.0")> 
+<Assembly: AssemblyFileVersion("1.0.0.0")> 
