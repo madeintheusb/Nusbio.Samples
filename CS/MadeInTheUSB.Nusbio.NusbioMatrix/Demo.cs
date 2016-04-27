@@ -8,6 +8,7 @@
 /*
    Copyright (C) 2015 MadeInTheUSB LLC
 
+
    The MIT License (MIT)
 
         Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -275,34 +276,51 @@ namespace NusbioMatrixNS
             }
         }
 
-        static void DisplaySquareImage(NusbioMatrix matrix, int deviceIndex)
+        static void DisplayImageSequence(NusbioMatrix matrix, string title, int deviceIndex, int maxRepeat, int wait, List<List<string>> images)
         {
-            int maxRepeat             = 2;
             matrix.CurrentDeviceIndex = deviceIndex;
-            
             Console.Clear();
-            ConsoleEx.TitleBar(0, "Display Images Demo");
+            ConsoleEx.TitleBar(0, title);
             ConsoleEx.WriteMenu(0, 2, "Q)uit");
 
             for (byte rpt = 0; rpt < maxRepeat; rpt++)
             {
-                var images = new List<List<string>>
-                {
-                    Square00Bmp, Square01Bmp, Square02Bmp, Square03Bmp, Square04Bmp, Square05Bmp, Square06Bmp, 
-                    Square01Bmp, Square00Bmp, Square01Bmp, Square00Bmp, Square01Bmp, 
-                };
                 foreach (var image in images)
                 {
-                    matrix.Clear(deviceIndex, refresh:false);
+                    matrix.Clear(deviceIndex, refresh: false);
                     matrix.DrawBitmap(0, 0, image, 8, 8, 1);
                     matrix.CopyToAll(deviceIndex, refreshAll: true);
-                    TimePeriod.Sleep(140);
+                    TimePeriod.Sleep(wait);
 
                     if (Console.KeyAvailable)
                         if (Console.ReadKey().Key == ConsoleKey.Q) return;
                 }
             }
             matrix.Clear(deviceIndex, refresh: true);
+        }
+
+        static void DisplaySquareImage1(NusbioMatrix matrix, int deviceIndex)
+        {
+            var images = new List<List<string>>
+            {
+                Square00Bmp, Square01Bmp, Square02Bmp,
+
+                Square03Bmp, Square04Bmp, Square05Bmp, Square04Bmp, Square03Bmp,
+                Square04Bmp, Square05Bmp, Square04Bmp, Square03Bmp,
+
+                Square06Bmp, 
+                Square01Bmp, Square00Bmp, Square01Bmp, Square00Bmp, Square01Bmp, 
+            };
+            DisplayImageSequence(matrix, "Display Images Demo", deviceIndex, 2, 200, images);
+        }
+
+        static void DisplaySquareImage2(NusbioMatrix matrix, int deviceIndex)
+        {
+            var images = new List<List<string>>
+            {
+                Square03Bmp, Square04Bmp, Square05Bmp,
+            };
+            DisplayImageSequence(matrix, "Display Images Demo 2", deviceIndex, 8, 250, images);
         }
 
         static void DisplayImage(NusbioMatrix matrix)
@@ -417,7 +435,7 @@ namespace NusbioMatrixNS
                         Thread.Sleep(speed);
                         // Provide a better animation
                         if (matrix.DeviceCount == 1 && matrix.MAX7218Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner)
-                            Thread.Sleep(speed * 3);
+                            Thread.Sleep(speed * 12);
                     }
 
                     for (var i = 0; i < MAX7219.MATRIX_ROW_SIZE; i++)
@@ -804,8 +822,11 @@ namespace NusbioMatrixNS
                             Animate(matrix, 0);
 
                         if (k == ConsoleKey.D1) 
-                            DisplaySquareImage(matrix, 0);
-                        
+                            DisplaySquareImage1(matrix, 0);
+
+                        if (k == ConsoleKey.D2)
+                            DisplaySquareImage2(matrix, 0);
+
                         if (k == ConsoleKey.A)
                             DrawAxis(matrix, 0);
 

@@ -13,8 +13,7 @@ namespace MadeInTheUSB.UnitTestsIndicator
     {
         public const int RedLedGpioIndex    = 0;
         public const int YellowLedGpioIndex = 2;
-        public const int GreenLedGpioIndex  = 3;
-        public const int BlueLedGpioIndex   = 1;
+        public const int GreenLedGpioIndex  = 1;
 
         public static MadeInTheUSB.Nusbio nusbio;
 
