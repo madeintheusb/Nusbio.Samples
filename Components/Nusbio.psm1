@@ -22,8 +22,13 @@
  #>
  
 $MadeInTheUSB_Nusbio_Lib_dll  = "..\..\Components\MadeInTheUSB.Nusbio.Lib.dll"
-$MadeInTheUSB_Nusbio_Lib_dll  = "D:\DVT\MadeInTheUSB\Nusbio.Samples\Components\bin\MadeInTheUSB.Nusbio.Lib.dll"
-$MadeInTheUSB_Nusbio_Components_dll = "D:\DVT\MadeInTheUSB\Nusbio.Samples\Components\bin\MadeInTheUSB.Nusbio.Components.dll"
+
+$MadeInTheUSB_Nusbio_Lib_dll  = "C:\DVT\MadeInTheUSB\Nusbio.Samples\Components\bin\MadeInTheUSB.Nusbio.Lib.dll"
+$MadeInTheUSB_Nusbio_Lib_dll  = "C:\DVT\MadeInTheUSB\Nusbio.Samples.TRUNK\Components\bin\MadeInTheUSB.Nusbio.Lib.dll"
+
+$MadeInTheUSB_Nusbio_Components_dll = "C:\DVT\MadeInTheUSB\Nusbio.Samples\Components\bin\MadeInTheUSB.Nusbio.Components.dll"
+$MadeInTheUSB_Nusbio_Components_dll = "C:\DVT\MadeInTheUSB\Nusbio.Samples.TRUNK\Components\bin\MadeInTheUSB.Nusbio.Components.dll"
+
 $Script:POWERSHELL_VERSION    = "3.0"
 $script:__WebServerUrlEvent__ = $null
 

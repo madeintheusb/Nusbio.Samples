@@ -156,7 +156,7 @@ namespace MadeInTheUSB.Components.APA
         /// </summary>
         public void TestC()
         {
-            int v1 = 0, v2 = 0; // the new vertex and the previous one
+            //int v1 = 0, v2 = 0; // the new vertex and the previous one
 
             for (var hue = 0; hue < 360 ; hue += 2)
             {

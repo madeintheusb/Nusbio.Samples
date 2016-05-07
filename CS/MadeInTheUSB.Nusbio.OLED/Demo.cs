@@ -88,7 +88,11 @@ namespace LCDConsole
                     _oledDisplay.DrawRect(i, i, _oledDisplay.Width - (i*2), _oledDisplay.Height - (i*2), true);
                     Console.WriteLine("Rectangle {0:000},{1:000} {2:000},{3:000}", i, i, _oledDisplay.Width - (i*2), _oledDisplay.Height - (i*2));
                 }
-                _oledDisplay.WriteDisplay();
+                try {
+                    // With Nusbio v 1.0A - FT232RL based this may throw
+                    _oledDisplay.WriteDisplay();
+                }
+                catch { }
                 if(wait > 0)
                     TimePeriod.Sleep(wait);
             }

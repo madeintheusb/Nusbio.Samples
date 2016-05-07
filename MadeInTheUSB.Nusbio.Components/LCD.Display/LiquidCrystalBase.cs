@@ -143,7 +143,12 @@ namespace MadeInTheUSB.Display
             text = text.PadRight(NumCols);
             this.Print(text);
         }
-        
+
+        public void Init(int cols, int lines, int dotsize = -1)
+        {
+            this.Begin(cols, lines, dotsize);
+        }
+
         public void Begin(int cols, int lines, int dotsize = -1)
         {
             this.Begin((uint8_t)cols, (uint8_t)lines, (uint8_t)dotsize);

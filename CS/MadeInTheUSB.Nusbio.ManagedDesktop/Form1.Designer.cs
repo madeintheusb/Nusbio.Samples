@@ -36,7 +36,7 @@
             // 
             // butLamp
             // 
-            this.butLamp.Location = new System.Drawing.Point(78, 12);
+            this.butLamp.Location = new System.Drawing.Point(78, 14);
             this.butLamp.Name = "butLamp";
             this.butLamp.Size = new System.Drawing.Size(60, 23);
             this.butLamp.TabIndex = 0;
@@ -58,7 +58,7 @@
             // 
             this.StatusLabel1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StatusLabel1.Name = "StatusLabel1";
-            this.StatusLabel1.Size = new System.Drawing.Size(243, 17);
+            this.StatusLabel1.Size = new System.Drawing.Size(199, 17);
             this.StatusLabel1.Spring = true;
             this.StatusLabel1.Text = "?";
             // 

@@ -15,7 +15,7 @@ var __context = null;
 var __newState = "unknown";
 
 var MQTT_SERVER = "mqtt://test.mosquitto.org";
-var MQTT_FredOfficeChannelID = "BD06";
+var MQTT_FredOfficeChannelID = "BD06C5EBA5F0";
 var _mqttClient = null;
 
 function getMqttClient(allocate) {
