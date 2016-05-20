@@ -1,7 +1,7 @@
 // Un comment this symbol if you have 4 8x8 LED matrix chained together
-//#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
+#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
 
-// Comment this symbol if you want to plug directly the 8x8 LED matrix into Nusbio
+// Comment this symbol if you want to plug directly the 8x8 LED matrix into Nusbio -- Not recommended
 // We recommend to use a bread board or our Nusbio 8x8 LED matrix adapter that is free
 #define NUSBIO_8x8_LED_MATRIX_ADAPTER
 

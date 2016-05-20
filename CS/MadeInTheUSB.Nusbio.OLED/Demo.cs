@@ -59,7 +59,7 @@ namespace LCDConsole
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
             ConsoleEx.WriteMenu(-1, 4, "C)ircle demo  F)ractal circle demo  T)ext demo");
-            ConsoleEx.WriteMenu(-1, 5, "R)ectangle demo     P)erformance rectangle demo");
+            ConsoleEx.WriteMenu(-1, 5, "R)ectangle demo  P)erformance rectangle demo  I)nit");
             ConsoleEx.WriteMenu(-1, 6, "Q)uit");
 
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
@@ -73,9 +73,9 @@ namespace LCDConsole
             ConsoleEx.WriteMenu(-1, 6, "Q)uit");
 
             if (wait > 0)
-                _oledDisplay.DisplayUserMessage("Rectangle Demo", "Slow Speed");
+                _oledDisplay.DrawWindow("Rectangle Demo", "Slow Speed");
             else
-                _oledDisplay.DisplayUserMessage("Rectangle Demo", "Full Speed");
+                _oledDisplay.DrawWindow("Rectangle Demo", "Full Speed");
             TimePeriod.Sleep(1000*2);
 
             var sw = Stopwatch.StartNew();
@@ -97,7 +97,7 @@ namespace LCDConsole
                     TimePeriod.Sleep(wait);
             }
             sw.Stop();
-            _oledDisplay.DisplayUserMessage("Rectangle demo", "The End.");
+            _oledDisplay.DrawWindow("Rectangle demo", "The End.");
             Console.WriteLine("Execution Time:{0}. Hit space to continue", sw.ElapsedMilliseconds);
             var k = Console.ReadKey();
         }
@@ -203,15 +203,8 @@ namespace LCDConsole
             
             ConsoleEx.TitleBar(0, "Text demo");
             ConsoleEx.WriteMenu(-1, 4, "Q)uit");
-            
-            oledDisplay.Clear();
-            oledDisplay.DrawRect(0, 0, oledDisplay.Width, oledDisplay.Height, true);
-            for (var i = 0; i < 4; i++)
-            {
-                oledDisplay.DrawLine(0, i*2, oledDisplay.Width, i*2, true);
-            }
-            oledDisplay.WriteString(-1, 0, " NUSBIO ");
-            oledDisplay.WriteDisplay();
+
+            oledDisplay.DrawWindow(" NUSBIO ");
 
             var messages = new List<string>()
             {
@@ -250,7 +243,17 @@ namespace LCDConsole
             }
             oledDisplay.Clear(refresh:true);
         }
-        
+
+
+        private static OLED InitializeOLED(Nusbio nusbio)
+        {
+            OLED oledDisplay = OLED_SSD1306.Create_128x64_09Inch_DirectlyIntoNusbio(nusbio);
+            // Gpio7 is set to low to be the ground
+            //oledDisplay = OLED_SH1106.Create_128x64_13Inch_DirectlyIntoNusbio(nusbio);
+            oledDisplay.Debug = false;
+            oledDisplay.Begin();
+            return oledDisplay;
+        }
 
         public static void Run(string[] args)
         {
@@ -268,47 +271,19 @@ namespace LCDConsole
             {
                 Console.WriteLine("OLED Display Initialization");
 
-                OLED oledDisplay;
-                oledDisplay = OLED_SSD1306.Create_128x64_09Inch_DirectlyIntoNusbio(nusbio);
-
-                // Gpio7 is set to low to be the ground
-                //oledDisplay = OLED_SH1106.Create_128x64_13Inch_DirectlyIntoNusbio(nusbio);
-                oledDisplay.Debug = false;
-                oledDisplay.Begin();
-                /*
-                    oledDisplay.Fill(true, false);
-                    oledDisplay.Fill(true, false);
-                    oledDisplay.Fill(true, true);
-                    oledDisplay.Clear();
-                    for (var x = 0; x < 32; x += 10)
-                    {
-                        oledDisplay.DrawRect(0 + x, 0 + x, oledDisplay.Width - x*2, oledDisplay.Height - x * 2, true);
-                    }
-                    oledDisplay.Debug = true;
-                    oledDisplay.WriteDisplay(false);
-                    oledDisplay.WriteDisplay(false);
-
-                    oledDisplay.Clear(true);
-                    for (var x = 0; x < 32; x += 10)
-                    {
-                        oledDisplay.DrawRect(0 + x, 0 + x, oledDisplay.Width - x*2, oledDisplay.Height - x * 2, true);
-                    }
-                    oledDisplay.WriteDisplay(false);
-                    oledDisplay.WriteDisplay(false);
-
-                    Console.Clear();
-                    for (var x = 0; x < 32; x += 10)
-                    {
-                        oledDisplay.DrawRect(0 + x, 0 + x, oledDisplay.Width - x*2, oledDisplay.Height - x * 2, true);
-                    }
-                    oledDisplay.WriteDisplay(true);
-                */
+                OLED oledDisplay = InitializeOLED(nusbio);
+                oledDisplay.DrawWindow(" NUSBIO ", "Ready...");
                 Cls(nusbio);
-                while(nusbio.Loop())
+
+                while (nusbio.Loop())
                 {
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
+                        if (k == ConsoleKey.I)
+                        {
+                            oledDisplay = InitializeOLED(nusbio);
+                        }
                         if (k == ConsoleKey.Q)
                         {
                             oledDisplay.Clear(true);
@@ -342,6 +317,7 @@ namespace LCDConsole
                             oledDisplay.Clear();
                         }
                         Cls(nusbio);
+                        oledDisplay.DrawWindow(" NUSBIO ", "Ready...");
                     }
                 }
             }

@@ -5,15 +5,15 @@ Nusbio is a USB device that brings 8 GPIO pins (General Purpose Input Output), t
 
 Nusbio also offers: 
 
-* One unique serial number
-* 40 bytes of EEPROM that can be written and read
 * I2C and SPI support
+* One unique serial number
+* 32 bytes of EEPROM (.NET ASCII string 32 char)
 
 # Copyright
 
 http://www.MadeInTheUSB.net
 
-Copyright (C) 2015 MadeInTheUSB LLC
+Copyright (C) 2015, 2016 MadeInTheUSB LLC
 
 # License 
 

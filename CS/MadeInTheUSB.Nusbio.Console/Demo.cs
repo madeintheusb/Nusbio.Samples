@@ -177,7 +177,32 @@ namespace NusbioConsole
             else
                 nusbio.GPIOS[led].AsLed.ReverseSet();
         }
-        
+
+private static void AnimateBlocking5(Nusbio nusbio)
+{
+    var waitTime0     = 500;
+    var quit           = false;
+    var lampGpio       = 0;
+    var fiberOpticGpio = 1;
+    var fanGpio        = 2;
+    while (!quit) {
+        nusbio[lampGpio].DigitalWrite(PinState.High);
+        for (var g = 0; g < 10; g++)
+        {
+            for (var gg = 0; gg < 10; gg++)
+            {
+                nusbio[fanGpio].DigitalWrite((gg % 3) == 0);
+                nusbio[fiberOpticGpio].DigitalWrite(PinState.High);
+                Thread.Sleep(waitTime0);
+                nusbio[fiberOpticGpio].DigitalWrite(PinState.Low);
+                Thread.Sleep(waitTime0);
+                if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention) { quit = true; break; }
+            }
+        }
+    }
+    nusbio.SetAllGpioOutputState(PinState.Low);
+}
+
         private static void AnimateBlocking1(Nusbio nusbio)
         {
             var maxRepeat = 3;
@@ -324,6 +349,7 @@ namespace NusbioConsole
                         }
                         else
                         {
+                            if (key == ConsoleKey.F5) AnimateBlocking5(nusbio);
                             if (key == ConsoleKey.F1) AnimateBlocking1(nusbio);
                             if (key == ConsoleKey.F2)
                             {

@@ -874,7 +874,7 @@ Yellow
             
             using (var nusbio = new Nusbio(serialNumber))
             {
-                // Communication optimization for the SPI protocol where there is no MISO, Master In Slave Out.
+                // Communication optimization for the SPI protocol where there is no MISO (Master In Slave Out).
                 // We can reduce the amount of data sent. The performance below will vary depending on the PC overall performance.
                 // There are 2 options. Both option cannot be combined.
                 // - No optimization:13.7kb/s 
