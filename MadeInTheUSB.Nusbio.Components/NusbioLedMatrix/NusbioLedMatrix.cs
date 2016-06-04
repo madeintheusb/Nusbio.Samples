@@ -63,11 +63,11 @@ namespace MadeInTheUSB
         /// </summary>
         public enum MAX7219_WIRING_TO_8x8_LED_MATRIX
         {
-            OrigineBottomRightCorner, // 1 8x8 LED matrix device sold by MadeInTheUSB
-            OrigineUpperLeftCorner,   // 4 8x8 LED matrix chained together device sold by MadeInTheUSB
+            OriginBottomRightCorner, // 1 8x8 LED matrix device sold by MadeInTheUSB
+            OriginUpperLeftCorner,   // 4 8x8 LED matrix chained together device sold by MadeInTheUSB
         }
 
-        public MAX7219_WIRING_TO_8x8_LED_MATRIX MAX7218Wiring = MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner;
+        public MAX7219_WIRING_TO_8x8_LED_MATRIX MAX7219Wiring = MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner;
 
         public const int DEFAULT_BRIGTHNESS_DEMO = 5;
 
@@ -81,7 +81,7 @@ namespace MadeInTheUSB
             int deviceCount = 1) :
             base(nusbio, selectGpio, mosiGpio, clockGpio, deviceCount)
         {
-            this.MAX7218Wiring = max7219Wiring;
+            this.MAX7219Wiring = max7219Wiring;
             if(gndGpio != NusbioGpio.None)
                 nusbio.GPIOS[gndGpio].Low(); // Act as GND 
         }
@@ -126,10 +126,10 @@ namespace MadeInTheUSB
                 if (c >= 0 && c < 80)
                     SetColumn(deviceIndex, c, charDef.Columns[i]);
             }
-            switch (this.MAX7218Wiring)
+            switch (this.MAX7219Wiring)
             {
-                case MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineUpperLeftCorner : this.RotateLeft(deviceIndex); break;
-                case MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner : this.RotateRight(deviceIndex); break;
+                case MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginUpperLeftCorner : this.RotateLeft(deviceIndex); break;
+                case MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner : this.RotateRight(deviceIndex); break;
             }
         }
     }
@@ -472,16 +472,12 @@ namespace MadeInTheUSB
         {
             _nusbioMatrix.ScrollPixelLeftDevices(_nusbioMatrix.DeviceCount-1, 0);
             this._nusbioMatrix.CurrentDeviceIndex = this._deviceIndex;
-
-            if (this._nusbioMatrix.MAX7218Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner) 
+            if (this._nusbioMatrix.MAX7219Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner) 
                 _nusbioMatrix.DrawPixel(CurrentYPosition, CurrentXPosition, true);
             else
                 _nusbioMatrix.DrawPixel(CurrentXPosition, CurrentYPosition, true);
-
             _nusbioMatrix.WriteDisplay(all: true);
-            
             CurrentXPosition += NewDirectionRandomizer();
-
             if (CurrentXPosition >= _nusbioMatrix.Width - 1)
                 CurrentXPosition = _nusbioMatrix.Width - 1;
             if (CurrentXPosition < 0)

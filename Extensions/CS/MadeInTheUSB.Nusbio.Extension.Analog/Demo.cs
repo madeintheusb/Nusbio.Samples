@@ -46,15 +46,15 @@ namespace DigitalPotentiometerSample
     {
 
         private static MCP3008 ad;
-        static int                      _waitTime = 100; // 20
-        static int                      _demoStep = 5;
-        
+        static int _waitTime = 100; // 20
+        static int _demoStep = 5;
+
         static string GetAssemblyProduct()
         {
             Assembly currentAssem = typeof(Demo).Assembly;
             object[] attribs = currentAssem.GetCustomAttributes(typeof(AssemblyProductAttribute), true);
-            if(attribs.Length > 0)
-                return  ((AssemblyProductAttribute) attribs[0]).Product;
+            if (attribs.Length > 0)
+                return ((AssemblyProductAttribute)attribs[0]).Product;
             return null;
         }
 
@@ -65,8 +65,8 @@ namespace DigitalPotentiometerSample
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
             //ConsoleEx.WriteMenu(-1, 2, "0) --- ");
             ConsoleEx.WriteMenu(-1, 12, "Q)uit");
-            ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleEx.Bar(0, ConsoleEx.WindowHeight-3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
+            ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
         }
 
         static AnalogLightSensor CalibrateLightSensor(AnalogLightSensor lightSensor, AnalogLightSensor.LightSensorType type)
@@ -74,18 +74,18 @@ namespace DigitalPotentiometerSample
             switch (type)
             {
                 case AnalogLightSensor.LightSensorType.CdsPhotoCell_3mm_45k_140k:
-                    lightSensor.AddCalibarationValue("Dark"             , 0, 20);
-                    lightSensor.AddCalibarationValue("Office Night"     , 21, 65);
-                    lightSensor.AddCalibarationValue("Office Day"       , 65, 100);
+                    lightSensor.AddCalibarationValue("Dark", 0, 20);
+                    lightSensor.AddCalibarationValue("Office Night", 21, 65);
+                    lightSensor.AddCalibarationValue("Office Day", 65, 100);
                     lightSensor.AddCalibarationValue("Outdoor Sun Light", 101, 1024);
-                break;
+                    break;
                 case AnalogLightSensor.LightSensorType.Unknown:
-                case AnalogLightSensor.LightSensorType.CdsPhotoCell_5mm_5k_200k :
-                    lightSensor.AddCalibarationValue("Dark"             , 0, 100);
-                    lightSensor.AddCalibarationValue("Office Night"     , 101, 299);
-                    lightSensor.AddCalibarationValue("Office Day"       , 300, 400);
+                case AnalogLightSensor.LightSensorType.CdsPhotoCell_5mm_5k_200k:
+                    lightSensor.AddCalibarationValue("Dark", 0, 100);
+                    lightSensor.AddCalibarationValue("Office Night", 101, 299);
+                    lightSensor.AddCalibarationValue("Office Day", 300, 400);
                     lightSensor.AddCalibarationValue("Outdoor Sun Light", 401, 1024);
-                break;
+                    break;
             }
             return lightSensor;
         }
@@ -111,11 +111,11 @@ namespace DigitalPotentiometerSample
                     gpio 2 - MISO
                     gpio 3 - SELECT 
                 */
-                ad = new MCP3008(nusbio, 
-                    selectGpio: NusbioGpio.Gpio3, 
-                    mosiGpio:   NusbioGpio.Gpio1, 
-                    misoGpio:   NusbioGpio.Gpio2, 
-                    clockGpio:  NusbioGpio.Gpio0);
+                ad = new MCP3008(nusbio,
+                    selectGpio: NusbioGpio.Gpio3,
+                    mosiGpio: NusbioGpio.Gpio1,
+                    misoGpio: NusbioGpio.Gpio2,
+                    clockGpio: NusbioGpio.Gpio0);
                 ad.Begin();
 
                 var analogTempSensor = new Tmp36AnalogTemperatureSensor(nusbio);
@@ -129,36 +129,35 @@ namespace DigitalPotentiometerSample
 
                 lightSensor.Begin();
 
-                while(nusbio.Loop())
+                while (nusbio.Loop())
                 {
                     if (halfSeconds.IsTimeOut())
                     {
-                        const int lightSensorAnalogPort       = 6;
-                        const int motionSensorAnalogPort      = 2;
+                        const int lightSensorAnalogPort = 6;
+                        const int motionSensorAnalogPort = 2;
                         const int temperatureSensorAnalogPort = 0;
 
                         ConsoleEx.WriteLine(0, 2, string.Format("{0,-20}", DateTime.Now, lightSensor.AnalogValue), ConsoleColor.Cyan);
-                        
+
                         lightSensor.SetAnalogValue(ad.Read(lightSensorAnalogPort));
-                        ConsoleEx.WriteLine(0, 4, string.Format("Light Sensor       : {0} (ADValue:{1:000.000}, Volt:{2:000.000})    ", 
-                            lightSensor.CalibratedValue.PadRight(18), 
-                            lightSensor.AnalogValue, 
+                        ConsoleEx.WriteLine(0, 4, string.Format("Light Sensor       : {0} (ADValue:{1:000.000}, Volt:{2:000.000})    ",
+                            lightSensor.CalibratedValue.PadRight(18),
+                            lightSensor.AnalogValue,
                             lightSensor.Voltage), ConsoleColor.Cyan);
 
-  
                         analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort));
-                        ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",  
-                            analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius), 
-                            analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Fahrenheit), 
-                            analogTempSensor.AnalogValue, 
+                        ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",
+                            analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius),
+                            analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Fahrenheit),
+                            analogTempSensor.AnalogValue,
                             analogTempSensor.Voltage), ConsoleColor.Cyan);
 
-                        //analogMotionSensor.SetAnalogValue(ad.Read(motionSensorAnalogPort));
-                        //var motionType = analogMotionSensor.MotionDetected();
-                        //if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected || motionType == DigitalMotionSensorPIR.MotionDetectedType.None)
-                        //{
-                        //    ConsoleEx.Write(0, 8, string.Format("Motion Sensor     : {0,-20} (ADValue:{1:000.000}, Volt:{2:000.000})", motionType, analogMotionSensor.AnalogValue, analogMotionSensor.Voltage), ConsoleColor.Cyan);
-                        //}
+                        analogMotionSensor.SetAnalogValue(ad.Read(motionSensorAnalogPort));
+                        var motionType = analogMotionSensor.MotionDetected();
+                        if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected || motionType == DigitalMotionSensorPIR.MotionDetectedType.None)
+                        {
+                            ConsoleEx.Write(0, 8, string.Format("Motion Sensor     : {0,-20} (ADValue:{1:000.000}, Volt:{2:000.000})", motionType, analogMotionSensor.AnalogValue, analogMotionSensor.Voltage), ConsoleColor.Cyan);
+                        }
                     }
 
                     if (Console.KeyAvailable)
@@ -169,8 +168,9 @@ namespace DigitalPotentiometerSample
                         {
                             Cls(nusbio);
                         }
-                        if (k == ConsoleKey.Q) {
-                            
+                        if (k == ConsoleKey.Q)
+                        {
+
                             break;
                         }
                         Cls(nusbio);
@@ -181,4 +181,3 @@ namespace DigitalPotentiometerSample
         }
     }
 }
-

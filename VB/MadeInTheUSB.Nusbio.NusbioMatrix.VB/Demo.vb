@@ -371,7 +371,7 @@ Namespace NusbioMatrixApp
             Dim speed = 10
             Dim text = "Hello World!   "
 
-            If matrix.DeviceCount = 1 AndAlso matrix.MAX7218Wiring = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner Then
+            If matrix.DeviceCount = 1 AndAlso matrix.MAX7219Wiring = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner Then
                 speed = speed * 3
             End If
 
@@ -396,7 +396,7 @@ Namespace NusbioMatrixApp
                     If speed > 0 Then
                         Thread.Sleep(speed)
                         ' Provide a better animation
-                        If matrix.DeviceCount = 1 AndAlso matrix.MAX7218Wiring = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner Then
+                        If matrix.DeviceCount = 1 AndAlso matrix.MAX7219Wiring = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner Then
                             Thread.Sleep(speed * 3)
                         End If
                     End If
@@ -763,7 +763,7 @@ Namespace NusbioMatrixApp
 			' Different Wiring for 4 8x8 LED Matrix sold by MadeInTheUSB
 #Else
             Dim matrixChainedCount = 1
-            Dim origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner
+            Dim origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner
 #End If
 
             Using nusbio__1 = New Nusbio(serialNumber)

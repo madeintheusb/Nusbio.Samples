@@ -70,7 +70,7 @@ namespace ButtonConsole
                 var buttons = new List<Button>()
                 {
                     new Button(nusbio, NusbioGpio.Gpio0, inverse: true),
-                    new Button(nusbio, NusbioGpio.Gpio1, inverse: true)
+                    new Button(nusbio, NusbioGpio.Gpio6, inverse: true)
                 };
 
                 while(nusbio.Loop())

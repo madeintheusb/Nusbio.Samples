@@ -1,9 +1,5 @@
 // Un comment this symbol if you have 4 8x8 LED matrix chained together
-#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
-
-// Comment this symbol if you want to plug directly the 8x8 LED matrix into Nusbio -- Not recommended
-// We recommend to use a bread board or our Nusbio 8x8 LED matrix adapter that is free
-#define NUSBIO_8x8_LED_MATRIX_ADAPTER
+//#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
 
 /*
    Copyright (C) 2015 MadeInTheUSB LLC
@@ -409,7 +405,7 @@ namespace NusbioMatrixNS
             var speed     = 10;
             var text      = "Hello World!   ";
 
-            if (matrix.DeviceCount == 1 && matrix.MAX7218Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner)
+            if (matrix.DeviceCount == 1 && matrix.MAX7219Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner)
                 speed = speed*3;
 
             while (!quit)
@@ -434,7 +430,7 @@ namespace NusbioMatrixNS
                     {
                         Thread.Sleep(speed);
                         // Provide a better animation
-                        if (matrix.DeviceCount == 1 && matrix.MAX7218Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner)
+                        if (matrix.DeviceCount == 1 && matrix.MAX7219Wiring == NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner)
                             Thread.Sleep(speed * 12);
                     }
 
@@ -752,32 +748,15 @@ namespace NusbioMatrixNS
             Nusbio nusbio, 
             NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX origin, int matrixChainedCount)
         {
-
-            #if NUSBIO_8x8_LED_MATRIX_ADAPTER
-                var matrix = NusbioMatrix.Initialize(nusbio,
-                    selectGpio   : NusbioGpio.Gpio3,
-                    mosiGpio     : NusbioGpio.Gpio1,
-                    clockGpio    : NusbioGpio.Gpio0,
-                    gndGpio      : NusbioGpio.None,
-                    MAX7218Wiring: origin,
-                    deviceCount  : matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
-            #else
-            // How to plug the 8x8 LED Matrix directly into Nusbio
-            // -----------------------------------------------------------------------
-            // NUSBIO                          : GND VCC  7   6  5   4  3  2  1  0
-            // 8x8 LED Matrix MAX7219 base     :     VCC GND DIN CS CLK
-            // Gpio 7 act as ground so we can plug directly the 8x8 led matrix
             var matrix = NusbioMatrix.Initialize(nusbio,
-                selectGpio   : NusbioGpio.Gpio5,
-                mosiGpio     : NusbioGpio.Gpio6,
-                clockGpio    : NusbioGpio.Gpio4,
-                gndGpio      : NusbioGpio.Gpio7,
+                selectGpio   : NusbioGpio.Gpio3,
+                mosiGpio     : NusbioGpio.Gpio1,
+                clockGpio    : NusbioGpio.Gpio0,
+                gndGpio      : NusbioGpio.None,
                 MAX7218Wiring: origin,
                 deviceCount  : matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
-            #endif
 
             SetBrightnesses(matrix);
-
             return matrix;
         }
 
@@ -793,13 +772,12 @@ namespace NusbioMatrixNS
 
             #if DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
                 var matrixChainedCount = 4;
-                var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineUpperLeftCorner; // Different Wiring for 4 8x8 LED Matrix sold by MadeInTheUSB
+                var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginUpperLeftCorner; // Different Wiring for 4 8x8 LED Matrix sold by MadeInTheUSB
             #else
                 var matrixChainedCount = 1;
-                var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OrigineBottomRightCorner;
+                var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner;
             #endif
-
-
+            
             using (var nusbio = new Nusbio(serialNumber))
             {
                 var matrix = InitializeMatrix(nusbio, origin, matrixChainedCount);
