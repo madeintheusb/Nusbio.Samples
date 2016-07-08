@@ -1,6 +1,9 @@
 // Un comment this symbol if you have 4 8x8 LED matrix chained together
 //#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
 
+// Nusbio based from FT232RL/Waveshare
+//#define NUSBIO_WAVESHARE
+
 /*
    Copyright (C) 2015 MadeInTheUSB LLC
 
@@ -745,14 +748,21 @@ namespace NusbioMatrixNS
         }
 
         private static NusbioMatrix InitializeMatrix(
-            Nusbio nusbio, 
-            NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX origin, int matrixChainedCount)
+            Nusbio nusbio,
+            NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX origin, 
+            int matrixChainedCount)
         {
             var matrix = NusbioMatrix.Initialize(nusbio,
+#if NUSBIO_WAVESHARE
+                selectGpio   : NusbioGpio.Gpio6, // r
+                mosiGpio     : NusbioGpio.Gpio5, // t
+                clockGpio    : NusbioGpio.Gpio7, // rt
+#else
                 selectGpio   : NusbioGpio.Gpio3,
                 mosiGpio     : NusbioGpio.Gpio1,
                 clockGpio    : NusbioGpio.Gpio0,
-                gndGpio      : NusbioGpio.None,
+#endif
+                gndGpio: NusbioGpio.None,
                 MAX7218Wiring: origin,
                 deviceCount  : matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
 
@@ -770,13 +780,13 @@ namespace NusbioMatrixNS
                 return;
             }
 
-            #if DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
+#if DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
                 var matrixChainedCount = 4;
                 var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginUpperLeftCorner; // Different Wiring for 4 8x8 LED Matrix sold by MadeInTheUSB
-            #else
+#else
                 var matrixChainedCount = 1;
                 var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner;
-            #endif
+#endif
             
             using (var nusbio = new Nusbio(serialNumber))
             {

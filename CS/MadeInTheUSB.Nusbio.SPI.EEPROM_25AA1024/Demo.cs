@@ -212,7 +212,7 @@ namespace LightSensorConsole
         {
             Console.Clear();
 
-            var batchPageSize = 16;
+            var batchPageSize = 32; // Transfer batch of 32page x 256byte = 8k
 
             ConsoleEx.TitleBar(0,  string.Format("Performance test reading all {0}k in {1} pages batch mode", _eeprom.MaxKByte, batchPageSize));
             ConsoleEx.Gotoxy(0, 2);

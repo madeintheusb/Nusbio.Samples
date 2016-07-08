@@ -5,9 +5,14 @@ Nusbio is a USB device that brings 8 GPIO pins (General Purpose Input Output), t
 
 Nusbio also offers: 
 
+* 8 GPIO pins
 * I2C and SPI support
 * One unique serial number
 * 32 bytes of EEPROM (.NET ASCII string 32 char)
+
+* ADC (Analog to digital converter) with extension
+* DAC (Digital to analog converter) with extension 
+* Supported Devices: LCD, OLED, LED Matrix, Sensors, RGB LED,...
 
 # Copyright
 

@@ -134,7 +134,7 @@ namespace DigitalPotentiometerSample
                     if (halfSeconds.IsTimeOut())
                     {
                         const int lightSensorAnalogPort = 6;
-                        const int motionSensorAnalogPort = 2;
+                        const int motionSensorAnalogPort = 1;
                         const int temperatureSensorAnalogPort = 0;
 
                         ConsoleEx.WriteLine(0, 2, string.Format("{0,-20}", DateTime.Now, lightSensor.AnalogValue), ConsoleColor.Cyan);
