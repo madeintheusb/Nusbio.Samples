@@ -67,7 +67,7 @@ namespace MadeInTheUSB.Web
         }
 
         NancyHost _host;
-        internal delegate void TraceDelegate(string message);
+        public delegate void TraceDelegate(string message);
 
         // TODO:this should not be static
         public static event TraceDelegate TraceEvent;

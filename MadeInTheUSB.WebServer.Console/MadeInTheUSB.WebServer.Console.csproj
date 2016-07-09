@@ -40,6 +40,9 @@
     <Reference Include="Jint">
       <HintPath>..\..\MadeInTheUSB.Nusbio.Lib\DLL\Jint.dll</HintPath>
     </Reference>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib">
+      <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
+    </Reference>
     <Reference Include="Nancy">
       <HintPath>..\..\MadeInTheUSB.Nusbio.Lib\DLL\Nancy.dll</HintPath>
     </Reference>
@@ -47,7 +50,7 @@
       <HintPath>..\..\MadeInTheUSB.Nusbio.Lib\DLL\Nancy.Hosting.Self.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>ref\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

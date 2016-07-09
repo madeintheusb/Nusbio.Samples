@@ -266,7 +266,15 @@ private static void AnimateBlocking5(Nusbio nusbio)
 
         static void NusbioUrlEvent(string message)
         {
-            ConsoleEx.Bar(0, 12, "Http Request:{0}".FormatString(message), ConsoleColor.Cyan, ConsoleColor.DarkCyan);
+            if (message == null)
+                message = string.Empty;
+
+            if(message.Length > 70)
+            {
+                message = message.Substring(0, 70);
+            }
+
+            ConsoleEx.WriteLine(0, 12, "Http Request:{0}".FormatString(message), ConsoleColor.Cyan);
         }
 
         static void Cls(Nusbio nusbio)

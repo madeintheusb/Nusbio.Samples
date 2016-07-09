@@ -96,7 +96,7 @@ namespace MadeInTheUSB.Web
             {
                 //var fileName = @"D:\DVT\MadeInTheUSB\MadeInTheUSB.Nusbio.Lib\Nusbio\WebSite\lDeviceHttpHelp.html";
                 //return System.IO.File.ReadAllText(fileName);
-                var html = DS.Resources.GetTextResource("Nusbio.WebSite.html", typeof (NusbioScript).Assembly);   
+                var html = DS.Resources.GetTextResource("Nusbio.WebSite.html", typeof (MadeInTheUSB.Nusbio).Assembly);   
                 return html;
             }
             /// <summary>
@@ -123,7 +123,7 @@ namespace MadeInTheUSB.Web
 
                 foreach (var file in files)
                 {
-                    var src = DS.Resources.GetTextResource(file, typeof (NusbioScript).Assembly);
+                    var src = DS.Resources.GetTextResource(file, typeof (MadeInTheUSB.Nusbio).Assembly);
                     html    = html.Replace("[{0}]".FormatString(file), src);
                 }
                 _WebSiteHtml = html;
