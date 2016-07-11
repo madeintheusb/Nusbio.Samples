@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8B6D93E8-2D20-4328-ACFF-9C608BD64DCF}</ProjectGuid>
+    <ProjectGuid>{7C7D94D6-69BB-47EE-9572-296A752DF057}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MadeInTheUSB</RootNamespace>
