@@ -231,6 +231,16 @@ namespace LightSensorConsole
             var sclPin             = NusbioGpio.Gpio0; // White
             var sdaPin             = NusbioGpio.Gpio1; // Green
 
+            // With the Nusbio Adafruit I2C Adapter we need to reverse sda and scl
+            // So we can plug the IS31FL3731 in the adpater
+            var nusbioAdafruitI2CAdadpater = true;
+            if (nusbioAdafruitI2CAdadpater) 
+            {
+                sclPin = NusbioGpio.Gpio1; // White
+                sdaPin = NusbioGpio.Gpio0; // Green
+            }
+
+
             Nusbio.BaudRate = IS31FL3731.MAX_BAUD_RATE;
 
             using (var nusbio = new Nusbio(serialNumber)) // , 

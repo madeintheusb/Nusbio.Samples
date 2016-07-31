@@ -242,7 +242,7 @@ namespace MadeInTheUSB.Adafruit
                 buf.Add((uint8_t)(_displayBuffer[i] >> 8));
             }
             byte addr = 0; // Start of screen
-            return this._i2c.SendBuffer(addr, buf.ToArray());
+            return this._i2c.WriteBuffer(addr, buf.ToArray());
         }
     }
 }

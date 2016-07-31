@@ -1,3 +1,4 @@
+#define OPTIMIZE_I2C_CALL
 /*
    Copyright (C) 2015 MadeInTheUSB LLC
    Written by FT for MadeInTheUSB
@@ -46,6 +47,8 @@
 using System.Text;
 using MadeInTheUSB.i2c;
 using MadeInTheUSB.WinUtil;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MadeInTheUSB.EEPROM
 {
@@ -71,7 +74,7 @@ namespace MadeInTheUSB.EEPROM
 
         public override bool WritePage(int addr, byte [] buffer)
         {
-            var v = this._i2c.WriteBuffer(addr, buffer.Length, buffer, 0);
+            var v = this._i2c.Send16BitsAddressAndBuffer(addr, buffer.Length, buffer);
 
             // EEPROM need a wait time after a write operation
             if (this._waitTimeAfterWriteOperation > 0)
@@ -82,8 +85,7 @@ namespace MadeInTheUSB.EEPROM
 
         public override bool WriteByte(int addr, byte value)
         {
-            var v = this._i2c.WriteOneByte(addr, value);
-
+            var v = this._i2c.Send16BitAddressAnd1Byte(addr, value);
             // EEPROM need a wait time after a write operation
             if (this._waitTimeAfterWriteOperation > 0)
                 TimePeriod.Sleep(this._waitTimeAfterWriteOperation);
@@ -93,14 +95,31 @@ namespace MadeInTheUSB.EEPROM
 
         public override int ReadByte(int addr)
         {
-            return this._i2c.Ready1Byte16BitsCommand((System.Int16)addr);
+            return this._i2c.Send16BitsAddressAndRead1Byte((System.Int16)addr);
         }
         
         public override EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.PAGE_SIZE)
         {
-            var r = new EEPROM_BUFFER();
-            r.Buffer = new byte[len];
-            r.Succeeded = this._i2c.ReadBuffer(addr, len, r.Buffer);
+            var r = new EEPROM_BUFFER(len);
+
+            #if OPTIMIZE_I2C_CALL
+
+                // This method is faster because the I2C write and read operations are
+                // combined in one USB buffer
+                r.Succeeded = this._i2c.Send16BitsAddressAndReadBuffer(addr, len, r.Buffer);
+
+            #else
+
+                // Slower method because we have one USB operation for the I2C write
+                // and one USB operation for the I2C read
+                // The transfer of the data per say is the same
+                var tmpArray = new byte[2];
+                if (this._i2c.WriteBuffer(new byte[2] { (byte)(addr >> 8), (byte)(addr & 0xFF) }))
+                {
+                    r.Succeeded = this._i2c.ReadBuffer(len, r.Buffer);
+                }
+            #endif
+
             return r;
         }
     }

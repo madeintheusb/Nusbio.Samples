@@ -293,7 +293,7 @@ Yellow
             int wait        = 13;
             var quit        = false;
             var maxStep     = 256;           
-            var brightness = 5;
+            var brightness = 16;
             ledStrip0.AllOff();
             ledStrip1.AllOff();
 
@@ -327,7 +327,7 @@ Yellow
 
                     ledStrip0.Show();
                     ledStrip1.Show().Wait(wait);
-
+ 
                     if(Console.KeyAvailable) 
                     {
                         var k = Console.ReadKey(true).Key;

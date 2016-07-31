@@ -1,3 +1,4 @@
+//#define OPTIMIZE_I2C_CALL
 /*
     Written by FT for MadeInTheUSB
     Copyright (C) 2015 MadeInTheUSB LLC
@@ -136,24 +137,29 @@ namespace MadeInTheUSB
             return v * CELCIUS_TO_KELVIN;
         }
 
-        private uint16_t read16(uint8_t reg)
+        private UInt16 read16(uint8_t reg)
         {
-            // this._nusbio.SetBaudRate(9600);
+            UInt16 value = 0;
 
-            var result = this._i2c.Send1ByteRead2Bytes(reg);
+            #if OPTIMIZE_I2C_CALL
 
-            // this._nusbio.SetBaudRate(Nusbio.BaudRate);
+                var result = this._i2c.Send1ByteRead2Bytes(reg);
+                if (!result.Succeeded)
+                    throw new ArgumentException();
 
-            if (result.Succeeded)
-            {
-                // Calling the MCP9808 too fast disrupt the chip.
-                // Slowing down the baudrate does not change anything
-                // Tested with Nusbio abd NusbioWithClock, Only Sleep(40) seems to work
-                System.Threading.Thread.Sleep(40);
-                return (uint16_t) result.value;
-            }
-            else
-                throw new ArgumentException();
+            #else
+                if (this._i2c.WriteBuffer(new byte[1] { reg }))
+                {
+                    var buffer = new byte[2];
+                    this._i2c.ReadBuffer(2, buffer);
+                    value = (System.UInt16)((buffer[0] << 8) + buffer[1]);
+                }
+                else throw new ArgumentException();
+            #endif
+            // Calling the MCP9808 too fast disrupt the chip.
+            // Only Sleep(40) seems to work
+            //System.Threading.Thread.Sleep(40);
+            return value;
         }
     }
 }

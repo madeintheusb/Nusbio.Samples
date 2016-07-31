@@ -126,22 +126,23 @@ namespace LightSensorConsole
         static void Animate()
         {
             int wait       = 100;
+            int waitPixelDemo = 10;
             int maxRepeat = 5;
 
             DrawRoundRectDemo(wait, maxRepeat);
 
             _multiLEDBackpackManager.SetRotation(0);
-            DrawPixelDemo(maxRepeat);
+            DrawPixelDemo(maxRepeat, waitPixelDemo);
 
             _multiLEDBackpackManager.SetRotation(1);
-            DrawPixelDemo(maxRepeat);
+            DrawPixelDemo(maxRepeat, waitPixelDemo);
 
             _multiLEDBackpackManager.SetRotation(2);
-            DrawPixelDemo(maxRepeat);
+            DrawPixelDemo(maxRepeat, waitPixelDemo);
 
             _multiLEDBackpackManager.SetRotation(3);
-            DrawPixelDemo(maxRepeat);
-            
+            DrawPixelDemo(maxRepeat, waitPixelDemo);
+
             SetDefaultOrientations();
             BrightnessDemo(maxRepeat);
             SetBrightnesses();
@@ -216,14 +217,14 @@ namespace LightSensorConsole
             _multiLEDBackpackManager.Clear(true);
         }
 
-        private static void DrawPixelDemo(int maxRepeat)
+        private static void DrawPixelDemo(int maxRepeat, int wait = 13)
         {
             maxRepeat = 4;
             ConsoleEx.Bar(0, 5, "DrawPixel Demo", ConsoleColor.Yellow, ConsoleColor.Red);
             for (byte rpt = 0; rpt < maxRepeat; rpt += 2)
             {
                 _multiLEDBackpackManager.Clear();
-                TimePeriod.Sleep(250);
+                TimePeriod.Sleep(wait*20);
                 for (var r = 0; r < _ledMatrix00.Height; r++)
                 {
                     for (var c = 0; c < _ledMatrix00.Width; c++)
@@ -232,7 +233,7 @@ namespace LightSensorConsole
                         if ((true)||(c%2 != 0)) // Reduce the number of refresh and improve speed
                         {
                             _multiLEDBackpackManager.WriteDisplay();
-                            TimePeriod.Sleep(13);
+                            TimePeriod.Sleep(wait);
                         }
                     }
                 }

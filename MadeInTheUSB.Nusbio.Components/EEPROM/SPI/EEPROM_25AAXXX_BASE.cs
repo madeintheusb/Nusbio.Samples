@@ -234,14 +234,14 @@ namespace MadeInTheUSB.EEPROM
             var startByteToSkip    = spiBufferCmdAddr.Length;
             var finalBuffer        = new List<byte>();
 
-            this._spi.Select();
+            this._spi.Select(); // Set select now so it is part of the bit banging sequence
 
             try
             {
                 var byteBitBanged = 0;
-                var spiSeq = new GpioSequence(nusbio.GetGpioMask(), nusbio.GetTransferBufferSize());
+                var spiSeq        = new GpioSequence(nusbio.GetGpioMask(), nusbio.GetTransferBufferSize());
                 // Convert the 3 Command Bytes + the 64 0 Bytes into a bit banging buffer
-                // The 64 bytes part is optimized since all the value are 0 we just need to set 
+                // The 64 bytes part is optimized since all the value are 0 we just need to set
                 // the data line once
                 for (var bx = 0; bx < buffer.Count; bx++)
                 {

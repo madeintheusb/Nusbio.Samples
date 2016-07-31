@@ -201,12 +201,10 @@ namespace MadeInTheUSB.Adafruit
         {
             try
             {
-                SetBaudRate();
-                return this._i2c.SendBuffer(command, buffer.ToArray(), optimizeDataLine: true);
+                return this._i2c.WriteBuffer(command, buffer.ToArray(), optimizeDataLine: true);
             }
             finally
             {
-                ResetBaudRate();
             }
         }
 
@@ -310,12 +308,11 @@ namespace MadeInTheUSB.Adafruit
                 try
                 {
                     _frame = b;
-                    SetBaudRate();
-                    return this._i2c.Send2BytesCommand((byte) ISSI_COMMANDREGISTER, (byte) b);
+                    //return this._i2c.Send2BytesCommand((byte) ISSI_COMMANDREGISTER, (byte) b);
+                    return this._i2c.WriteBuffer(new byte[2] { (byte)ISSI_COMMANDREGISTER, (byte)b });
                 }
                 finally
                 {
-                    ResetBaudRate();
                 }
             }
             else
@@ -353,36 +350,18 @@ namespace MadeInTheUSB.Adafruit
         private uint __currentBaud   = 0;
         private bool __resetBaudRate = false;
 
-        private void SetBaudRate()
-        {
-            //__currentBaud = this._nusbio.GetBaudRate();
-            //if (__currentBaud != MAX_BAUD_RATE)
-            //{
-            //    __resetBaudRate = true;
-            //    this._nusbio.SetBaudRate(MAX_BAUD_RATE);
-            //}
-        }
-
-        private void ResetBaudRate()
-        {
-            //if (__resetBaudRate)
-            //{
-            //    __resetBaudRate = false;
-            //    this._nusbio.SetBaudRate(__currentBaud);
-            //}
-        }
+        
 
         private void WriteRegister8(uint8_t b, uint8_t reg, uint8_t data)
         {
             try
             {
                 SelectFrame(b);
-                SetBaudRate();
-                this._i2c.Send2BytesCommand((byte) reg, (byte) data);
+                //this._i2c.Send2BytesCommand((byte) reg, (byte) data);
+                this._i2c.WriteBuffer(new byte[2] { (byte)reg, (byte)data });
             }
             finally
             {
-                ResetBaudRate();    
             }
         }
     }

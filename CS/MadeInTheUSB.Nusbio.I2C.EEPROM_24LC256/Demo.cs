@@ -153,29 +153,15 @@ namespace LightSensorConsole
             var t = Stopwatch.StartNew();
             byte [] buf;
 
-            for (var p = 0; p < numberOfPageToRead; p++)
+            for (var pageIndex = 0; pageIndex < numberOfPageToRead; pageIndex++)
             {
-                if(p % 50 == 0 || p < 5)
-                    Console.WriteLine("Reading page {0}", p);
+                if(pageIndex % 50 == 0 || pageIndex < 5)
+                    Console.WriteLine("Reading page {0}", pageIndex);
 
-                var r = _eeprom.ReadPage(p*EEPROM_24LC256.PAGE_SIZE, EEPROM_24LC256.PAGE_SIZE);
+                var r = _eeprom.ReadPage(pageIndex*EEPROM_24LC256.PAGE_SIZE, EEPROM_24LC256.PAGE_SIZE);
                 if (r.Succeeded)
                 {
-                    buf = r.Buffer;
-                    for (var i = 0; i < EEPROM_24LC256.PAGE_SIZE; i++)
-                    {
-                        var expected = i;
-                        if (p == 2)
-                            expected = NEW_WRITTEN_VALUE_1;
-                        if (p == 3)
-                            expected = NEW_WRITTEN_VALUE_2;
-
-                        if (buf[i] != expected)
-                        {
-                            Console.WriteLine("Failed Page:{0} [{1}] = {2}, expected {3}", p, i, buf[i], expected);
-                            totalErrorCount++;
-                        }
-                    }
+                    VerifyPage(r.Buffer, pageIndex, 0);
                 }
                 else
                 {
@@ -193,13 +179,72 @@ namespace LightSensorConsole
             Console.ReadLine();
         }
 
+        static bool VerifyPage(byte [] buf, int pageIndex, int batchIndex) {
+
+            int totalErrorCount = 0;
+            for (var i = 0; i < EEPROM_24LC256.PAGE_SIZE; i++)
+            {
+                var expected = i;
+                if (pageIndex == 2)
+                    expected = NEW_WRITTEN_VALUE_1;
+                if (pageIndex == 3)
+                    expected = NEW_WRITTEN_VALUE_2;
+
+                if (buf[i] != expected)
+                {
+                    Console.WriteLine("Failed Page:{0} [{1}] = {2}, expected {3}", pageIndex, i, buf[i], expected);
+                    totalErrorCount += 1;
+                }
+            }
+            return totalErrorCount == 0;
+        }
+        
+        static void ReadAndVerifyEEPROMPageInBatch(int numberOfPageToRead)
+        {
+            Console.Clear();
+            var totalErrorCount = 0;
+            var t               = Stopwatch.StartNew();
+            var batchSize       = 64;
+            var pageIndex       = 0;
+            byte[] buf;
+
+            for (var batchIndex = 0; batchIndex < numberOfPageToRead; batchIndex += batchSize)
+            {
+                Console.WriteLine("Reading page {0}", batchIndex);
+
+                var r = _eeprom.ReadPage(batchIndex * EEPROM_24LC256.PAGE_SIZE, EEPROM_24LC256.PAGE_SIZE * batchSize);
+                if (r.Succeeded)
+                {
+                    for (var b = 0; b < batchSize; b++)
+                    {
+                        buf = r.GetPage(b, EEPROM_24LC256.PAGE_SIZE);
+                        VerifyPage(buf, pageIndex, batchIndex);
+                        pageIndex += 1;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ReadBuffer failure");
+                }
+            }
+            t.Stop();
+
+            Console.WriteLine("{0} error(s), Time:{1}, {2:0.00} kb/s",
+                totalErrorCount,
+                t.ElapsedMilliseconds,
+                _eeprom.MaxByte * 1.0 / t.ElapsedMilliseconds
+                );
+            Console.WriteLine("Hit enter key");
+            Console.ReadLine();
+        }
+
         static void Cls(Nusbio nusbio)
         {
             Console.Clear();
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
 
-            ConsoleEx.WriteMenu(-1, 4, "R)ead 10 pages   A)ll 32k  W)rite 32k");
+            ConsoleEx.WriteMenu(-1, 4, "R)ead 10 pages   Read A)ll 32k   Read all 32k in B)atch mode   W)rite 32k");
             ConsoleEx.WriteMenu(-1, 5, "Q)uit");
            
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
@@ -217,24 +262,21 @@ namespace LightSensorConsole
                 return;
             }
             
-            var clockPin    = NusbioGpio.Gpio0; // White
-            var dataOutPin  = NusbioGpio.Gpio1; // Green
-            var dataInPin   = NusbioGpio.Gpio2; // Orange
-            
-            byte EEPROM1_WR = 80;//0xA0;
+            var clockPin = NusbioGpio.Gpio0;
+            var dataPin  = NusbioGpio.Gpio1;
 
-            using (var nusbio = new Nusbio(serialNumber)
-                //, inputGpios: new List<NusbioGpio>() {dataInPin})
-                ) // , 
+            using (var nusbio = new Nusbio(serialNumber)) 
             {
                 Cls(nusbio);
 
                 var mask = nusbio.GetGpioMask();
 
-                _eeprom = new EEPROM_24LC256(nusbio, dataOutPin, clockPin);
+                byte EEPROM1_WR = 80; // 0xA0;
+
+                _eeprom = new EEPROM_24LC256(nusbio, dataPin, clockPin);
                 _eeprom.Begin(EEPROM1_WR);
-                
-                while(nusbio.Loop())
+
+                while (nusbio.Loop())
                 {
                     if (Console.KeyAvailable)
                     {
@@ -257,6 +299,10 @@ namespace LightSensorConsole
                         {
                             ReadAndVerifyEEPROMPage(512);
                         }
+                        if (k == ConsoleKey.B)
+                        {
+                            ReadAndVerifyEEPROMPageInBatch(512);
+                        }
                         if (k == ConsoleKey.Q) break;
 
                         Cls(nusbio);
@@ -267,3 +313,11 @@ namespace LightSensorConsole
         }
     }
 }
+
+//var i2c = new I2CEngine(nusbio, NusbioGpio.Gpio1, NusbioGpio.Gpio0, EEPROM1_WR);
+//var addr = 0;
+//var buffer = new byte[64];
+//if (i2c.WriteBuffer(new byte[2] { (byte)(addr >> 8), (byte)(addr & 0xFF) }))
+//{
+//    var r = i2c.ReadBuffer(64, buffer);
+//}

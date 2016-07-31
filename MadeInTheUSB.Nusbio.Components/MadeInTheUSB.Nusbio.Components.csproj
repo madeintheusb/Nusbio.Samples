@@ -33,8 +33,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.25.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib">
       <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />

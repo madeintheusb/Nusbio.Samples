@@ -13,7 +13,7 @@
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
     LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+    WHETHER IN AN ACTION OF CONTRACT, TO    RT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
     OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 using System;
@@ -212,7 +212,7 @@ namespace LightSensorConsole
         {
             Console.Clear();
 
-            var batchPageSize = 32; // Transfer batch of 32page x 256byte = 8k
+            var batchPageSize = 128; // Transfer batch of 32page x 256byte = 8k
 
             ConsoleEx.TitleBar(0,  string.Format("Performance test reading all {0}k in {1} pages batch mode", _eeprom.MaxKByte, batchPageSize));
             ConsoleEx.Gotoxy(0, 2);
@@ -284,6 +284,9 @@ namespace LightSensorConsole
         public static void Run(string[] args)
         {
             Console.WriteLine("Nusbio initialization");
+
+            Nusbio.ActivateFastMode();
+
             var serialNumber = Nusbio.Detect();
             
             if (serialNumber == null) // Detect the first Nusbio available
