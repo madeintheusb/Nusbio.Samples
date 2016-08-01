@@ -307,6 +307,12 @@ namespace LightSensorConsole
                     selectPin: NusbioGpio.Gpio3
                     );
 
+                var r = _eeprom.ReadPage(0, _eeprom.PAGE_SIZE * 4);
+                if(r.Succeeded)
+                {
+                    var data = r.Buffer;
+                }
+
                 _eeprom.Begin();
                 
                 while(nusbio.Loop())

@@ -259,8 +259,6 @@ namespace MadeInTheUSB.Display
         
         public List<byte> GotoXY(int x, int y, bool computeBuffer = false)
         {
-            this._spiEngine.DebugMessage("{0}.GotoXY x:{1}, y:{2}", this.GetType().Name, x, y);
-
             if (x >= SH1106_X_PIXELS || y >= SH1106_ROWS)
                 throw new ArgumentException("Invalid x or y");
 
