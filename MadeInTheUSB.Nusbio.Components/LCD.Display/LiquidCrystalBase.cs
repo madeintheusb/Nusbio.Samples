@@ -149,13 +149,14 @@ namespace MadeInTheUSB.Display
             this.Begin(cols, lines, dotsize);
         }
 
-        public void Begin(int cols, int lines, int dotsize = -1)
+        public bool Begin(int cols, int lines, int dotsize = -1)
         {
-            this.Begin((uint8_t)cols, (uint8_t)lines, (uint8_t)dotsize);
+            return this.Begin((uint8_t)cols, (uint8_t)lines, (uint8_t)dotsize);
         }
 
-        public virtual void Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
+        public virtual bool Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
         {
+            return true;
         }
 
         

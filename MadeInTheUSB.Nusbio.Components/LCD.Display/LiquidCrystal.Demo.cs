@@ -39,6 +39,7 @@ using uint8_t  = System.Byte;
 using size_t   = System.Int16;
 using MadeInTheUSB.WinUtil;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MadeInTheUSB.Display
 {

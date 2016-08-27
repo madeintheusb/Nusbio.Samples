@@ -99,8 +99,10 @@ namespace MadeInTheUSB.Display
             Begin(this.NumCols, this.NumLines);
         }
 
-        public override void Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
+        public override bool Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
         {
+            var r = true;
+
             if (dotsize == -1)
                 dotsize = LCD_5x8DOTS;
 
@@ -122,7 +124,16 @@ namespace MadeInTheUSB.Display
             DelayMicroseconds(50000);
 
             // Now we pull both RS and R/W low to Begin commands
-            ExpanderWrite(_backlightval);	// reset expanderand turn Backlight off (Bit 8 =1)
+            if (ExpanderWrite(_backlightval)) // reset expanderand turn Backlight off (Bit 8 =1)
+            {
+                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the right one", this._i2c.DeviceId);
+                // Probably the wrong address                
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the wrong one", this._i2c.DeviceId);
+                r = false;
+            }
             Delay(100);
 
             //put the LCD into 4 bit mode
@@ -161,6 +172,8 @@ namespace MadeInTheUSB.Display
             Command(LCD_ENTRYMODESET | _displaymode);
 
             Home();
+
+            return r;
         }
 
         /********** high level commands, for the user! */

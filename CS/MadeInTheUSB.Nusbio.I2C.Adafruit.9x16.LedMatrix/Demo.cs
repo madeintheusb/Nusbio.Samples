@@ -226,8 +226,6 @@ namespace LightSensorConsole
                 return;
             }
             
-            // Directly plugged into Nusbio
-            // Gpio7 is used a ground
             var sclPin             = NusbioGpio.Gpio0; // White
             var sdaPin             = NusbioGpio.Gpio1; // Green
 
@@ -236,13 +234,10 @@ namespace LightSensorConsole
             var nusbioAdafruitI2CAdadpater = true;
             if (nusbioAdafruitI2CAdadpater) 
             {
-                sclPin = NusbioGpio.Gpio1; // White
-                sdaPin = NusbioGpio.Gpio0; // Green
+                sclPin = NusbioGpio.Gpio1;
+                sdaPin = NusbioGpio.Gpio0; 
             }
-
-
             Nusbio.BaudRate = IS31FL3731.MAX_BAUD_RATE;
-
             using (var nusbio = new Nusbio(serialNumber)) // , 
             {
                 var ledMatrix16x9 = new IS31FL3731(nusbio, sdaPin, sclPin);

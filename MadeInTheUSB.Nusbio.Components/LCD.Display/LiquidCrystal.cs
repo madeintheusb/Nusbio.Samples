@@ -124,7 +124,7 @@ namespace MadeInTheUSB.Display
             Begin(16, 1);
         }
 
-        public override void Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
+        public override bool Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1)
         {
             if (dotsize == -1)
                 dotsize = LCD_5x8DOTS;
@@ -207,6 +207,8 @@ namespace MadeInTheUSB.Display
             _displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
             // set the entry mode
             Command(LCD_ENTRYMODESET | _displaymode);
+
+            return true;
         }
 
 

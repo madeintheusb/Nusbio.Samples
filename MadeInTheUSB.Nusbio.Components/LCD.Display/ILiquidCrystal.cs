@@ -43,8 +43,8 @@ namespace MadeInTheUSB.Display
 {
     public interface ILiquidCrystal
     {
-        void Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1);
-        void Begin(int cols, int lines, int dotsize = -1);
+        bool Begin(uint8_t cols, uint8_t lines, int16_t dotsize = -1);
+        bool Begin(int cols, int lines, int dotsize = -1);
         void Clear();
         void Home();
         void SetCursor(int col, int row);
