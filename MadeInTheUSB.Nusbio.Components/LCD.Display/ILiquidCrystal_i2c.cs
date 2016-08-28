@@ -1,3 +1,4 @@
+#define FAST_MODE
 //#define TRACE_CONSOLE
 /*
    This class is based on the Arduino LiquidCrystal_I2C_PCF8574 V2.0 library
@@ -54,7 +55,7 @@ namespace MadeInTheUSB.Display
         /// <summary>
         /// The PCF8574 i2c serial extender only support speed up to
         /// </summary>
-        public const int MAX_BAUD_RATE = 76800;
+        public const int MAX_BAUD_RATE = 76800*2;
         
         int       _Addr;
         int       _displayfunction;
@@ -339,7 +340,7 @@ namespace MadeInTheUSB.Display
 
         /************ low level data pushing commands **********/
 
-        void trace(string m, int val)
+        void __trace(string m, int val)
         {
             #if TRACE_CONSOLE
             Console.WriteLine("{0}-{1}", m, val);
@@ -356,8 +357,73 @@ namespace MadeInTheUSB.Display
         {
             uint8_t highnib = (uint8_t)(value & 0xF0);
 	        uint8_t lownib  = (uint8_t)(value << 4);
-            Write4bits((highnib) | mode);
-            Write4bits((lownib) | mode);
+
+            #if FAST_MODE
+                Write4bits_FAST((byte)((highnib) | mode), (byte)((lownib) | mode));
+            #else
+                Write4bits((highnib) | mode);
+                Write4bits((lownib) | mode);
+            #endif
+        }
+        
+        void Write4bits_FAST(uint8_t value1, uint8_t value2)
+        {
+            ExpanderWriteAndPusle(value1);
+            ExpanderWriteAndPusle(value2);
+
+            //ExpanderWriteAndPusle(value1, value2);
+        }
+        /* Not faster
+        bool ExpanderWriteAndPusle(uint8_t _data1, uint8_t _data2)
+        {
+            var currentBaud = this._nusbio.GetBaudRate();
+            var resetBaudRate = false;
+            if (currentBaud != MAX_BAUD_RATE)
+            {
+                resetBaudRate = true;
+                this._nusbio.SetBaudRate(MAX_BAUD_RATE);
+            }
+
+            var buffer = new List<uint8_t>();
+            buffer.Add((uint8_t) (_data1 | _backlightval));
+            buffer.Add((uint8_t) ((_data1 | En) | _backlightval)); // pusle on 
+            buffer.Add((uint8_t) ((_data1 & ~En) | _backlightval)); // pusle off 
+
+            buffer.Add((uint8_t) (_data2 | _backlightval));
+            buffer.Add((uint8_t) ((_data2 | En) | _backlightval)); // pusle on 
+            buffer.Add((uint8_t) ((_data2 & ~En) | _backlightval)); // pusle off 
+
+            var r1 = this._i2c.WriteBuffer(buffer.ToArray(), false);
+
+            if (resetBaudRate)
+            {
+                this._nusbio.SetBaudRate(currentBaud);
+            }
+
+            return true;
+        }*/
+
+        bool ExpanderWriteAndPusle(uint8_t _data)
+        {
+            var currentBaud = this._nusbio.GetBaudRate();
+            var resetBaudRate = false;
+            if (currentBaud != MAX_BAUD_RATE)
+            {
+                resetBaudRate = true;
+                this._nusbio.SetBaudRate(MAX_BAUD_RATE);
+            }
+            var r1 = this._i2c.Send3BytesCommand(
+                (uint8_t)(_data | _backlightval),
+                (uint8_t)((_data | En) | _backlightval), // pusle on 
+                (uint8_t)((_data & ~En) | _backlightval) // pusle off 
+                );
+
+            if (resetBaudRate)
+            {
+                this._nusbio.SetBaudRate(currentBaud);
+            }
+
+            return true;
         }
 
         void Write4bits(int value)
@@ -367,7 +433,7 @@ namespace MadeInTheUSB.Display
 
         void Write4bits(uint8_t value)
         {
-            trace("Write4bits-", value);
+            //trace("Write4bits-", value);
             ExpanderWrite(value);
             PulseEnable(value);
         }
@@ -385,7 +451,7 @@ namespace MadeInTheUSB.Display
             // here
             // Must Send the the i2c ud + value
 
-            trace("ew", (int)(_data) | _backlightval);
+            //trace("ew", (int)(_data) | _backlightval);
 
             var currentBaud = this._nusbio.GetBaudRate();
             var resetBaudRate = false;
@@ -407,13 +473,15 @@ namespace MadeInTheUSB.Display
 
         void PulseEnable(uint8_t _data)
         {
-            trace("pu1-", _data | En);
+           // trace("pu1-", _data | En);
             ExpanderWrite(_data | En);	// En high
-            DelayMicroseconds(1);		// enable pulse must be >450ns
 
-            trace("pu2-", _data & ~En);
+            //DelayMicroseconds(1);		// enable pulse must be >450ns
+
+            //trace("pu2-", _data & ~En);
             ExpanderWrite(_data & ~En);	// En low
-            DelayMicroseconds(1);		// commands need > 37us to settle
+
+            //DelayMicroseconds(1);		// commands need > 37us to settle
         }
 
         // Alias functions
