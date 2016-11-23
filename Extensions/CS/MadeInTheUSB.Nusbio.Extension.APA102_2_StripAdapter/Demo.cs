@@ -893,7 +893,7 @@ Yellow
                 // 60 led per meter strip
                 if (AskForStripType() == '6')
                 {
-                    ledCountStrip0 = 60;
+                    ledCountStrip0 = 10;
                     ledStrip0 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, APA102LEDStrip.Extensions.LedPerMeter._60LedPerMeter, APA102LEDStrip.Extensions.StripIndex._0, ledCountStrip0);
                 }
 
