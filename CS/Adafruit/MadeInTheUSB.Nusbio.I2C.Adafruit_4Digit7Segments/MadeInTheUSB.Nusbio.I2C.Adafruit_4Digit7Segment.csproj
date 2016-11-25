@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{898E7C84-CEA3-4A5D-8A39-7EF5C0736513}</ProjectGuid>
+    <ProjectGuid>{950CB02F-B3B9-4DFD-819B-9FBE23BBDA49}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MadeInTheUSB</RootNamespace>
-    <AssemblyName>MadeInTheUSB.Nusbio.I2C.8x8LedMatrix</AssemblyName>
+    <AssemblyName>MadeInTheUSB.Nusbio.I2C.Adafruit_4Digit7Segments</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -37,7 +37,7 @@
   <PropertyGroup />
   <ItemGroup>
     <Reference Include="MadeInTheUSB.Nusbio.Lib">
-      <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
+      <HintPath>..\..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,7 +57,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
+    <ProjectReference Include="..\..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
       <Project>{89aac166-2058-4657-9a64-aaf602f06327}</Project>
       <Name>MadeInTheUSB.Nusbio.Components</Name>
     </ProjectReference>
