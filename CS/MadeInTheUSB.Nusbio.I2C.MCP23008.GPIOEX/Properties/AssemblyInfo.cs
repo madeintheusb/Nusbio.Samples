@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Nusbio - SPI Temperature Sensor TC77")]
+[assembly: AssemblyTitle("MadeInTheUSB Nusbio I2C MCP23008 8 GPIO Expander")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MadeInTheUSB LLC")]
-[assembly: AssemblyProduct("Nusbio - SPI Temperature Sensor TC77")]
+[assembly: AssemblyProduct("MadeInTheUSB Nusbio I2C MCP23008 8 GPIO Expander")]
 [assembly: AssemblyCopyright("Copyright (C) MadeInTheUSB LLC 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -75,6 +75,8 @@
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
     <Compile Include="EEPROM\EEPROM_24LCXXX_BASE.cs" />
+    <Compile Include="GpioExpander\MCP230XX_Base.cs" />
+    <Compile Include="GpioExpander\McpGpio.cs" />
     <Compile Include="Oled\OLED.cs" />
     <Compile Include="Oled\OLED_SSD1306.cs" />
     <Compile Include="SENSOR\Temperature\SPI.TC77.cs" />
@@ -84,7 +86,7 @@
     <Compile Include="EEPROM\SPI\EEPROM_25AA256.UnitTests.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.cs" />
     <Compile Include="EEPROM\EEPROM_BUFFER.cs" />
-    <Compile Include="GpioExpander\MCP230XX.cs" />
+    <Compile Include="GpioExpander\MCP23008.cs" />
     <Compile Include="GpioExpander\Shift.cs" />
     <Compile Include="GpioExpander\ShiftRegister74HC595.cs" />
     <Compile Include="LCD.Display\ILiquidCrystal.cs" />
@@ -109,11 +111,6 @@
     <Compile Include="SENSOR\Temperature\AnalogTemperatureSensor.cs" />
     <Compile Include="SENSOR\Temperature\TMP36_Analog_Temperature Sensor.cs" />
     <None Include="packages.config" />
-    <None Include="SDCard\README.md" />
-    <Compile Include="SDCard\FatStruct.cs" />
-    <Compile Include="SDCard\SDCard.cs" />
-    <Compile Include="SDCard\SDFat16.cs" />
-    <Compile Include="SDCard\SDFat.cs" />
     <Compile Include="SENSOR\Light\AnalogLightSensor.cs" />
     <Compile Include="SENSOR\Light\LightSensorWithCapacitor.cs" />
     <Compile Include="SENSOR\Motion\AnalogMotionSensorPIR .cs" />

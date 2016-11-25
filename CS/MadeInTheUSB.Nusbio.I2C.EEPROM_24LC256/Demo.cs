@@ -64,7 +64,7 @@ namespace LightSensorConsole
             for (var p = 0; p < numberOfPageToRead; p++)
             {
                 var refBuffer = new List<Byte>();
-                for (var x = 0; x < EEPROM_24LC256.PAGE_SIZE; x++)
+                for (var x = 0; x < _eeprom.PAGE_SIZE; x++)
                 {
                     if(p == 2)
                         refBuffer.Add((byte)NEW_WRITTEN_VALUE_1);
@@ -77,7 +77,7 @@ namespace LightSensorConsole
                 if(p % 10 == 0)
                     Console.WriteLine("Writing page {0}", p);
 
-                var r = _eeprom.WritePage(p*EEPROM_24LC256.PAGE_SIZE, refBuffer.ToArray());
+                var r = _eeprom.WritePage(p* _eeprom.PAGE_SIZE, refBuffer.ToArray());
                 if (!r)
                 {
                     Console.WriteLine("WriteBuffer failure");
@@ -98,10 +98,10 @@ namespace LightSensorConsole
             var p = 2;
             Console.WriteLine("Writing page [{0}]", p);
 
-            for (var i = 0; i < EEPROM_24LC256.PAGE_SIZE; i++)
+            for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
             {
                 //Console.WriteLine("Reading byte [{0}]", i);
-                var addr     = (p * EEPROM_24LC256.PAGE_SIZE ) + i;
+                var addr     = (p * _eeprom.PAGE_SIZE ) + i;
                 var b = _eeprom.WriteByte(addr, (byte)(NEW_WRITTEN_VALUE_1+i));
                 //Console.WriteLine(String.Format("[{0}] = {1}", i, b));
             }
@@ -121,10 +121,10 @@ namespace LightSensorConsole
 
                 Console.WriteLine("Reading page [{0}]", p);
 
-                for (var i = 0; i < EEPROM_24LC256.PAGE_SIZE; i++)
+                for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
                 {
                     //Console.WriteLine("Reading byte [{0}]", i);
-                    var addr     = (p * EEPROM_24LC256.PAGE_SIZE ) + i;
+                    var addr     = (p * _eeprom.PAGE_SIZE ) + i;
                     var b        = _eeprom.ReadByte(addr);
                     var expected = i;
                     if (p == 2)
@@ -151,14 +151,14 @@ namespace LightSensorConsole
             Console.Clear();
             var totalErrorCount = 0;
             var t = Stopwatch.StartNew();
-            byte [] buf;
+            //byte [] buf;
 
             for (var pageIndex = 0; pageIndex < numberOfPageToRead; pageIndex++)
             {
                 if(pageIndex % 50 == 0 || pageIndex < 5)
                     Console.WriteLine("Reading page {0}", pageIndex);
 
-                var r = _eeprom.ReadPage(pageIndex*EEPROM_24LC256.PAGE_SIZE, EEPROM_24LC256.PAGE_SIZE);
+                var r = _eeprom.ReadPage(pageIndex* _eeprom.PAGE_SIZE, _eeprom.PAGE_SIZE);
                 if (r.Succeeded)
                 {
                     VerifyPage(r.Buffer, pageIndex, 0);
@@ -182,7 +182,7 @@ namespace LightSensorConsole
         static bool VerifyPage(byte [] buf, int pageIndex, int batchIndex) {
 
             int totalErrorCount = 0;
-            for (var i = 0; i < EEPROM_24LC256.PAGE_SIZE; i++)
+            for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
             {
                 var expected = i;
                 if (pageIndex == 2)
@@ -212,12 +212,12 @@ namespace LightSensorConsole
             {
                 Console.WriteLine("Reading page {0}", batchIndex);
 
-                var r = _eeprom.ReadPage(batchIndex * EEPROM_24LC256.PAGE_SIZE, EEPROM_24LC256.PAGE_SIZE * batchSize);
+                var r = _eeprom.ReadPage(batchIndex * _eeprom.PAGE_SIZE, _eeprom.PAGE_SIZE * batchSize);
                 if (r.Succeeded)
                 {
                     for (var b = 0; b < batchSize; b++)
                     {
-                        buf = r.GetPage(b, EEPROM_24LC256.PAGE_SIZE);
+                        buf = r.GetPage(b, _eeprom.PAGE_SIZE);
                         VerifyPage(buf, pageIndex, batchIndex);
                         pageIndex += 1;
                     }

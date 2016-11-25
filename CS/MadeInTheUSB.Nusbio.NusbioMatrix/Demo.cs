@@ -712,7 +712,135 @@ namespace NusbioMatrixNS
             matrix.SetRotation(0);
         }
 
+        class RowCol
+        {
+            public int R, C;
+            public bool On;
+        }
+
+        class MAX7219MapTo10LedBarMap
+        {
+            private NusbioMatrix           _nusbioMatrix;
+            public Dictionary<int, RowCol> _mapping;
+
+            public int Count = 10;
+
+            public MAX7219MapTo10LedBarMap(NusbioMatrix nusbioMatrix)
+            {
+                this._nusbioMatrix = nusbioMatrix;
+                this._mapping      = new Dictionary<int, RowCol>()
+                {
+                    { 0, new RowCol { R = 1, C = 0 }  },
+                    { 1, new RowCol { R = 1, C = 1 }  },
+                    { 2, new RowCol { R = 1, C = 2 }  },
+                    { 3, new RowCol { R = 1, C = 3 }  },
+                    { 4, new RowCol { R = 1, C = 4 }  },
+                    { 5, new RowCol { R = 1, C = 5 }  },
+                    { 6, new RowCol { R = 1, C = 6 }  },
+                    { 7, new RowCol { R = 1, C = 7 }  },
+                    { 8, new RowCol { R = 2, C = 1 }  },
+                    { 9, new RowCol { R = 2, C = 5 }  },
+                };
+            }
+            public void Clear(bool refresh = false)
+            {
+                this._nusbioMatrix.Clear(0, refresh);
+            }
+            public void WriteDisplay()
+            {
+                this._nusbioMatrix.WriteDisplay(0, all: true);
+            }
+            public bool SetState(int index, bool on, bool refresh = false)
+            {
+                if (this._mapping.ContainsKey(index))
+                {
+                    var m = this._mapping[index];
+                    m.On  = on;
+                    this._nusbioMatrix.SetLed(0, m.R, m.C, on, false/* this only do a refresh row which is not good here*/);
+                    if (refresh)
+                        this.WriteDisplay();
+                    return true;
+                }
+                else
+                    throw new ArgumentException(string.Format("Invalid index:{0}", index));
+            }
+            public bool GetState(int index)
+            {
+                if (this._mapping.ContainsKey(index))
+                    return this._mapping[index].On;
+                else
+                    throw new ArgumentException(string.Format("Invalid index:{0}", index));
+            }
+        }
+
+        // Testing MAX7219 to control 10 led bar
+        // It is partially working as I can control MAX7219 SegA (8 led) or SegB (2 led)
+        // But because only 10 led are wired instead of the 64, this affect the multiplexing
+        // and in the end we cannot have the 10 led on at the same time
         static void test1(NusbioMatrix matrix)
+        {
+            //matrix.Clear(0, refresh: true);
+            //for (var r = 0; r < 8; r++)
+            //    for (var c = 0; c < 8; c++)
+            //        matrix.SetLed(0, r, c, true, true); // WriteDisplay for every pixel
+            //Thread.Sleep(500);
+
+            matrix.Clear(0, refresh: true);
+            matrix.SetPixel(0, (byte)(32));
+            matrix.SetPixel(1, (byte)(32));
+            matrix.WriteDisplay();
+
+            matrix.Clear(0, refresh: true);
+            for (var p = 0; p < 8; p++)
+            {
+                matrix.SetPixel(p, (byte)(64));
+                matrix.WriteDisplay();
+            }
+            matrix.WriteDisplay();
+
+            matrix.SetPixel(0, (byte)(64 + 32));
+            matrix.SetPixel(1, (byte)(64 + 32));
+            matrix.WriteDisplay();
+
+
+            matrix.Clear(0, refresh: true);
+            for (var p = 0; p < 8; p++)
+            {
+                matrix.SetPixel(p, (byte)(255));
+                matrix.WriteDisplay();
+            }
+            matrix.WriteDisplay();
+
+            matrix.Clear(0, refresh: true);
+            for (var b = 0; b < 8; b++)
+            {
+                for (var p = 0; p < 8; p++)
+                {
+                    matrix.SetPixel(p, (byte)(1 << b));
+                    matrix.WriteDisplay();
+                }
+            }
+            Thread.Sleep(500);
+            matrix.Clear(0, refresh: false);
+            matrix.WriteDisplay();
+            
+            matrix.Clear(0, refresh: true);
+            for (var r = 0; r < 8; r++)
+                for (var c = 0; c < 8; c++)
+                    matrix.SetLed(0, r, c, true, false); // WriteDisplay for every pixel
+            Thread.Sleep(500);
+            matrix.WriteDisplay(0);
+
+            var m = new MAX7219MapTo10LedBarMap(matrix);
+            m.Clear(true);
+            for(var i=0; i<m.Count; i++)
+            {
+                m.SetState(i, true, true);
+            }
+            m.WriteDisplay();
+        }
+
+        static void test11(NusbioMatrix matrix)
         {
             matrix.Clear(0);
             Thread.Sleep(500);
@@ -799,7 +927,10 @@ namespace NusbioMatrixNS
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
-                        
+
+                        if (k == ConsoleKey.F1)
+                            test1(matrix);
+
                         if (k == ConsoleKey.C)
                             matrix.Clear(all:true, refresh:true);
 

@@ -98,7 +98,7 @@ namespace MadeInTheUSB.EEPROM
             return this._i2c.Send16BitsAddressAndRead1Byte((System.Int16)addr);
         }
         
-        public override EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.PAGE_SIZE)
+        public override EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.DEFAULT_PAGE_SIZE)
         {
             var r = new EEPROM_BUFFER(len);
 

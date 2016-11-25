@@ -35,8 +35,8 @@ namespace ButtonConsole
         {
             Assembly currentAssem = typeof(Program).Assembly;
             object[] attribs = currentAssem.GetCustomAttributes(typeof(AssemblyProductAttribute), true);
-            if(attribs.Length > 0)
-                return  ((AssemblyProductAttribute) attribs[0]).Product;
+            if (attribs.Length > 0)
+                return ((AssemblyProductAttribute)attribs[0]).Product;
             return null;
         }
 
@@ -45,8 +45,8 @@ namespace ButtonConsole
             Console.Clear();
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleEx.Bar(0, ConsoleEx.WindowHeight-3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
+            ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
         }
 
         public static void Run(string[] args)
@@ -62,29 +62,30 @@ namespace ButtonConsole
             using (var nusbio = new Nusbio(serialNumber))
             {
                 Cls(nusbio);
-                
+
                 // See web site page, for wiring
                 // - http://www.madeintheusb.net/TutorialInput/Index/#InputButton
                 // - http://www.madeintheusb.net/Images/Fritzing/Button%202%20Wires%20PullUp_bb.png
 
                 var buttons = new List<Button>()
                 {
-                    new Button(nusbio, NusbioGpio.Gpio0, inverse: true),
-                    new Button(nusbio, NusbioGpio.Gpio6, inverse: true)
+                    new Button(nusbio, NusbioGpio.Gpio6, inverse: true),
+                    new Button(nusbio, NusbioGpio.Gpio7, inverse: true)
                 };
 
-                while(nusbio.Loop())
+                while (nusbio.Loop())
                 {
-                    for (var x = 0; x < buttons.Count; x++) {
+                    for (var x = 0; x < buttons.Count; x++)
+                    {
 
-                        ConsoleEx.Write(0, 4+x, string.Format("[{0}] Button {1} State:{2,-4}", DateTime.Now, x, buttons[x].GetButtonState()), ConsoleColor.DarkCyan);
+                        ConsoleEx.Write(0, 4 + x, string.Format("[{0}] Button {1} State:{2,-4}", DateTime.Now, x, buttons[x].GetButtonState()), ConsoleColor.DarkCyan);
                         if (buttons[x].GetButtonUpState())
                         {
-                            ConsoleEx.Write(0, 6+x, string.Format("[{0}] Button {1} {2}  ", DateTime.Now, x, buttons[x].GetState()), ConsoleColor.DarkCyan);
+                            ConsoleEx.Write(0, 6 + x, string.Format("[{0}] Button {1} {2}  ", DateTime.Now, x, buttons[x].GetState()), ConsoleColor.DarkCyan);
                         }
                         else if (buttons[x].GetButtonDownState())
                         {
-                            ConsoleEx.Write(0, 6+x, string.Format("[{0}] Button {1} {2}  ", DateTime.Now, x, buttons[x].GetState()), ConsoleColor.DarkCyan);
+                            ConsoleEx.Write(0, 6 + x, string.Format("[{0}] Button {1} {2}  ", DateTime.Now, x, buttons[x].GetState()), ConsoleColor.DarkCyan);
                         }
                     }
 

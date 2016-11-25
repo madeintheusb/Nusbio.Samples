@@ -279,7 +279,6 @@ namespace MadeInTheUSB
         /// ground, an FT231X gpio can at the maximun drive and sink 16 Ma.
         /// </summary>
         public const int MAX_BRITGHNESS        = 8;
-
         public const int MAX_MAX7219_CHAINABLE = 8;
         public const int MATRIX_ROW_SIZE       = 8; // 8 x 8 
         public const int MATRIX_COL_SIZE       = 8; // 8 x 8 
@@ -295,29 +294,9 @@ namespace MadeInTheUSB
         public static int MAX_SCAN_LIMIT = 8;
 
         /// <summary>
-        /// The array for shifting the data to the devices 
-        /// </summary>
-        private byte[] _spiData = new byte[16];
-
-        /// <summary>
         /// We keep track of the led-_pixels for all 8 devices in this array 
         /// </summary>
-        private byte [] _pixels = new byte[64];
-
-        ///// <summary>
-        ///// Data is shifted out of this pin 
-        ///// </summary>
-        //private int _spiMosi;
-
-        ///// <summary>
-        ///// The clock is signaled on this pin
-        ///// </summary>
-        //private int _spiClk;
-
-        /// <summary>
-        /// This one is driven LOW for chip selectzion 
-        /// </summary>
-        private int _spiCs;
+        public byte [] _pixels = new byte[64];
 
         /// <summary>
         /// The maximum number of devices we use 
@@ -451,15 +430,22 @@ namespace MadeInTheUSB
             return r.Succeeded;
         }
 
+        /// <summary>
+        /// The 4 8x8 LED Matrix can consume from 200 to 600 mA. Using a gpio a ground
+        /// is not possible because the FT232RL ot FT231X chip gpio can only sink 4 mA by default.
+        /// Setting the gpio to sink 16 mA is possible but then the I2C bus does not work.
+        /// It is necessary to use Nusbio ground as ground and also to not push to hard
+        /// the brightness to stay in 500 mA authorized by USB 2.0.
+        /// </summary>
+        /// <param name="maxRepeat"></param>
+        /// <param name="onWaitTime"></param>
+        /// <param name="offWaitTime"></param>
+        /// <param name="maxBrigthness"></param>
+        /// <param name="deviceIndex"></param>
         public void AnimateSetBrightness(int maxRepeat, int onWaitTime = 20, int offWaitTime = 40, int maxBrigthness = MAX_BRITGHNESS, int deviceIndex = 0) {
 
             for (byte rpt = 0; rpt < maxRepeat; rpt++)
             {
-                // On 2016.2.13, I discovered some issue settings up the brightness
-                // Comment this method for now
-                // Apparently, the FT231X GPIO can only drive and sink 4 mA of current
-                // I think
-
                 for (var b = 0; b < maxBrigthness; b++)
                 {
                     this.SetBrightness(b, deviceIndex);
@@ -507,7 +493,7 @@ namespace MadeInTheUSB
             if (all)
             {
                 for (var i = 0; i < this.DeviceCount; i++)
-                    this.Clear(i, refresh:false);
+                    this.Clear(i, refresh:false, all: false);
                 if (refresh)
                     WriteDisplay(all: true);
             }
@@ -515,7 +501,7 @@ namespace MadeInTheUSB
             {
                 if (deviceIndex < 0 || deviceIndex >= _deviceCount)
                     return;
-                int offset = deviceIndex*MATRIX_ROW_SIZE;
+                int offset = deviceIndex * MATRIX_ROW_SIZE;
                 for (int i = 0; i < MATRIX_ROW_SIZE; i++)
                 {
                     _pixels[offset + i] = 0;
@@ -549,7 +535,7 @@ namespace MadeInTheUSB
             }
         }
 
-        public void ScrollLeftDevices__BU(int deviceIndexSrc, int deviceIndexDest)
+        private void ScrollLeftDevices__BU(int deviceIndexSrc, int deviceIndexDest)
         {
             int offsetSrc  = deviceIndexSrc  * MATRIX_ROW_SIZE;
             int offsetDest = deviceIndexDest * MATRIX_ROW_SIZE;
@@ -667,8 +653,6 @@ namespace MadeInTheUSB
             _pixels[offset + MATRIX_ROW_SIZE - 1] = 0;
         }
         
-        
-
         public void WriteSprite(int deviceIndex, int x, int y, int spriteIndex, List<byte> sprite)
         {
             spriteIndex = spriteIndex * 7; // 7 size of sprint data
@@ -757,7 +741,6 @@ namespace MadeInTheUSB
                     WriteRow(deviceIndex, i);
             }
         }
-
 
         public SPIEngine.SPIResult WriteRow(int deviceIndex, int row, bool computeBufferOnly = false)
         {
@@ -941,7 +924,7 @@ namespace MadeInTheUSB
                 s = s.PadLeft(4);
 
             var i             = s.Length-1;
-            var digitIndex    = 0;
+            //var digitIndex    = 0;
             var sevenSegIndex = 0;
             var mustShowDot   = false;
 
@@ -1146,6 +1129,15 @@ namespace MadeInTheUSB
 
         //    this._spiEngine.Unselect();
         //}
+
+        public void SetPixel(int index, byte val)
+        {
+            this._pixels[index] = val;
+        }
+        public byte GetPixel(int index)
+        {
+            return this._pixels[index];
+        }
     }
 }
 

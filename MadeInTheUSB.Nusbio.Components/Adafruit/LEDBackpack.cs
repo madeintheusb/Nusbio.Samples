@@ -152,7 +152,7 @@ namespace MadeInTheUSB.Adafruit
                 this.Begin(addr);
                 return true;
             }
-            catch (I2CCommunicationException ex)
+            catch (I2CCommunicationException)
             {
                 return false;
             }

@@ -129,7 +129,7 @@ namespace LCDConsole
             }
 
             // The PCF8574 has limited speed
-            Nusbio.BaudRate = LiquidCrystal_I2C_PCF8574.MAX_BAUD_RATE;
+            //Nusbio.BaudRate = LiquidCrystal_I2C_PCF8574.MAX_BAUD_RATE;
 
             using (var nusbio = new Nusbio(serialNumber))
             {
@@ -139,8 +139,12 @@ namespace LCDConsole
               
                 var sda       = NusbioGpio.Gpio1;
                 var scl       = NusbioGpio.Gpio0;
-                sda           = NusbioGpio.Gpio7; // Directly connected into Nusbio
-                scl           = NusbioGpio.Gpio6;
+                //sda           = NusbioGpio.Gpio7; // Directly connected into Nusbio
+                //scl           = NusbioGpio.Gpio6;
+
+                sda = NusbioGpio.Gpio0; // Bug in the extension I2C Nusbio Extension
+                scl = NusbioGpio.Gpio1;
+
                 var maxColumn = 16;
                 var maxRow    = 2;
                 
@@ -149,7 +153,8 @@ namespace LCDConsole
                 lcdI2C = new LiquidCrystal_I2C_PCF8574(nusbio, sda, scl, maxColumn, maxRow, deviceId: lcdI2cId);
                 if (!lcdI2C.Begin(maxColumn, maxRow))
                 {
-                    Console.WriteLine("Cannot find I2C LCD try 0x27 address"); // https://forum.arduino.cc/index.php?topic=352362.0
+                    Console.WriteLine("Cannot find I2C LCD try 0x{0:X} address", lcdI2cId); // https://forum.arduino.cc/index.php?topic=352362.0
+                    Console.ReadLine();
                 }
 
                 lcdI2C.Backlight();

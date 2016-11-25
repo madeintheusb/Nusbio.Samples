@@ -44,21 +44,21 @@ namespace LightSensorConsole
     class Demo
     {
         private static EEPROM_25AA1024 _eeprom;
-        private const byte NEW_WRITTEN_VALUE_1 = 128+1;
+        private const byte NEW_WRITTEN_VALUE_1 = 128 + 1;
         private const byte NEW_WRITTEN_VALUE_2 = 170;
 
         static string GetAssemblyProduct()
         {
             Assembly currentAssem = typeof(Program).Assembly;
             object[] attribs = currentAssem.GetCustomAttributes(typeof(AssemblyProductAttribute), true);
-            if(attribs.Length > 0)
-                return  ((AssemblyProductAttribute) attribs[0]).Product;
+            if (attribs.Length > 0)
+                return ((AssemblyProductAttribute)attribs[0]).Product;
             return null;
         }
 
         static void WriteEEPROMPage(int numberOfPageToRead, int valueToWrite = -1)
         {
-            Console.Clear(); 
+            Console.Clear();
             ConsoleEx.TitleBar(0, "Writing EEPROM");
             ConsoleEx.WriteMenu(0, 1, "");
 
@@ -76,19 +76,19 @@ namespace LightSensorConsole
                     }
                     else
                     {
-                        if(p == 2)
+                        if (p == 2)
                             refBuffer.Add((byte)NEW_WRITTEN_VALUE_1);
-                        else if(p == 3)
+                        else if (p == 3)
                             refBuffer.Add((byte)NEW_WRITTEN_VALUE_2);
-                        else 
+                        else
                             refBuffer.Add((byte)x);
                     }
                 }
 
-                if(p % 10 == 0)
+                if (p % 10 == 0)
                     Console.WriteLine("Writing page {0}", p);
 
-                var r = _eeprom.WritePage(p*_eeprom.PAGE_SIZE, refBuffer.ToArray());
+                var r = _eeprom.WritePage(p * _eeprom.PAGE_SIZE, refBuffer.ToArray());
                 if (!r)
                 {
                     Console.WriteLine("WriteBuffer failure");
@@ -112,8 +112,8 @@ namespace LightSensorConsole
             for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
             {
                 //Console.WriteLine("Reading byte [{0}]", i);
-                var addr     = (p * _eeprom.PAGE_SIZE ) + i;
-                var b = _eeprom.WriteByte(addr, (byte)(NEW_WRITTEN_VALUE_1+i));
+                var addr = (p * _eeprom.PAGE_SIZE) + i;
+                var b = _eeprom.WriteByte(addr, (byte)(NEW_WRITTEN_VALUE_1 + i));
                 //Console.WriteLine(String.Format("[{0}] = {1}", i, b));
             }
             Console.WriteLine("{0} error(s), Time:{1}", totalErrorCount, t.ElapsedMilliseconds);
@@ -128,15 +128,16 @@ namespace LightSensorConsole
             Console.WriteLine("Reading first 64 byte one by one");
             var t = Stopwatch.StartNew();
 
-            for (var p = 0; p < maxPage; p++) { 
+            for (var p = 0; p < maxPage; p++)
+            {
 
                 Console.WriteLine("Reading page [{0}]", p);
 
                 for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
                 {
                     //Console.WriteLine("Reading byte [{0}]", i);
-                    var addr     = (p * _eeprom.PAGE_SIZE ) + i;
-                    var b        = _eeprom.ReadByte(addr);
+                    var addr = (p * _eeprom.PAGE_SIZE) + i;
+                    var b = _eeprom.ReadByte(addr);
                     var expected = i;
                     if (p == 2)
                         expected = NEW_WRITTEN_VALUE_1;
@@ -165,15 +166,15 @@ namespace LightSensorConsole
 
             var totalErrorCount = 0;
             var t = Stopwatch.StartNew();
-            byte [] buf;
+            byte[] buf;
 
             for (var p = 0; p < numberOfPageToRead; p++)
             {
-                if(p % 50 == 0 || p < 5)
+                if (p % 50 == 0 || p < 5)
                     Console.WriteLine("Reading page {0}", p);
 
                 // The method ReadPage, use the default SPI method to transfer data
-                var r = _eeprom.ReadPage(p*_eeprom.PAGE_SIZE, _eeprom.PAGE_SIZE);
+                var r = _eeprom.ReadPage(p * _eeprom.PAGE_SIZE, _eeprom.PAGE_SIZE);
                 if (r.Succeeded)
                 {
                     buf = r.Buffer;
@@ -201,28 +202,28 @@ namespace LightSensorConsole
                 }
             }
             t.Stop();
-            Console.WriteLine("{0} error(s), Data:{1}kb, Time:{2}, {3:0.00} kb/s", 
-                totalErrorCount, 
-                _eeprom.PAGE_SIZE*numberOfPageToRead, t.ElapsedMilliseconds, _eeprom.MaxByte*1.0/t.ElapsedMilliseconds);
+            Console.WriteLine("{0} error(s), Data:{1}kb, Time:{2}, {3:0.00} kb/s",
+                totalErrorCount,
+                _eeprom.PAGE_SIZE * numberOfPageToRead, t.ElapsedMilliseconds, _eeprom.MaxByte * 1.0 / t.ElapsedMilliseconds);
             Console.WriteLine("Hit enter key");
             Console.ReadLine();
         }
-        
+
         static void ReadAndVerifyEEPROMPage_BatchRead(int numberOfPageToRead, int expectedSingleValue = -1)
         {
             Console.Clear();
 
             var batchPageSize = 128; // Transfer batch of 32page x 256byte = 8k
 
-            ConsoleEx.TitleBar(0,  string.Format("Performance test reading all {0}k in {1} pages batch mode", _eeprom.MaxKByte, batchPageSize));
+            ConsoleEx.TitleBar(0, string.Format("Performance test reading all {0}k in {1} pages batch mode", _eeprom.MaxKByte, batchPageSize));
             ConsoleEx.Gotoxy(0, 2);
 
             var t = Stopwatch.StartNew();
-            EEPROM_25AA1024_UnitTests.PerformanceTest_ReadPage(_eeprom, batchPageSize, 
-                (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 3, string.Format("{0:000} % done", 1.0*pageIndex/maxPage*100.0), ConsoleColor.Yellow));
+            EEPROM_25AA1024_UnitTests.PerformanceTest_ReadPage(_eeprom, batchPageSize,
+                (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 3, string.Format("{0:000} % done", 1.0 * pageIndex / maxPage * 100.0), ConsoleColor.Yellow));
             t.Stop();
 
-            Console.WriteLine("Data:{0}kb, Time:{1}ms, {2:0.00} kb/s", _eeprom.MaxKByte, t.ElapsedMilliseconds, _eeprom.MaxByte*1.0/t.ElapsedMilliseconds);
+            Console.WriteLine("Data:{0}kb, Time:{1}ms, {2:0.00} kb/s", _eeprom.MaxKByte, t.ElapsedMilliseconds, _eeprom.MaxByte * 1.0 / t.ElapsedMilliseconds);
             Console.WriteLine("Hit enter key");
             Console.ReadLine();
         }
@@ -232,11 +233,11 @@ namespace LightSensorConsole
             Console.Clear();
             var totalErrorCount = 0;
             var t = Stopwatch.StartNew();
-            byte [] buf;
+            byte[] buf;
 
             for (var p = 0; p < numberOfPageToRead; p++)
             {
-                if(p % 50 == 0 || p < 5)
+                if (p % 50 == 0 || p < 5)
                     Console.WriteLine("Reading page {0}", p);
 
                 for (var bx = 0; bx < _eeprom.PAGE_SIZE; bx++)
@@ -263,7 +264,7 @@ namespace LightSensorConsole
                 }
             }
             t.Stop();
-            Console.WriteLine("{0} error(s), Time:{1}, {2:0.00} kb/s", totalErrorCount, t.ElapsedMilliseconds,_eeprom.MaxByte*1.0/t.ElapsedMilliseconds);
+            Console.WriteLine("{0} error(s), Time:{1}, {2:0.00} kb/s", totalErrorCount, t.ElapsedMilliseconds, _eeprom.MaxByte * 1.0 / t.ElapsedMilliseconds);
             Console.WriteLine("Hit enter key");
             Console.ReadLine();
         }
@@ -276,9 +277,9 @@ namespace LightSensorConsole
             ConsoleEx.WriteMenu(-1, 4, "R)ead 10 pages   read A)ll 128k   read all B)yte mode 128k");
             ConsoleEx.WriteMenu(-1, 5, "W)rite 128k");
             ConsoleEx.WriteMenu(-1, 6, "Q)uit");
-           
-            ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
-            ConsoleEx.Bar(0, ConsoleEx.WindowHeight-3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
+
+            ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+            ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
         }
 
         public static void Run(string[] args)
@@ -288,7 +289,7 @@ namespace LightSensorConsole
             Nusbio.ActivateFastMode();
 
             var serialNumber = Nusbio.Detect();
-            
+
             if (serialNumber == null) // Detect the first Nusbio available
             {
                 Console.WriteLine("nusbio not detected");
@@ -300,39 +301,40 @@ namespace LightSensorConsole
                 Cls(nusbio);
 
                 _eeprom = new EEPROM_25AA1024(
-                    nusbio   : nusbio,
-                    clockPin : NusbioGpio.Gpio0,
-                    mosiPin  : NusbioGpio.Gpio1, 
-                    misoPin  : NusbioGpio.Gpio2,
+                    nusbio: nusbio,
+                    clockPin: NusbioGpio.Gpio0,
+                    mosiPin: NusbioGpio.Gpio1,
+                    misoPin: NusbioGpio.Gpio2,
                     selectPin: NusbioGpio.Gpio3
                     );
 
                 var r = _eeprom.ReadPage(0, _eeprom.PAGE_SIZE * 4);
-                if(r.Succeeded)
+                if (r.Succeeded)
                 {
                     var data = r.Buffer;
                 }
 
                 _eeprom.Begin();
-                
-                while(nusbio.Loop())
+
+                while (nusbio.Loop())
                 {
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
-                            
+
                         if (k == ConsoleKey.W)
                         {
-                            var a = ConsoleEx.Question(23, string.Format("Execute Write/Read/Write Test {0}k now Y)es, N)o", _eeprom.MaxKByte), new List<char>()  { 'Y', 'N' });
-                            if (a == 'Y') {
+                            var a = ConsoleEx.Question(23, string.Format("Execute Write/Read/Write Test {0}k now Y)es, N)o", _eeprom.MaxKByte), new List<char>() { 'Y', 'N' });
+                            if (a == 'Y')
+                            {
 
                                 Console.Clear(); ConsoleEx.TitleBar(0, "Writing EEPROM");
 
                                 var testValue = 1 + 4 + 16 + 64;
-                                _eeprom.WriteAll(0, EEPROM_25AA1024.MakeBuffer((byte) testValue, _eeprom.MaxByte), (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 2, string.Format("{0:000} % done", 1.0* pageIndex / maxPage * 100.0), ConsoleColor.Yellow));
+                                _eeprom.WriteAll(0, EEPROM_25AA1024.MakeBuffer((byte)testValue, _eeprom.MaxByte), (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 2, string.Format("{0:000} % done", 1.0 * pageIndex / maxPage * 100.0), ConsoleColor.Yellow));
 
                                 Console.Clear(); ConsoleEx.TitleBar(0, "Reading EEPROM");
-                                var dataRead = _eeprom.ReadAll(16, (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 2, string.Format("{0:000} % done", 1.0*pageIndex/maxPage*100.0), ConsoleColor.Yellow));
+                                var dataRead = _eeprom.ReadAll(16, (pageIndex, maxPage) => ConsoleEx.WriteLine(0, 2, string.Format("{0:000} % done", 1.0 * pageIndex / maxPage * 100.0), ConsoleColor.Yellow));
                                 for (var z = 0; z < _eeprom.MaxByte; z++)
                                 {
                                     if (dataRead[z] != testValue)

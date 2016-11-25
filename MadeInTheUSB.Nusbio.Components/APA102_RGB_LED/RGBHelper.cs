@@ -103,7 +103,7 @@ namespace MadeInTheUSB.Components
             )
         {
             var doubleFormat = "+0.000000;-0.000000";
-            var intFormat    = "+000.000;-#000.000";
+            //var intFormat    = "+000.000;-#000.000";
             var l            = new List<byte>();
             var dl           = new List<double>();
             var stepInc      = trigoCircleCircleCountInRadian / trigoCircleStepCount;

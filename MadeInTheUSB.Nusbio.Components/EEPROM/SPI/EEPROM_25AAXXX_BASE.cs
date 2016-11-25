@@ -49,7 +49,7 @@ namespace MadeInTheUSB.EEPROM
             get { return false; }
         }
 
-        public virtual int PAGE_SIZE
+        public override int PAGE_SIZE
         {
             get{ return 64; }
         }
@@ -101,7 +101,7 @@ namespace MadeInTheUSB.EEPROM
 
         protected bool SendCommand(byte cmd)
         {
-            int byteSent       = 0;
+            //int byteSent       = 0;
             var spiBufferWrite = new byte[] {cmd};
             var r = this._spi.Transfer(spiBufferWrite.ToList());
             return r.Succeeded;
@@ -223,7 +223,7 @@ namespace MadeInTheUSB.EEPROM
                 len = this.PAGE_SIZE;
 
             var eb                 = new EEPROM_BUFFER();
-            int byteSent           = 0;
+            //int byteSent           = 0;
             var nusbio             = this._spi.Nusbio;
             var spi                = this._spi;
             var spiBufferCmdAddr   = this.GetEepromApiReadBuffer(addr);

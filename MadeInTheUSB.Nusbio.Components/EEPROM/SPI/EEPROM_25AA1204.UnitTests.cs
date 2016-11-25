@@ -69,7 +69,7 @@ namespace MadeInTheUSB.Components
             for (int p = 0; p < eeprom.MaxPage; p++)
             {
                 dataBuffer.Clear();
-                int addr = p*EEPROM_24LC256.PAGE_SIZE;
+                int addr = p* eeprom.PAGE_SIZE;
                 var r = eeprom.ReadPageOptimized(p * eeprom.PAGE_SIZE, eeprom.PAGE_SIZE);
                 if (r.Succeeded)
                 {

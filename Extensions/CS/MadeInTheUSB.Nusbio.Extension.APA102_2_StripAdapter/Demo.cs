@@ -138,7 +138,7 @@ Yellow
             ConsoleEx.WriteMenu(-1, 2, "Q)uit");
             ConsoleEx.WriteMenu(-1, 3, "");
             
-            var bkColors = TargetColors.Replace(Environment.NewLine, ",").Split(',').ToList();
+            var bkColors = TargetColors.Replace("\r","").Replace("\n", ",").Split(',').ToList();
             
             while (!quit)
             {

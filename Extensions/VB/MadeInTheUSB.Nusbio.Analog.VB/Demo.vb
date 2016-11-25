@@ -131,7 +131,7 @@ Namespace AnalogExtensionNS
                     If halfSeconds.IsTimeOut() Then
 
                         Const lightSensorAnalogPort As Integer = 6
-                        Const motionSensorAnalogPort As Integer = 2
+                        'Const motionSensorAnalogPort As Integer = 2
                         Const temperatureSensorAnalogPort As Integer = 0
 
                         ConsoleEx.WriteLine(0, 2, String.Format("{0,-20}", DateTime.Now, lightSensor.AnalogValue), ConsoleColor.Cyan)

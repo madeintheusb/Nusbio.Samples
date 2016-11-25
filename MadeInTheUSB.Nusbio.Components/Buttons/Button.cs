@@ -86,7 +86,20 @@ namespace MadeInTheUSB.Buttons
             return this.Final(state == PinState.Low);
         }
 
-        public bool GetButtonDownState(bool incCounter = true)
+        public bool WaitUntilReleased(int timeOut = 4)
+        {
+            var butttonReleaseTimeOut = new TimeOut(4 * 1000);
+            while (true)
+            { // Wait for the button to be released
+                if (butttonReleaseTimeOut.IsTimeOut())
+                    return false;
+                if (!this.GetButtonDownState())
+                    return true;
+                System.Threading.Thread.Sleep(10);
+            }
+        }
+
+    public bool GetButtonDownState(bool incCounter = true)
         {            
             var state = _nusbio.GPIOS[_gpioPin].DigitalReadDebounced();            
             return this.Final(state == PinState.High);

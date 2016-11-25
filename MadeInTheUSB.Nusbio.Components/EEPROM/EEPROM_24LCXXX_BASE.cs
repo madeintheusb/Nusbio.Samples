@@ -37,7 +37,12 @@ namespace MadeInTheUSB.EEPROM
     /// </summary>
     public abstract class EEPROM_24LCXXX_BASE
     {
-        public const byte PAGE_SIZE = 64;
+        public const int DEFAULT_PAGE_SIZE = 64;
+
+        public virtual int PAGE_SIZE
+        {
+            get { return DEFAULT_PAGE_SIZE; }
+        }
 
         protected int _kBit; // 256kBit = 32k
         protected I2CEngine _i2c;
@@ -46,7 +51,7 @@ namespace MadeInTheUSB.EEPROM
         abstract public bool WritePage(int addr, byte [] buffer);
         abstract public bool WriteByte(int addr, byte value);
         abstract public int  ReadByte(int addr);
-        abstract public EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.PAGE_SIZE);
+        abstract public EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.DEFAULT_PAGE_SIZE);
 
         public EEPROM_24LCXXX_BASE() { }
 

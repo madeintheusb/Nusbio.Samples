@@ -103,7 +103,7 @@ namespace DigitalPotentiometerSample
             using (var nusbio = new Nusbio(serialNumber))
             {
                 Cls(nusbio);
-                var halfSeconds = new TimeOut(1000);
+                var halfSeconds = new TimeOut(500);
                 /*
                     Mcp300X - SPI Config
                     gpio 0 - CLOCK

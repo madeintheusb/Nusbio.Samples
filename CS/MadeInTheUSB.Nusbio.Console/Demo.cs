@@ -178,30 +178,64 @@ namespace NusbioConsole
                 nusbio.GPIOS[led].AsLed.ReverseSet();
         }
 
-private static void AnimateBlocking5(Nusbio nusbio)
-{
-    var waitTime0     = 500;
-    var quit           = false;
-    var lampGpio       = 0;
-    var fiberOpticGpio = 1;
-    var fanGpio        = 2;
-    while (!quit) {
-        nusbio[lampGpio].DigitalWrite(PinState.High);
-        for (var g = 0; g < 10; g++)
+        private static void ClockGpio(Nusbio nusbio, NusbioGpio g, int wait = 0)
         {
-            for (var gg = 0; gg < 10; gg++)
+            nusbio[g].DigitalWrite(PinState.High);
+            nusbio[g].DigitalWrite(PinState.Low);
+            if (wait > 0)
+                System.Threading.Thread.Sleep(wait);
+        }
+
+        private static void ClockGpio0(Nusbio nusbio)
+        {
+            const int maxLed = 10;
+            Console.Clear();
+            ConsoleEx.TitleBar(0, "Clock Gpio0 for 10 LED control with a 4017 chip");
+            ConsoleEx.WriteMenu(-1, 5, "Q)uit");
+
+            int ledIndex  = 0;
+            var clockGpio = NusbioGpio.Gpio0;
+            var resetGpio = NusbioGpio.Gpio0;
+            ClockGpio(nusbio, resetGpio); // Reset Chip 4017 to index 0, LED 0 is on
+            while (true)
             {
-                nusbio[fanGpio].DigitalWrite((gg % 3) == 0);
-                nusbio[fiberOpticGpio].DigitalWrite(PinState.High);
-                Thread.Sleep(waitTime0);
-                nusbio[fiberOpticGpio].DigitalWrite(PinState.Low);
-                Thread.Sleep(waitTime0);
-                if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention) { quit = true; break; }
+                ConsoleEx.WriteLine(0, 3, string.Format("Led {0} on", ledIndex), ConsoleColor.Cyan);
+                ClockGpio(nusbio, clockGpio, 64); // Reset Chip 4017 to index 0, LED 0 is on
+                ledIndex += 1;
+                if (ledIndex == maxLed)
+                    ledIndex = 0;
+                if (Console.KeyAvailable)
+                {
+                    if (Console.ReadKey().Key == ConsoleKey.Q)
+                        break;
+                }
             }
         }
-    }
-    nusbio.SetAllGpioOutputState(PinState.Low);
-}
+
+        private static void AnimateBlocking5(Nusbio nusbio)
+        {
+            var waitTime0     = 500;
+            var quit           = false;
+            var lampGpio       = 0;
+            var fiberOpticGpio = 1;
+            var fanGpio        = 2;
+            while (!quit) {
+                nusbio[lampGpio].DigitalWrite(PinState.High);
+                for (var g = 0; g < 10; g++)
+                {
+                    for (var gg = 0; gg < 10; gg++)
+                    {
+                        nusbio[fanGpio].DigitalWrite((gg % 3) == 0);
+                        nusbio[fiberOpticGpio].DigitalWrite(PinState.High);
+                        Thread.Sleep(waitTime0);
+                        nusbio[fiberOpticGpio].DigitalWrite(PinState.Low);
+                        Thread.Sleep(waitTime0);
+                        if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention) { quit = true; break; }
+                    }
+                }
+            }
+            nusbio.SetAllGpioOutputState(PinState.Low);
+        }
 
         private static void AnimateBlocking1(Nusbio nusbio)
         {
@@ -220,8 +254,10 @@ private static void AnimateBlocking5(Nusbio nusbio)
                     Thread.Sleep(200);
                 }
 
-                if (Console.KeyAvailable && Console.ReadKey(true).Key!=  ConsoleKey.Attention)
+                if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
                     break;
+
+
 
                 for (var i = 0; i < maxRepeat; i++)
                 {
@@ -292,7 +328,7 @@ private static void AnimateBlocking5(Nusbio nusbio)
             NusbioUrlEvent("");
             
             ConsoleEx.WriteMenu(-1, 2, "Gpios: 0) 1) 2) 3) 4) 5) 6) 7) [Shift:Blink Mode]");
-            ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation 3");
+            ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation F4) Clock Gpio0");
             ConsoleEx.WriteMenu(-1, 6, "Q)uit  A)ll off  W)eb UI  C)onfiguration");
         }
 
@@ -357,7 +393,8 @@ private static void AnimateBlocking5(Nusbio nusbio)
                         }
                         else
                         {
-                            if (key == ConsoleKey.F5) AnimateBlocking5(nusbio);
+                            //if (key == ConsoleKey.F4) ClockGpio0(nusbio);
+                            if (key == ConsoleKey.F3) AnimateBlocking5(nusbio);
                             if (key == ConsoleKey.F1) AnimateBlocking1(nusbio);
                             if (key == ConsoleKey.F2)
                             {
