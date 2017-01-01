@@ -45,71 +45,107 @@
 */
 
 using System.Text;
-using MadeInTheUSB.i2c;
-using MadeInTheUSB.WinUtil;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
+
+#if NUSBIO2
+using MadeInTheUSB.Nusbio2.Console;
+#endif
 
 namespace MadeInTheUSB.EEPROM
 {
-    public class EEPROM_24LCXXX : EEPROM_24LCXXX_BASE
+    public class EEPROM_24LCXXX : EEPROM_BASE_CLASS
     {
         public const int DEFAULT_I2C_ADDR = 0x50;       // Microship 24LC256 = 32k
+        private int _waitTimeAfterWriteOperation = 5;   // milli second
 
-        private int _waitTimeAfterWriteOperation = 5; // milli second
 
-        public EEPROM_24LCXXX(Nusbio nusbio, NusbioGpio sdaPin, NusbioGpio sclPin, int kBit, int waitTimeAfterWriteOperation = 5, bool debug = false) 
+#if !NUSBIO2
+        public EEPROM_24LCXXX(Nusbio nusbio, NusbioGpio sdaPin, NusbioGpio sclPin, int kBit, int waitTimeAfterWriteOperation = 5, bool debug = false)
         {
             this._waitTimeAfterWriteOperation = waitTimeAfterWriteOperation;
             this._kBit = kBit;
-            this._i2c = new I2CEngine(nusbio, sdaPin, sclPin, 0, debug);
+            this._i2c = new i2c.I2CEngine(nusbio, sdaPin, sclPin, 0, debug);
         }
+#else
+        public EEPROM_24LCXXX(int kBit, int waitTimeAfterWriteOperation = 5, bool debug = false)
+        {
+            this._waitTimeAfterWriteOperation = waitTimeAfterWriteOperation;
+            this._kBit = kBit;
+        }
+#endif
 
         public bool Begin(byte _addr = DEFAULT_I2C_ADDR)
         {
-            if (this._i2c.DeviceId == 0)
-                this._i2c.DeviceId = (byte)(_addr);
+            if (this.DeviceId == 0)
+                this.DeviceId = (byte)(_addr);
+
+#if !NUSBIO2
+            this._i2c.DeviceId = (byte)this.DeviceId;
+#endif
+
             return true;
         }
 
-        public override bool WritePage(int addr, byte [] buffer)
+        public override bool WritePage(int addr, byte[] buffer)
         {
+#if !NUSBIO2
             var v = this._i2c.Send16BitsAddressAndBuffer(addr, buffer.Length, buffer);
-
             // EEPROM need a wait time after a write operation
             if (this._waitTimeAfterWriteOperation > 0)
-                TimePeriod.Sleep(this._waitTimeAfterWriteOperation);
-
+                Thread.Sleep(this._waitTimeAfterWriteOperation);
             return v;
-        }
+#else
 
+            var outBuffer = new List<byte>() { (byte)(addr >> 8), (byte)(addr & 0xFF) };
+            outBuffer.AddRange(buffer);
+            var r = Nusbio2NAL.__I2C_Helper_Write(base.DeviceId, outBuffer.ToArray()) == 1;
+
+            if (this._waitTimeAfterWriteOperation > 0)
+                System.Threading.Thread.Sleep(this._waitTimeAfterWriteOperation);
+
+            return true;
+#endif
+        }
         public override bool WriteByte(int addr, byte value)
         {
+#if !NUSBIO2
             var v = this._i2c.Send16BitAddressAnd1Byte(addr, value);
             // EEPROM need a wait time after a write operation
             if (this._waitTimeAfterWriteOperation > 0)
-                TimePeriod.Sleep(this._waitTimeAfterWriteOperation);
-
+                Thread.Sleep(this._waitTimeAfterWriteOperation);
             return v;
+#else
+            return true;
+#endif
         }
 
         public override int ReadByte(int addr)
         {
+#if !NUBSIO2
+            return 0;    
+#else
             return this._i2c.Send16BitsAddressAndRead1Byte((System.Int16)addr);
+#endif
         }
-        
-        public override EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_24LCXXX_BASE.DEFAULT_PAGE_SIZE)
+
+        public override EEPROM_BUFFER ReadPage(int addr, int len = EEPROM_BASE_CLASS.DEFAULT_PAGE_SIZE)
         {
             var r = new EEPROM_BUFFER(len);
+#if NUSBIO2
+            var inBuffer = new List<byte>() { (byte)(addr >> 8), (byte)(addr & 0xFF) };
+            r.Buffer = new byte[len]; // Must pre allocate the buffer for now
+            r.Succeeded = Nusbio2NAL.__I2C_Helper_WriteRead(base.DeviceId, inBuffer.ToArray(), r.Buffer) == 1;
+            return r;
+#else
 
-            #if OPTIMIZE_I2C_CALL
+#if OPTIMIZE_I2C_CALL
 
-                // This method is faster because the I2C write and read operations are
-                // combined in one USB buffer
-                r.Succeeded = this._i2c.Send16BitsAddressAndReadBuffer(addr, len, r.Buffer);
-
-            #else
-
+            // This method is faster because the I2C write and read operations are
+            // combined in one USB buffer
+            r.Succeeded = this._i2c.Send16BitsAddressAndReadBuffer(addr, len, r.Buffer);
+#else
                 // Slower method because we have one USB operation for the I2C write
                 // and one USB operation for the I2C read
                 // The transfer of the data per say is the same
@@ -118,8 +154,8 @@ namespace MadeInTheUSB.EEPROM
                 {
                     r.Succeeded = this._i2c.ReadBuffer(len, r.Buffer);
                 }
-            #endif
-
+#endif
+#endif
             return r;
         }
     }

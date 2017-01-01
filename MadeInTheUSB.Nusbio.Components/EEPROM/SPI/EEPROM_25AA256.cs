@@ -45,16 +45,13 @@ namespace MadeInTheUSB.EEPROM
     /// </summary>
     public class EEPROM_25AA256  : EEPROM_25AAXXX_BASE
     {
-        /// <summary>
-        /// SPI Constructor
-        /// </summary>
-        /// <param name="nusbio"></param>
-        /// <param name="clockPin"></param>
-        /// <param name="mosiPin"></param>
-        /// <param name="misoPin"></param>
-        /// <param name="selectPin"></param>
-        /// <param name="kBit"></param>
-        /// <param name="debug"></param>
+
+#if NUSBIO2
+        public EEPROM_25AA256() : base(256)
+        {
+            
+        }
+#else
         public EEPROM_25AA256(Nusbio nusbio, 
             NusbioGpio clockPin, 
             NusbioGpio mosiPin, 
@@ -62,6 +59,8 @@ namespace MadeInTheUSB.EEPROM
             NusbioGpio selectPin,
             bool debug = false) : base(nusbio, clockPin, mosiPin, misoPin, selectPin, 256, debug)
         {
+            
         }
+#endif
     }
 }

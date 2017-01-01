@@ -47,46 +47,46 @@ namespace MadeInTheUSB.Display
     public class LiquidCrystalBase
     {
         // commands
-        protected const int LCD_CLEARDISPLAY = 0x01;
-        protected const int LCD_RETURNHOME = 0x02;
-        protected const int LCD_ENTRYMODESET = 0x04;
-        protected const int LCD_DISPLAYCONTROL = 0x08;
-        protected const int LCD_CURSORSHIFT = 0x10;
-        protected const int LCD_FUNCTIONSET = 0x20;
-        protected const int LCD_SETCGRAMADDR = 0x40;
-        protected const int LCD_SETDDRAMADDR = 0x80;
+        protected const int LCD_CLEARDISPLAY        = 0x01;
+        protected const int LCD_RETURNHOME          = 0x02;
+        protected const int LCD_ENTRYMODESET        = 0x04;
+        protected const int LCD_DISPLAYCONTROL      = 0x08;
+        protected const int LCD_CURSORSHIFT         = 0x10;
+        protected const int LCD_FUNCTIONSET         = 0x20;
+        protected const int LCD_SETCGRAMADDR        = 0x40;
+        protected const int LCD_SETDDRAMADDR        = 0x80;
 
         // flags for Display entry mode
-        protected const int LCD_ENTRYRIGHT = 0x00;
-        protected const int LCD_ENTRYLEFT = 0x02;
+        protected const int LCD_ENTRYRIGHT          = 0x00;
+        protected const int LCD_ENTRYLEFT           = 0x02;
         protected const int LCD_ENTRYSHIFTINCREMENT = 0x01;
         protected const int LCD_ENTRYSHIFTDECREMENT = 0x00;
 
         // flags for Display on/off control
-        protected const int LCD_DISPLAYON = 0x04;
-        protected const int LCD_DISPLAYOFF = 0x00;
-        protected const int LCD_CURSORON = 0x02;
-        protected const int LCD_CURSOROFF = 0x00;
-        protected const int LCD_BLINKON = 0x01;
-        protected const int LCD_BLINKOFF = 0x00;
+        protected const int LCD_DISPLAYON           = 0x04;
+        protected const int LCD_DISPLAYOFF          = 0x00;
+        protected const int LCD_CURSORON            = 0x02;
+        protected const int LCD_CURSOROFF           = 0x00;
+        protected const int LCD_BLINKON             = 0x01;
+        protected const int LCD_BLINKOFF            = 0x00;
 
         // flags for Display/Cursor shift
-        protected const int LCD_DISPLAYMOVE = 0x08;
-        protected const int LCD_CURSORMOVE = 0x00;
-        protected const int LCD_MOVERIGHT = 0x04;
-        protected const int LCD_MOVELEFT = 0x00;
+        protected const int LCD_DISPLAYMOVE         = 0x08;
+        protected const int LCD_CURSORMOVE          = 0x00;
+        protected const int LCD_MOVERIGHT           = 0x04;
+        protected const int LCD_MOVELEFT            = 0x00;
 
         // flags for function set
-        protected const int LCD_8BITMODE = 0x10;
-        protected const int LCD_4BITMODE = 0x00;
-        protected const int LCD_2LINE = 0x08;
-        protected const int LCD_1LINE = 0x00;
-        protected const int LCD_5x10DOTS = 0x04;
-        protected const int LCD_5x8DOTS = 0x00;
+        protected const int LCD_8BITMODE            = 0x10;
+        protected const int LCD_4BITMODE            = 0x00;
+        protected const int LCD_2LINE               = 0x08;
+        protected const int LCD_1LINE               = 0x00;
+        protected const int LCD_5x10DOTS            = 0x04;
+        protected const int LCD_5x8DOTS             = 0x00;
 
         // flags for Backlight control
-        public const int LCD_BACKLIGHT = 0x8;
-        public const int LCD_NOBACKLIGHT = 0x0;
+        public const int LCD_BACKLIGHT              = 0x8;
+        public const int LCD_NOBACKLIGHT            = 0x0;
 
         public int NumCols { get;set;}
         public int NumLines{ get;set;}
@@ -158,7 +158,5 @@ namespace MadeInTheUSB.Display
         {
             return true;
         }
-
-        
     }
 }

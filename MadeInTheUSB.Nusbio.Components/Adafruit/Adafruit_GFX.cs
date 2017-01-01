@@ -63,7 +63,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if !NUSBIO2
 using MadeInTheUSB.i2c;
+#endif
 using MadeInTheUSB.WinUtil;
 using int16_t = System.Int16; // Nice C# feature allowing to use same Arduino/C type
 using uint16_t = System.UInt16;

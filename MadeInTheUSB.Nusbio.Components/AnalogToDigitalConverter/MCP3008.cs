@@ -142,16 +142,20 @@ namespace MadeInTheUSB
             return ValidateOperation(r1);
         }
 
-        private int ValidateOperation(MadeInTheUSB.spi.SPIEngine.SPIResult result)
+        private int ValidateOperation(SPIResult result)
         {
-            if (result.Succeeded && result.ReadBuffer.Count == 3)
+            if (result.Succeeded && result.Buffer.Count == 3)
             {
+                ConsoleEx.WriteLine(0, 15, string.Format("B0:{0:000}, B1:{1:000}, B2:{2:000}",
+                    result.Buffer[0], result.Buffer[1], result.Buffer[2]), ConsoleColor.Yellow);
                 int r = 0;
-                if (WinUtil.BitUtil.IsSet(result.ReadBuffer[1], 1))
+                if (WinUtil.BitUtil.IsSet(result.Buffer[1], 1))
                     r += 256;
-                if (WinUtil.BitUtil.IsSet(result.ReadBuffer[1], 2))
+                if (WinUtil.BitUtil.IsSet(result.Buffer[1], 2))
                     r += 512;
-                r += result.ReadBuffer[2];
+                r += result.Buffer[2];
+
+                var rr = (result.Buffer[1] & 0x3) << 8 | result.Buffer[2];
                 return r;
             }
             else return -1;

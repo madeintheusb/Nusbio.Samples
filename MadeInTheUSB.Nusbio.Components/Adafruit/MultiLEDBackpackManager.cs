@@ -55,6 +55,18 @@ namespace MadeInTheUSB.Adafruit
             get { return this._backpacks; }
         }
 
+#if NUSBIO2
+        public LEDBackpack Add(int16_t width, int16_t height, byte addr)
+        {
+            var b = new LEDBackpack(width, height);
+            if (b.Detect(addr)) { 
+                b.Begin(addr);
+                this._backpacks.Add(b);
+                return b;
+            }
+            else return null;
+        }
+#else
         public LEDBackpack Add(int16_t width, int16_t height, Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin, byte addr)
         {
             var b = new LEDBackpack(width, height, nusbio, sdaOutPin, sclPin);
@@ -65,6 +77,7 @@ namespace MadeInTheUSB.Adafruit
             }
             else return null;
         }
+#endif
         
         public void DrawRoundRect(int x, int y, int w, int h, int r, int color)
         {

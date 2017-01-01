@@ -74,7 +74,7 @@ namespace LightSensorConsole
 
             var clockPin                       = NusbioGpio.None;
             var dataOutPin                     = NusbioGpio.None;
-            var useAdafruitI2CAdapterForNusbio = true;
+            var useAdafruitI2CAdapterForNusbio = false;
 
             if (useAdafruitI2CAdapterForNusbio)
             {
@@ -83,8 +83,8 @@ namespace LightSensorConsole
             }
             else
             {
-                clockPin = NusbioGpio.Gpio6; // White, Arduino A5
-                dataOutPin = NusbioGpio.Gpio5; // Green, Arduino A4
+                clockPin = NusbioGpio.Gpio0;  
+                dataOutPin = NusbioGpio.Gpio1;
             }
 
             using (var nusbio = new Nusbio(serialNumber))

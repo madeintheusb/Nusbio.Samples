@@ -298,7 +298,7 @@ namespace LightSensorConsole
 
             using (var nusbio = new Nusbio(serialNumber))
             {
-                Cls(nusbio);
+                
 
                 _eeprom = new EEPROM_25AA1024(
                     nusbio: nusbio,
@@ -308,13 +308,24 @@ namespace LightSensorConsole
                     selectPin: NusbioGpio.Gpio3
                     );
 
+                _eeprom.Begin();
+
+                // Noticed that we cannot detect if the EEPROM is connected or
+                // not based on SPI command. The SPI command does not fail.
+                // But return a buffer with garbage mostly all byte set to 255
+                // So based on the expected data of the first page we could 
+                // detect of the EEPROM is connected or not
                 var r = _eeprom.ReadPage(0, _eeprom.PAGE_SIZE * 4);
                 if (r.Succeeded)
                 {
-                    var data = r.Buffer;
+                    if(r.Buffer[0] == 255)
+                    {
+                        Console.WriteLine("SPI EEPROM 25AA1024 not detected, hit enter to continue");
+                        Console.ReadLine();
+                    }
                 }
 
-                _eeprom.Begin();
+                Cls(nusbio);
 
                 while (nusbio.Loop())
                 {

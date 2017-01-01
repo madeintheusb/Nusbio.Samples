@@ -46,14 +46,36 @@ namespace LightSensorConsole
             return null;
         }
 
-        static char AskForStripType()
+        static APA102LEDStrip.Extensions.LedPerMeter AskForStripType()
         {
             Console.Clear();
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
             var r = ConsoleEx.Question(ConsoleEx.WindowHeight-3, "Strip Type?    3)0 LED/Meter   6)0 LED/Meter  I) do not know", new List<Char>() {'3', '6', 'I'});
-            return r;
+
+            switch(r)
+            {
+                case '3': return APA102LEDStrip.Extensions.LedPerMeter._30LedPerMeter;
+                case '6': return APA102LEDStrip.Extensions.LedPerMeter._60LedPerMeter;
+            }
+            return APA102LEDStrip.Extensions.LedPerMeter._30LedPerMeter;
+        }
+
+        static int AskForLedCount()
+        {
+            Console.Clear();
+
+            ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+            var r = ConsoleEx.Question(ConsoleEx.WindowHeight - 3, "Led Count?    1)0  3)0  6)0", new List<Char>() { '3', '6', '1' });
+            switch(r)
+            {
+                case '1': return 10;
+                case '3': return 30;
+                case '6': return 60;
+            }
+            return 10;
         }
 
         static void Cls(Nusbio nusbio)
@@ -884,19 +906,11 @@ Yellow
                 //APA102LEDStrip.CompactData                       = true;
                 APA102LEDStrip.CombineSPIDataAndClockOnSameCycle = true;
 
-                var ledCountStrip0 = 10;
-                var ledCountStrip1 = 10;
+                var ledPerMeter = AskForStripType();
+                var ledCount    = AskForLedCount();
 
                 // 30 led per meter strip
-                APA102LEDStrip ledStrip0 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, APA102LEDStrip.Extensions.LedPerMeter._30LedPerMeter, APA102LEDStrip.Extensions.StripIndex._0, ledCountStrip0);
-                
-                // 60 led per meter strip
-                if (AskForStripType() == '6')
-                {
-                    ledCountStrip0 = 10;
-                    ledStrip0 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, APA102LEDStrip.Extensions.LedPerMeter._60LedPerMeter, APA102LEDStrip.Extensions.StripIndex._0, ledCountStrip0);
-                }
-
+                APA102LEDStrip ledStrip0 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, ledPerMeter, APA102LEDStrip.Extensions.StripIndex._0, ledCount);
                 ledStrip0.AllOff();
                 Cls(nusbio);
 
@@ -904,8 +918,7 @@ Yellow
                 // with 10 RGB LED on each strip powered from Nusbio. See following url
                 // http://www.madeintheusb.net/TutorialExtension/Index#Apa102RgbLedStrip
 
-                APA102LEDStrip ledStrip1 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, APA102LEDStrip.Extensions.LedPerMeter._30LedPerMeter, APA102LEDStrip.Extensions.StripIndex._1, ledCountStrip1);
-                //ledStrip2 = null;
+                APA102LEDStrip ledStrip1 = APA102LEDStrip.Extensions.TwoStripAdapter.Init(nusbio, ledPerMeter, APA102LEDStrip.Extensions.StripIndex._1, ledCount);
                 if(ledStrip1 != null)
                     ledStrip1.AllOff();
 
@@ -958,5 +971,3 @@ Yellow
         }
     }
 }
-
-

@@ -118,9 +118,9 @@ namespace MadeInTheUSB
             return ! WinUtil.BitUtil.IsSet(data, CMDERR_MASK);
         }
 
-        public MadeInTheUSB.spi.SPIEngine.SPIResult Increment(int times = 1, ADDRESS pot = ADDRESS.POT_0)
+        public SPIResult Increment(int times = 1, ADDRESS pot = ADDRESS.POT_0)
         {
-            var r = new MadeInTheUSB.spi.SPIEngine.SPIResult();
+            var r = new SPIResult();
             if (times > 1) {
 
                 for (var i = 0; i < times; i++)
@@ -138,9 +138,9 @@ namespace MadeInTheUSB
             return r;
         }
 
-        public MadeInTheUSB.spi.SPIEngine.SPIResult Decrement(int times = 1, ADDRESS pot = ADDRESS.POT_0)
+        public SPIResult Decrement(int times = 1, ADDRESS pot = ADDRESS.POT_0)
         {
-            var r = new MadeInTheUSB.spi.SPIEngine.SPIResult();
+            var r = new SPIResult();
             if (times > 1) {
 
                 for (var i = 0; i < times; i++)
@@ -158,12 +158,12 @@ namespace MadeInTheUSB
             return r;
         }
 
-        public MadeInTheUSB.spi.SPIEngine.SPIResult Set(int digitalValue, ADDRESS pot = ADDRESS.POT_0)
+        public SPIResult Set(int digitalValue, ADDRESS pot = ADDRESS.POT_0)
         {
             try { 
                 this._spiEngine.Select();
 
-                var r = new MadeInTheUSB.spi.SPIEngine.SPIResult();
+                var r = new SPIResult();
                 if((digitalValue < this.MinDigitalValue)||(digitalValue > this.MaxDigitalValue))
                     return r;
                 this.DigitalValue = digitalValue;
@@ -210,7 +210,7 @@ namespace MadeInTheUSB
         {
             try { 
                 this._spiEngine.Select();
-                var r = new MadeInTheUSB.spi.SPIEngine.SPIResult();
+                var r = new SPIResult();
                 r = Transfer(pot, COMMAND.READ, 0);
                 return r.Succeeded ? r.Value : -1;
             }
@@ -219,7 +219,7 @@ namespace MadeInTheUSB
             }
         }
 
-        public bool ValidateOperation(MadeInTheUSB.spi.SPIEngine.SPIResult result, ADDRESS address, COMMAND command, int? value = null)
+        public bool ValidateOperation(SPIResult result, ADDRESS address, COMMAND command, int? value = null)
         {
             // We cannot read an answer from the MCP4131. MISO and MOSI pins are combined
             // and we cannot make it work. So always return true
@@ -250,19 +250,19 @@ namespace MadeInTheUSB
             //   2: All these Address/Command combinations are valid, so the CMDERR bit is s
             switch (command)
             {
-                case COMMAND.WRITE     : r = (result.ReadBuffer.Count == 2) && (result.ReadBuffer[0] == 255) && result.ReadBuffer[1] == 255; break;
+                case COMMAND.WRITE     : r = (result.Buffer.Count == 2) && (result.Buffer[0] == 255) && result.Buffer[1] == 255; break;
                 case COMMAND.DECREMENT :
-                case COMMAND.INCREMENT : r = (result.ReadBuffer.Count == 1) && (result.ReadBuffer[0] == 255); break;
+                case COMMAND.INCREMENT : r = (result.Buffer.Count == 1) && (result.Buffer[0] == 255); break;
                 case COMMAND.READ      : 
-                    r = (result.ReadBuffer.Count == 2) && (result.ReadBuffer[0] >= 254); 
+                    r = (result.Buffer.Count == 2) && (result.Buffer[0] >= 254); 
                     if(r)
-                        result.Value = result.ReadBuffer[1];
+                        result.Value = result.Buffer[1];
                     break;
             }
             return r;
         }
 
-        private MadeInTheUSB.spi.SPIEngine.SPIResult Transfer(ADDRESS address, COMMAND command, int? value = null)
+        private SPIResult Transfer(ADDRESS address, COMMAND command, int? value = null)
         {
             var l = new List<byte>();
             if(value.HasValue) {
@@ -405,13 +405,13 @@ namespace MadeInTheUSB
             base.MaxResistance   = 10000; // 10k Ohm
         }
 
-        public MadeInTheUSB.spi.SPIEngine.SPIResult SetAll(int digitalValue)
+        public SPIResult SetAll(int digitalValue)
         {
             var r0 = base.Set(digitalValue, ADDRESS.POT_0);
             var r1 = base.Set(digitalValue, ADDRESS.POT_1);
             return r1;
         }
-        public MadeInTheUSB.spi.SPIEngine.SPIResult Set(int digitalValue0, int digitalValue1)
+        public SPIResult Set(int digitalValue0, int digitalValue1)
         {
             var r0 = base.Set(digitalValue0, ADDRESS.POT_0);
             var r1 = base.Set(digitalValue1, ADDRESS.POT_1);

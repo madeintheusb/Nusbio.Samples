@@ -430,7 +430,8 @@ Yellow
 
         public static void Run(string[] args)
         {
-            Console.WriteLine("Nusbio initialization");
+            Console.WriteLine("Nusbio initialization x64:{0}", Environment.Is64BitProcess);
+
             var serialNumber = Nusbio.Detect();
             if (serialNumber == null) // Detect the first Nusbio available
             {

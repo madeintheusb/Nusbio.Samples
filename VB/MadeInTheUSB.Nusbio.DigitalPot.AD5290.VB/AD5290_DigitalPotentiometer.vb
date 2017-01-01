@@ -92,7 +92,7 @@ Public Class AD5290_DigitalPotentiometer
             Throw New ArgumentException(String.Format("value {0} is invalid", value))
         End If
 
-        Dim r As SPIEngine.SPIResult
+        Dim r As SPIResult
         r = Me._spi.Transfer(value)
         Return r.Succeeded
     End Function

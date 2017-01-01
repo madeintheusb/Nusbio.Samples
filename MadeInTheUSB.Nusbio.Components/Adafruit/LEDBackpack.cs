@@ -63,17 +63,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if !NUSBIO2
 using MadeInTheUSB.i2c;
+#endif
 
 using int16_t = System.Int16; // Nice C# feature allowing to use same Arduino/C type
 using uint16_t = System.UInt16;
 using uint8_t = System.Byte;
 using MadeInTheUSB.WinUtil;
+using MadeInTheUSB.Components.Interface;
+using MadeInTheUSB.i2c;
 //using abs = System.Math..
 
 namespace MadeInTheUSB.Adafruit
 {
-    public class LEDBackpack : Adafruit_GFX
+    public class LEDBackpack : Adafruit_GFX, MadeInTheUSB.Components.Interface.Ii2cOut
     {
         private const string DEFAULT_I2C_ERROR_MESSAGE = "I2C command failed, check your connections";
 
@@ -89,15 +93,26 @@ namespace MadeInTheUSB.Adafruit
         public const int _displayBufferRowCount = 8;
         public byte[] _displayBuffer = new byte[_displayBufferRowCount];
 
+        public int DeviceId;
+#if !NUSBIO2
         protected I2CEngine _i2c;
         private Nusbio _nusbio;
+#endif
+#if NUSBIO2
+            public LEDBackpack(int16_t width, int16_t height)
+            : base(width, height)
+            {
+            }
+
+#else
 
         public LEDBackpack(int16_t width, int16_t height, Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin)
-            : base(width, height)
+        : base(width, height)
         {
             this._nusbio = nusbio;
             this._i2c = new I2CEngine(nusbio, sdaOutPin, sclPin, 0);
         }
+#endif
 
         public void DrawPixel(int x, int y, bool color)
         {
@@ -140,10 +155,6 @@ namespace MadeInTheUSB.Adafruit
             }
         }
 
-        public virtual void Begin(int addr = 0x70)
-        {
-            this.Begin((byte)addr);
-        }
 
         public bool Detect(byte addr = 0x70)
         {
@@ -167,16 +178,27 @@ namespace MadeInTheUSB.Adafruit
             base.Rotation = (byte)v;
         }
 
-        public virtual void Begin(byte addr = 0x70)
+        public virtual void Begin(int addr = 0x70)
         {
+            this._begin((byte)addr);
+        }
+
+        private void _begin(byte addr = 0x70)
+        {
+            this.DeviceId = addr;
+#if NUSBIO2
+            
+#else
             if (this._i2c.DeviceId == 0)
                 this._i2c.DeviceId = (byte)(addr);
+#endif
 
-            this._i2c.Send1ByteCommand(HT16K33_CMD_TURN_OSCILLATOR_ON);
+            this._ii2cOut.i2c_Send1ByteCommand(HT16K33_CMD_TURN_OSCILLATOR_ON);
             this.SetBlinkRate(HT16K33_BLINK_OFF);
             this.SetBrightness(5); // 0 to 15
             this.Clear(true);
         }
+
 
         public void AnimateSetBrightness(int MAX_REPEAT, int onWaitTime = 20, int offWaitTime = 30)
         {
@@ -211,14 +233,14 @@ namespace MadeInTheUSB.Adafruit
         {
             if (b > 15) b = 15;
             this._brightness = b;
-            if (!this._i2c.Send1ByteCommand((byte)(HT16K33_CMD_BRIGHTNESS | b)))
+            if (!_ii2cOut.i2c_Send1ByteCommand((byte)(HT16K33_CMD_BRIGHTNESS | b)))
                 throw new I2CCommunicationException(DEFAULT_I2C_ERROR_MESSAGE);
         }
 
         public void SetBlinkRate(byte b)
         {
             if (b > 3) b = 0; // turn off if not sure  
-            if (!this._i2c.Send1ByteCommand((byte)(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1))))
+            if (!_ii2cOut.i2c_Send1ByteCommand((byte)(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1))))
                 throw new I2CCommunicationException(DEFAULT_I2C_ERROR_MESSAGE);
         }
 
@@ -235,15 +257,69 @@ namespace MadeInTheUSB.Adafruit
         public bool WriteDisplay()
         {
             var buf = new List<uint8_t>();
-
+            byte addr = 0; // Start of screen
+            buf.Add(addr);
             for (var i = 0; i < 8; i++)
             {
                 buf.Add((uint8_t)(_displayBuffer[i] & 0xFF));    // 8 bit of columns
                 buf.Add((uint8_t)(_displayBuffer[i] >> 8));
             }
-            byte addr = 0; // Start of screen
-            return this._i2c.WriteBuffer(addr, buf.ToArray());
+            return _ii2cOut.i2c_WriteBuffer(buf.ToArray());
         }
+
+        Ii2cOut _ii2cOut
+        {
+            get
+            {
+                return ((Ii2cOut)(this));
+            }
+        }
+
+#if NUSBIO2
+         //MadeInTheUSB.Components.Interface.Ii2cOut
+        bool Ii2cOut.i2c_Send1ByteCommand(byte c)
+        {
+            return Nusbio2NAL.I2C_Helper_Write1Byte(this.DeviceId, c) == 1;
+        }
+
+        bool Ii2cOut.i2c_Send2ByteCommand(byte c0, byte c1)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool Ii2cOut.i2c_WriteBuffer(byte[] buffer)
+        {
+            var b = new List<byte>() {(byte)this.DeviceId};
+            b.AddRange(buffer);
+            return Nusbio2NAL.I2C_Helper_Write(this.DeviceId, b.ToArray()) == 1;
+        }
+        bool Ii2cOut.i2c_WriteReadBuffer(byte[] writeBuffer, byte[] readBuffer)
+        {
+            throw new NotImplementedException();
+        }
+#else
+
+        //MadeInTheUSB.Components.Interface.Ii2cOut
+        bool Ii2cOut.i2c_Send1ByteCommand(byte c)
+        {
+            return this._i2c.Send1ByteCommand(c);
+        }
+
+        bool Ii2cOut.i2c_Send2ByteCommand(byte c0, byte c1)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool Ii2cOut.i2c_WriteBuffer( byte[] buffer)
+        {
+            return this._i2c.WriteBuffer(buffer);
+        }
+
+        bool Ii2cOut.i2c_WriteReadBuffer(byte[] writeBuffer, byte[] readBuffer)
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
 }
 

@@ -296,8 +296,8 @@ namespace LightSensorConsole
             // BackPack address A0, A1, A2, (Carefull the label are inversed)
             // None soldered    = 0x70
             // A0 Shorted       = 0x70 + 1 = 0x71
-            // A2 Shorted       = 0x70 + 2 = 0x72
-            // A3 Shorted       = 0x70 + 4 = 0x74
+            // A1 Shorted       = 0x70 + 2 = 0x72
+            // A2 Shorted       = 0x70 + 4 = 0x74
             // A0+A1 Shorted    = 0x70 + 2 + 1 = 0x73
             // A0+A2 Shorted    = 0x70 + 4 + 1 = 0x75
 
@@ -353,6 +353,8 @@ namespace LightSensorConsole
                 _ledMatrix02.SetRotation(0);
             if(_ledMatrix03 != null)
                 _ledMatrix03.SetRotation(0);
+
+            
 
             // Adafruit -- show and tell demo
             _ledMatrix00.SetRotation(2);

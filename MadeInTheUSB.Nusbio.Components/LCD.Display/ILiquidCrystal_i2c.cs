@@ -27,7 +27,7 @@
   
     MIT license, all text above must be included in any redistribution
   
-    based on https://github.com/vanluynm/LiquidCrystal_I2C_PCF8574
+    based on https://github.com/vanluynm/LiquidCrystal_I2C
     Support only the PCF8574 I2C serial extender
 */
 
@@ -43,10 +43,15 @@ using size_t = System.Int16;
 
 using MadeInTheUSB.WinUtil;
 using MadeInTheUSB.i2c;
+using MadeInTheUSB.Components.Interface;
 
 namespace MadeInTheUSB.Display
 {
-    public class LiquidCrystal_I2C_PCF8574 : LiquidCrystalBase, ILiquidCrystal 
+    /// <summary>
+    /// PCF8574 Remote 8-Bit I/O Expander for I2C Bus
+    /// http://www.ti.com/lit/ds/symlink/pcf8574.pdf
+    /// </summary>
+    public class LiquidCrystal_I2C_PCF8574 : LiquidCrystalBase, ILiquidCrystal , MadeInTheUSB.Components.Interface.Ii2cOut
     {
         protected const byte En = 4; // B00000100  // Enable bit
         protected const byte Rw = 2; // B00000010  // Read/Write bit
@@ -54,9 +59,13 @@ namespace MadeInTheUSB.Display
 
         /// <summary>
         /// The PCF8574 i2c serial extender only support speed up to
+        /// 76800*2 = 153600 ~~ 16Kbyte/S which is about 150 000 Khz
+        /// Nusbio default is 900 000,
+        /// 76800*4 = 307200 Mhz does not work all the time.
+        /// The I2C_PCF8574 is a very cheap chip after all.
         /// </summary>
-        public const int MAX_BAUD_RATE = 76800*2;
-        
+        public const int MAX_BAUD_RATE = 76800 * 2; // 153600 Mhz
+
         int       _Addr;
         int       _displayfunction;
         int       _displaycontrol;
@@ -65,6 +74,8 @@ namespace MadeInTheUSB.Display
         I2CEngine _i2c;
         Nusbio    _nusbio;
 
+        public int DeviceID;
+
         public LiquidCrystal_I2C_PCF8574(Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin, int cols, int rows, int deviceId = 0x27, bool debug = false, int backlight = LCD_NOBACKLIGHT) : base(nusbio)
         {
             base.NumCols       = (uint8_t)cols;
@@ -72,6 +83,7 @@ namespace MadeInTheUSB.Display
             this._i2c          = new I2CEngine(nusbio, sdaOutPin, sclPin, (byte)deviceId, debug);
             this._backlightval = backlight;
             this._i2c.DeviceId = (byte)deviceId;
+            this.DeviceID      = deviceId;
             this._nusbio       = nusbio;
         }
 
@@ -127,12 +139,12 @@ namespace MadeInTheUSB.Display
             // Now we pull both RS and R/W low to Begin commands
             if (ExpanderWrite(_backlightval)) // reset expanderand turn Backlight off (Bit 8 =1)
             {
-                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the right one", this._i2c.DeviceId);
+                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the right one", this.DeviceID);
                 // Probably the wrong address                
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the wrong one", this._i2c.DeviceId);
+                System.Diagnostics.Debug.WriteLine("I2C LCD ID :{0} appear to be the wrong one", this.DeviceID);
                 r = false;
             }
             Delay(100);
@@ -412,17 +424,25 @@ namespace MadeInTheUSB.Display
                 resetBaudRate = true;
                 this._nusbio.SetBaudRate(MAX_BAUD_RATE);
             }
-            var r1 = this._i2c.Send3BytesCommand(
+
+            //var r1 = this._i2c.Send3BytesCommand(
+            //    (uint8_t)(_data | _backlightval),
+            //    (uint8_t)((_data | En) | _backlightval), // pusle on 
+            //    (uint8_t)((_data & ~En) | _backlightval) // pusle off 
+            //    );
+
+            var buffer = new List<byte>()
+            {
                 (uint8_t)(_data | _backlightval),
                 (uint8_t)((_data | En) | _backlightval), // pusle on 
                 (uint8_t)((_data & ~En) | _backlightval) // pusle off 
-                );
+            };
+            var r1 = Ii2cOutImpl.i2c_WriteBuffer(buffer.ToArray());
 
             if (resetBaudRate)
             {
                 this._nusbio.SetBaudRate(currentBaud);
             }
-
             return true;
         }
 
@@ -461,7 +481,8 @@ namespace MadeInTheUSB.Display
                 this._nusbio.SetBaudRate(MAX_BAUD_RATE);
             }
 
-            var r = this._i2c.Send1ByteCommand((uint8_t)(_data | _backlightval));
+            ///var r = this._i2c.Send1ByteCommand((uint8_t)(_data | _backlightval));
+            var r = Ii2cOutImpl.i2c_Send1ByteCommand((uint8_t)(_data | _backlightval));
 
             if (resetBaudRate)
             {
@@ -593,5 +614,34 @@ namespace MadeInTheUSB.Display
                     this.Write(32);
             }
         }
+
+        Ii2cOut Ii2cOutImpl
+        {
+            get
+            {
+                return (Ii2cOut)this;
+            }
+        }
+
+        bool Ii2cOut.i2c_Send1ByteCommand(byte c)
+        {
+            return this._i2c.Send1ByteCommand(c);
+        }
+
+        bool Ii2cOut.i2c_Send2ByteCommand(byte c0, byte c1)
+        {
+            return this._i2c.Send2BytesCommand(c0, c1);
+        }
+
+        bool Ii2cOut.i2c_WriteBuffer(byte[] buffer)
+        {
+            return this._i2c.WriteBuffer(buffer);
+        }
+
+        bool Ii2cOut.i2c_WriteReadBuffer(byte[] writeBuffer, byte[] readBuffer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
+ 

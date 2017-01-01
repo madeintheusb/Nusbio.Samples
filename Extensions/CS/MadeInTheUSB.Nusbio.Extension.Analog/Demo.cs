@@ -120,7 +120,6 @@ namespace DigitalPotentiometerSample
 
                 var analogTempSensor = new Tmp36AnalogTemperatureSensor(nusbio);
                 analogTempSensor.Begin();
-                analogTempSensor.ReferenceVoltage = 5.05; // If you can measure your voltage out of the Nusbio VCC
 
                 var analogMotionSensor = new AnalogMotionSensor(nusbio, 4);
                 analogMotionSensor.Begin();
@@ -145,6 +144,7 @@ namespace DigitalPotentiometerSample
                             lightSensor.AnalogValue,
                             lightSensor.Voltage), ConsoleColor.Cyan);
 
+                        var aaa= ad.Read(temperatureSensorAnalogPort);
                         analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort));
                         ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",
                             analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius),

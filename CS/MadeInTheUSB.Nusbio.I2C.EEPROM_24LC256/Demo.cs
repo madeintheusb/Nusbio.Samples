@@ -43,9 +43,7 @@ namespace LightSensorConsole
     class Demo
     {
         private static EEPROM_24LC256 _eeprom;
-        private const byte NEW_WRITTEN_VALUE_1 = 128+1;
-        private const byte NEW_WRITTEN_VALUE_2 = 170;
-
+     
         static string GetAssemblyProduct()
         {
             Assembly currentAssem = typeof(Program).Assembly;
@@ -67,9 +65,9 @@ namespace LightSensorConsole
                 for (var x = 0; x < _eeprom.PAGE_SIZE; x++)
                 {
                     if(p == 2)
-                        refBuffer.Add((byte)NEW_WRITTEN_VALUE_1);
+                        refBuffer.Add((byte)EEPROM_24LC256.NEW_WRITTEN_VALUE_1);
                     else if(p == 3)
-                        refBuffer.Add((byte)NEW_WRITTEN_VALUE_2);
+                        refBuffer.Add((byte)EEPROM_24LC256.NEW_WRITTEN_VALUE_2);
                     else 
                         refBuffer.Add((byte)x);
                 }
@@ -102,7 +100,7 @@ namespace LightSensorConsole
             {
                 //Console.WriteLine("Reading byte [{0}]", i);
                 var addr     = (p * _eeprom.PAGE_SIZE ) + i;
-                var b = _eeprom.WriteByte(addr, (byte)(NEW_WRITTEN_VALUE_1+i));
+                var b = _eeprom.WriteByte(addr, (byte)(EEPROM_24LC256.NEW_WRITTEN_VALUE_1 + i));
                 //Console.WriteLine(String.Format("[{0}] = {1}", i, b));
             }
             Console.WriteLine("{0} error(s), Time:{1}", totalErrorCount, t.ElapsedMilliseconds);
@@ -128,9 +126,9 @@ namespace LightSensorConsole
                     var b        = _eeprom.ReadByte(addr);
                     var expected = i;
                     if (p == 2)
-                        expected = NEW_WRITTEN_VALUE_1;
+                        expected = EEPROM_24LC256.NEW_WRITTEN_VALUE_1;
                     if (p == 3)
-                        expected = NEW_WRITTEN_VALUE_2;
+                        expected = EEPROM_24LC256.NEW_WRITTEN_VALUE_2;
 
 
                     if (b != expected)
@@ -152,7 +150,7 @@ namespace LightSensorConsole
             var totalErrorCount = 0;
             var t = Stopwatch.StartNew();
             //byte [] buf;
-
+            ///+++
             for (var pageIndex = 0; pageIndex < numberOfPageToRead; pageIndex++)
             {
                 if(pageIndex % 50 == 0 || pageIndex < 5)
@@ -161,7 +159,7 @@ namespace LightSensorConsole
                 var r = _eeprom.ReadPage(pageIndex* _eeprom.PAGE_SIZE, _eeprom.PAGE_SIZE);
                 if (r.Succeeded)
                 {
-                    VerifyPage(r.Buffer, pageIndex, 0);
+                    EEPROM_24LC256.VerifyPage(r, pageIndex);
                 }
                 else
                 {
@@ -179,25 +177,6 @@ namespace LightSensorConsole
             Console.ReadLine();
         }
 
-        static bool VerifyPage(byte [] buf, int pageIndex, int batchIndex) {
-
-            int totalErrorCount = 0;
-            for (var i = 0; i < _eeprom.PAGE_SIZE; i++)
-            {
-                var expected = i;
-                if (pageIndex == 2)
-                    expected = NEW_WRITTEN_VALUE_1;
-                if (pageIndex == 3)
-                    expected = NEW_WRITTEN_VALUE_2;
-
-                if (buf[i] != expected)
-                {
-                    Console.WriteLine("Failed Page:{0} [{1}] = {2}, expected {3}", pageIndex, i, buf[i], expected);
-                    totalErrorCount += 1;
-                }
-            }
-            return totalErrorCount == 0;
-        }
         
         static void ReadAndVerifyEEPROMPageInBatch(int numberOfPageToRead)
         {
@@ -218,7 +197,8 @@ namespace LightSensorConsole
                     for (var b = 0; b < batchSize; b++)
                     {
                         buf = r.GetPage(b, _eeprom.PAGE_SIZE);
-                        VerifyPage(buf, pageIndex, batchIndex);
+                        var tmpBuf = new EEPROM_BUFFER { Buffer = buf };
+                        EEPROM_24LC256.VerifyPage(tmpBuf, pageIndex);
                         pageIndex += 1;
                     }
                 }

@@ -397,7 +397,7 @@ namespace MadeInTheUSB
          */
         public bool Shutdown(bool status, int devIndex = 0)
         {
-            var r = new SPIEngine.SPIResult();
+            var r = new SPIResult();
 
             if (devIndex < 0 || devIndex >= _deviceCount)
                 return r.Succeeded;
@@ -420,7 +420,7 @@ namespace MadeInTheUSB
          */
         public bool SetScanLimit(int devIndex, int limit)
         {
-            var r = new SPIEngine.SPIResult();
+            var r = new SPIResult();
             if(devIndex<0 || devIndex>=_deviceCount)
                 return r.Succeeded;
 
@@ -712,7 +712,7 @@ namespace MadeInTheUSB
             _pixels[offset + row] = (byte)(_pixels[offset + row] >> 1);
         }
 
-        public SPIEngine.SPIResult WriteRowForAllDevices(int row)
+        public SPIResult WriteRowForAllDevices(int row)
         {
             var l = new List<byte>();
 
@@ -742,9 +742,9 @@ namespace MadeInTheUSB
             }
         }
 
-        public SPIEngine.SPIResult WriteRow(int deviceIndex, int row, bool computeBufferOnly = false)
+        public SPIResult WriteRow(int deviceIndex, int row, bool computeBufferOnly = false)
         {
-            var r = new SPIEngine.SPIResult();
+            var r = new SPIResult();
             if(deviceIndex<0 || deviceIndex>=_deviceCount)
                 return r;
 
@@ -1053,9 +1053,9 @@ namespace MadeInTheUSB
             SpiTransfer(deviceIndex, (byte)(digit+1), v);
         }
 
-        private SPIEngine.SPIResult SpiTransferBuffer(List<byte> buffer, bool software = false)
+        private SPIResult SpiTransferBuffer(List<byte> buffer, bool software = false)
         {
-            var r = new SPIEngine.SPIResult();
+            var r = new SPIResult();
             if(software)
             {
                 for(var i = 0; i < buffer.Count; i++)
@@ -1068,9 +1068,9 @@ namespace MadeInTheUSB
             return r;
         }
 
-        private SPIEngine.SPIResult SpiTransfer(int devIndex, byte opCode, byte data, bool software = false, bool computeBufferOnly = false)
+        private SPIResult SpiTransfer(int devIndex, byte opCode, byte data, bool software = false, bool computeBufferOnly = false)
         {
-            SPIEngine.SPIResult r = null;
+            SPIResult r = null;
             var buffer            = new List<byte>(10);
             var deviceToSkipFirst = this.DeviceCount - devIndex - 1;
 
@@ -1092,8 +1092,8 @@ namespace MadeInTheUSB
 
             if (computeBufferOnly)
             {
-                r = new SPIEngine.SPIResult() {Succeeded = true};
-                r.ReadBuffer = buffer;
+                r = new SPIResult() {Succeeded = true};
+                r.Buffer = buffer;
             }
             else
             {

@@ -49,16 +49,12 @@ namespace MadeInTheUSB.EEPROM
     /// </summary>
     public class EEPROM_25AA1024  : EEPROM_25AAXXX_BASE
     {
-        /// <summary>
-        /// SPI Constructor
-        /// </summary>
-        /// <param name="nusbio"></param>
-        /// <param name="clockPin"></param>
-        /// <param name="mosiPin"></param>
-        /// <param name="misoPin"></param>
-        /// <param name="selectPin"></param>
-        /// <param name="kBit"></param>
-        /// <param name="debug"></param>
+
+#if NUSBIO2
+        public EEPROM_25AA1024() : base(1024)
+        {
+        }
+#else
         public EEPROM_25AA1024(Nusbio nusbio, 
             NusbioGpio clockPin, 
             NusbioGpio mosiPin, 
@@ -69,15 +65,9 @@ namespace MadeInTheUSB.EEPROM
             var b = this.MaxByte;
             var p = this.MaxPage;
         }
+#endif
 
-        public override int MaxPage
-        {
-            get
-            {
-                return this.MaxByte / this.PAGE_SIZE;
-            }
-        }
-
+    
         public override bool Is3BytesAddress
         {
             get { return true; }

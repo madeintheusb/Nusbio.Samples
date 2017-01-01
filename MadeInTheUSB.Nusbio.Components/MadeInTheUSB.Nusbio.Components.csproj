@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,10 +34,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Components, Version=1.0.31.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Components.dll</HintPath>
-    </Reference>
     <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.34.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
@@ -69,12 +66,14 @@
     <Compile Include="APA102_RGB_LED\RGBHelper.cs" />
     <Compile Include="APA102_RGB_LED\RgbLedAutomaticSmoothColorCycling.cs" />
     <Compile Include="BUTTONS\AnalogButton.cs" />
+    <Compile Include="BUTTONS\Keypad.cs" />
     <Compile Include="BUTTONS\Button.cs" />
     <Compile Include="BUTTONS\GenericButton.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LC256.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
-    <Compile Include="EEPROM\EEPROM_24LCXXX_BASE.cs" />
+    <Compile Include="EEPROM\EEPROM_BASE_CLASS.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.Nusbio.1.cs" />
     <Compile Include="GpioExpander\MCP230XX_Base.cs" />
     <Compile Include="GpioExpander\McpGpio.cs" />
     <Compile Include="Oled\OLED.cs" />
@@ -110,10 +109,17 @@
     <Compile Include="SENSOR\Motion\DigitalMotionSensorPIR.cs" />
     <Compile Include="SENSOR\Temperature\AnalogTemperatureSensor.cs" />
     <Compile Include="SENSOR\Temperature\TMP36_Analog_Temperature Sensor.cs" />
+    <None Include="Adafruit\Nusbio1 Nusbio2 Support.md" />
     <None Include="packages.config" />
     <Compile Include="SENSOR\Light\AnalogLightSensor.cs" />
     <Compile Include="SENSOR\Light\LightSensorWithCapacitor.cs" />
     <Compile Include="SENSOR\Motion\AnalogMotionSensorPIR .cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EEPROM\Nusbio1 Nusbio2 Support.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interface\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

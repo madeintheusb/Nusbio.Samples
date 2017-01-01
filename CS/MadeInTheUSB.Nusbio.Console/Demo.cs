@@ -318,7 +318,7 @@ namespace NusbioConsole
             Console.Clear();
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-
+            
             ConsoleEx.TitleBar(   ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
             ConsoleEx.Bar     (0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
             ConsoleEx.Bar     (0, ConsoleEx.WindowHeight - 4, "Web Server listening at {0}".FormatString(nusbio.GetWebServerUrl()), ConsoleColor.Black, ConsoleColor.DarkCyan);

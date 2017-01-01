@@ -94,13 +94,13 @@ namespace MadeInTheUSB.Sensor
         {
             var r       = this._spi.Transfer(new List<byte>() { 0, 0 }); // Just transfert 16 bits of 0 to get the temperature
             int tempVal = 0;
-            int sign    = r.ReadBuffer[0] & 0x80;
+            int sign    = r.Buffer[0] & 0x80;
  
             // 13 bit 2's complement left aligned (last three bits are all 1's)
             if (sign == 0)
-                tempVal = (r.ReadBuffer[0] << 8 | r.ReadBuffer[1]) >> 3;
+                tempVal = (r.Buffer[0] << 8 | r.Buffer[1]) >> 3;
             else
-                tempVal = (((r.ReadBuffer[0] & 0x7f) << 8 | r.ReadBuffer[1]) >> 3) - 4096;
+                tempVal = (((r.Buffer[0] & 0x7f) << 8 | r.Buffer[1]) >> 3) - 4096;
  
             double tempC = tempVal * 0.0625;
 

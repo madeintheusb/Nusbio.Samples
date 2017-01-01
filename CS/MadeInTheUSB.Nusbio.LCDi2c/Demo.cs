@@ -142,8 +142,8 @@ namespace LCDConsole
                 //sda           = NusbioGpio.Gpio7; // Directly connected into Nusbio
                 //scl           = NusbioGpio.Gpio6;
 
-                sda = NusbioGpio.Gpio0; // Bug in the extension I2C Nusbio Extension
-                scl = NusbioGpio.Gpio1;
+                //sda = NusbioGpio.Gpio0; // Bug in the extension I2C Nusbio Extension
+                //scl = NusbioGpio.Gpio1;
 
                 var maxColumn = 16;
                 var maxRow    = 2;

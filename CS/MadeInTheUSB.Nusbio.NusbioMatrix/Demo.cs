@@ -1,5 +1,5 @@
 // Un comment this symbol if you have 4 8x8 LED matrix chained together
-//#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
+#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
 
 // Nusbio based from FT232RL/Waveshare
 //#define NUSBIO_WAVESHARE
