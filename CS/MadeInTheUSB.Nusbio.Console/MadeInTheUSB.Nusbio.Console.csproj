@@ -42,7 +42,7 @@
     <Reference Include="DynamicSugar">
       <HintPath>.\DynamicSugar.dll</HintPath>
     </Reference>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.31.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.36.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>

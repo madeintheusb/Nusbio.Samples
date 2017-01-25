@@ -32,7 +32,7 @@ using MadeInTheUSB.Components;
 using System.Drawing;
 using MadeInTheUSB.Components.APA;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     class Demo
     {

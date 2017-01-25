@@ -29,7 +29,7 @@ using MadeInTheUSB.i2c;
 using MadeInTheUSB.GPIO;
 using MadeInTheUSB.EEPROM;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     /// <summary>
     /// This demo write and read the I2C EEPROM 24L256 (32k byte of data).

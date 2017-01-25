@@ -49,7 +49,7 @@ using MadeInTheUSB.i2c;
 using MadeInTheUSB.GPIO;
 using MadeInTheUSB.WinUtil;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     class Demo
     {

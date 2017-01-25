@@ -37,10 +37,6 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.27.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,6 +55,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\MadeInTheUSB.Nusbio.Lib\MadeInTheUSB.Nusbio.Lib.csproj">
+      <Project>{4844352f-58d7-4d53-8559-89e0ce27d96b}</Project>
+      <Name>MadeInTheUSB.Nusbio.Lib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
       <Project>{89aac166-2058-4657-9a64-aaf602f06327}</Project>
       <Name>MadeInTheUSB.Nusbio.Components</Name>

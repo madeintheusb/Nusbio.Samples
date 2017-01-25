@@ -30,7 +30,7 @@ using MadeInTheUSB.i2c;
 using MadeInTheUSB.GPIO;
 using MadeInTheUSB.EEPROM;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     /// <summary>
     /// This demo write and read the SPI EEPROM 25AA256 (32k byte of data).

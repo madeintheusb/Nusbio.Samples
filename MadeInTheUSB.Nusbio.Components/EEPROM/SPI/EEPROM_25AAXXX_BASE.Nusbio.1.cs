@@ -60,10 +60,10 @@ namespace MadeInTheUSB.EEPROM
             return buffer;
         }
 
-
-        private EEPROM_BUFFER ReadPageOptimized_SendReadData(GpioSequence spiSeq, int startByteToSkip, int byteToRead)
+        public static EEPROM_BUFFER ReadPageOptimized_SendReadData
+            (GpioSequence spiSeq, int startByteToSkip, int byteToRead, SPIEngine spi)
         {
-            var nusbio = this._spi.Nusbio;
+            var nusbio = spi.Nusbio;
             var eb = new EEPROM_BUFFER();
             if (spiSeq.Send(nusbio))
             {
@@ -80,7 +80,7 @@ namespace MadeInTheUSB.EEPROM
                     inBuffer = inBuffer.GetRange(offSetToSkip, inBuffer.Count - offSetToSkip);
                 }
 
-                var buffer = __spi_buf_r(byteToRead, inBuffer);
+                var buffer = __spi_buf_r(byteToRead, inBuffer, spi);
 
                 for (var i = 0; i < startByteToSkip; i++) // Remove the last startByteToSkip because they were not yet sent
                     buffer.RemoveAt(buffer.Count - 1);
@@ -144,7 +144,7 @@ namespace MadeInTheUSB.EEPROM
 
                     if (spiSeq.IsSpaceAvailable(8 * 2)) // If we only have left space to compute 1 byte or less
                     {
-                        var peb = ReadPageOptimized_SendReadData(spiSeq, startByteToSkip, byteBitBanged);
+                        var peb = ReadPageOptimized_SendReadData(spiSeq, startByteToSkip, byteBitBanged, this._spi);
                         if (peb.Succeeded)
                         {
                             finalBuffer.AddRange(peb.Buffer);
@@ -156,7 +156,7 @@ namespace MadeInTheUSB.EEPROM
                             return eb; // failed
                     }
                 }
-                var peb2 = ReadPageOptimized_SendReadData(spiSeq, startByteToSkip, byteBitBanged);
+                var peb2 = ReadPageOptimized_SendReadData(spiSeq, startByteToSkip, byteBitBanged, this._spi);
                 if (peb2.Succeeded)
                 {
                     finalBuffer.AddRange(peb2.Buffer);
@@ -173,14 +173,14 @@ namespace MadeInTheUSB.EEPROM
             return eb;
         }
 
-        private List<byte> __spi_buf_r(int s, List<byte> outputBuf)
+        internal static List<byte> __spi_buf_r(int s, List<byte> outputBuf, SPIEngine spi)
         {
             try
             {
                 int j = 0;
                 int pos = 0;
                 List<byte> b = new List<byte>();
-                var misoBit = (this._spi.Nusbio[this._spi.MisoGpio] as Gpio).Bit;
+                var misoBit = (spi.Nusbio[spi.MisoGpio] as Gpio).Bit;
                 j = 1;
 
                 for (pos = 0; pos < s; pos++)
@@ -188,7 +188,7 @@ namespace MadeInTheUSB.EEPROM
                     Byte v = 0;
                     Byte bit;
 
-                    if (this._spi.BitOrder == BitOrder.MSBFIRST)
+                    if (spi.BitOrder == BitOrder.MSBFIRST)
                     {
                         for (bit = (1 << 7); bit > 0; bit >>= 1)
                         {

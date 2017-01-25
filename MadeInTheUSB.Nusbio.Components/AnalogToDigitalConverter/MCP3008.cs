@@ -81,7 +81,6 @@ namespace MadeInTheUSB
         public void Begin()
         {
             _spiEngine.Begin();
-
         }
 
         /// <summary>
@@ -146,8 +145,8 @@ namespace MadeInTheUSB
         {
             if (result.Succeeded && result.Buffer.Count == 3)
             {
-                ConsoleEx.WriteLine(0, 15, string.Format("B0:{0:000}, B1:{1:000}, B2:{2:000}",
-                    result.Buffer[0], result.Buffer[1], result.Buffer[2]), ConsoleColor.Yellow);
+                //ConsoleEx.WriteLine(0, 15, string.Format("B0:{0:000}, B1:{1:000}, B2:{2:000}",
+                //    result.Buffer[0], result.Buffer[1], result.Buffer[2]), ConsoleColor.Yellow);
                 int r = 0;
                 if (WinUtil.BitUtil.IsSet(result.Buffer[1], 1))
                     r += 256;

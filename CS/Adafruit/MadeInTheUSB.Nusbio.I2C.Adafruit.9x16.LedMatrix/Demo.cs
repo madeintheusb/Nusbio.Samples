@@ -32,7 +32,7 @@ using MadeInTheUSB.GPIO;
 using MadeInTheUSB.EEPROM;
 using MadeInTheUSB.WinUtil;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     class Demo
     {

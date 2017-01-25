@@ -1,5 +1,5 @@
 // Un comment this symbol if you have 4 8x8 LED matrix chained together
-#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
+//#define DEMO_WITH_4_8x8_LED_MATRIX_CHAINED
 
 // Nusbio based from FT232RL/Waveshare
 //#define NUSBIO_WAVESHARE
@@ -880,7 +880,21 @@ namespace NusbioMatrixNS
             NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX origin, 
             int matrixChainedCount)
         {
-            var matrix = NusbioMatrix.Initialize(nusbio,
+            NusbioMatrix matrix = null;
+            
+            if (nusbio.Type == NusbioType.NusbioType1_Light)
+            {
+                matrix = NusbioMatrix.Initialize(nusbio,
+                    selectGpio   : NusbioGpio.Gpio6,   // RX
+                    mosiGpio     : NusbioGpio.Gpio5,     // TX
+                    clockGpio    : NusbioGpio.Gpio4,    // CTS
+                    gndGpio      : NusbioGpio.None,
+                    MAX7218Wiring: origin,
+                    deviceCount  : matrixChainedCount);
+            }
+            else
+            {
+                matrix = NusbioMatrix.Initialize(nusbio,
 #if NUSBIO_WAVESHARE
                 selectGpio   : NusbioGpio.Gpio6, // r
                 mosiGpio     : NusbioGpio.Gpio5, // t
@@ -892,7 +906,8 @@ namespace NusbioMatrixNS
 #endif
                 gndGpio: NusbioGpio.None,
                 MAX7218Wiring: origin,
-                deviceCount  : matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
+                deviceCount: matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
+            }
 
             SetBrightnesses(matrix);
             return matrix;

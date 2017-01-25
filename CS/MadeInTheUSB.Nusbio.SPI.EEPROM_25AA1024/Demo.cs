@@ -30,7 +30,7 @@ using MadeInTheUSB.i2c;
 using MadeInTheUSB.GPIO;
 using MadeInTheUSB.EEPROM;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     /// <summary>
     /// This demo write and read the SPI EEPROM 25AA1024 (128k byte of data).
@@ -298,7 +298,13 @@ namespace LightSensorConsole
 
             using (var nusbio = new Nusbio(serialNumber))
             {
-                
+                //_eeprom = new EEPROM_25AA1024(
+                //   nusbio: nusbio,
+                //   clockPin: NusbioGpio.Gpio4,
+                //   mosiPin: NusbioGpio.Gpio5,
+                //   misoPin: NusbioGpio.Gpio2,
+                //   selectPin: NusbioGpio.Gpio6
+                //   );
 
                 _eeprom = new EEPROM_25AA1024(
                     nusbio: nusbio,

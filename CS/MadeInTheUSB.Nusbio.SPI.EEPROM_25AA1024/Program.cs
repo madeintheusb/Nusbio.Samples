@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using MadeInTheUSB;
 using MadeInTheUSB.GPIO;
 
-namespace LightSensorConsole
+namespace MadeInTheUSB
 {
     class Program
     {

@@ -76,10 +76,12 @@ namespace MadeInTheUSB.EEPROM
             NusbioGpio misoPin, 
             NusbioGpio selectPin, 
             int kBit, 
-            bool debug = false)
+            bool debug = false,
+            bool chipSelectActiveLow = true
+            )
         {
             this._kBit = kBit;
-            this._spi = new SPIEngine(nusbio, selectPin, mosiPin, misoPin, clockPin, debug: debug);
+            this._spi = new SPIEngine(nusbio, selectPin, mosiPin, misoPin, clockPin, debug: debug, chipSelectActiveLow: chipSelectActiveLow);
         }
 #endif
 
@@ -116,12 +118,12 @@ namespace MadeInTheUSB.EEPROM
             return new byte[count]; 
         }
 
-        protected bool SetWriteRegisterEnable()
+        protected virtual bool SetWriteRegisterEnable()
         {
             return this.SendCommand(WREN);
         }
 
-        protected bool SetWriteRegisterDisable()
+        protected virtual bool SetWriteRegisterDisable()
         {
             return this.SendCommand(WRDI);
         }
@@ -192,7 +194,7 @@ namespace MadeInTheUSB.EEPROM
 #endif
         }
 
-        protected bool SendCommand(byte cmd)
+        protected virtual bool SendCommand(byte cmd)
         {
 #if NUSBIO2
             var r = new SPIResult();
