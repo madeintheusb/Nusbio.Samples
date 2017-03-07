@@ -207,8 +207,7 @@ namespace NusbioMatrixNS
         {
             Console.Clear();
             ConsoleEx.TitleBar(0, "Performance Test");
-            ConsoleEx.WriteLine(0, 2, "Draw images as fast as possible", ConsoleColor.Cyan);
-            ConsoleEx.WriteMenu(0, 3, "Q)uit");
+            ConsoleEx.WriteLine(0, 2, "Drawing images as fast as possible", ConsoleColor.Cyan);
 
             int maxRepeat             = 16;
             matrix.CurrentDeviceIndex = deviceIndex;
@@ -216,9 +215,9 @@ namespace NusbioMatrixNS
             var images = new List<List<string>> {
                 Square00Bmp, Square02Bmp 
             };
-            
-            ConsoleEx.Bar(0, ConsoleUserStatusRow, "DrawBitmap Demo - Slow mode first", ConsoleColor.Yellow, ConsoleColor.Red);
-            ConsoleEx.Gotoxy(0, ConsoleUserStatusRow+1);
+
+            ConsoleEx.WriteLine(0, 3, "Slow mode first", ConsoleColor.Cyan);
+            ConsoleEx.Gotoxy(0, 4);
             for (byte rpt = 0; rpt < maxRepeat; rpt++)
             {
                 foreach (var image in images)
@@ -231,10 +230,13 @@ namespace NusbioMatrixNS
                 }
             }
 
-            maxRepeat             = 96;
+            maxRepeat = 128;
 
-            ConsoleEx.Bar(0, ConsoleUserStatusRow, "DrawBitmap Demo - Fast mode first", ConsoleColor.Yellow, ConsoleColor.Red);
-            ConsoleEx.Gotoxy(0, ConsoleUserStatusRow+1);
+            ConsoleEx.WriteLine(0, 5, "Fast mode first", ConsoleColor.Cyan);
+            ConsoleEx.Gotoxy(0, 6);
+            matrix.BytesSentOutCounter = 0;
+            var sw = Stopwatch.StartNew();
+            int writeDisplayCount = 0;
             for (byte rpt = 0; rpt < maxRepeat; rpt++)
             {
                 foreach (var image in images)
@@ -242,9 +244,20 @@ namespace NusbioMatrixNS
                     matrix.Clear(deviceIndex, refresh:false);
                     matrix.DrawBitmap(0, 0, image, 8, 8, 1);
                     matrix.WriteDisplay(deviceIndex);
+                    writeDisplayCount++;
                     Console.Write(".");
                 }
             }
+            Console.WriteLine("");
+            Console.WriteLine("Display Refresh:{0}, {1:0.0} Refresh/S, Bytes Sent:{2}, {3:0.0} K Byte/S",
+                writeDisplayCount,
+                writeDisplayCount * 1000.0 / sw.ElapsedMilliseconds,
+                matrix.BytesSentOutCounter,
+                matrix.BytesSentOutCounter / (sw.ElapsedMilliseconds/1000.0) / 1024.0
+                );
+            sw.Stop();
+            Console.WriteLine("Hit any key to continue");
+            var k = Console.ReadKey();
         }
 
         static void ScrollDemo(NusbioMatrix matrix, int deviceIndex)
@@ -886,11 +899,12 @@ namespace NusbioMatrixNS
             {
                 matrix = NusbioMatrix.Initialize(nusbio,
                     selectGpio   : NusbioGpio.Gpio6,   // RX
-                    mosiGpio     : NusbioGpio.Gpio5,     // TX
-                    clockGpio    : NusbioGpio.Gpio4,    // CTS
+                    mosiGpio     : NusbioGpio.Gpio5,   // TX
+                    clockGpio    : NusbioGpio.Gpio4,   // CTS
                     gndGpio      : NusbioGpio.None,
                     MAX7218Wiring: origin,
                     deviceCount  : matrixChainedCount);
+                 //matrix.SPIEngine.SoftwareBitBangingMode = true;
             }
             else
             {
@@ -908,7 +922,6 @@ namespace NusbioMatrixNS
                 MAX7218Wiring: origin,
                 deviceCount: matrixChainedCount); // If you have MAX7219 LED Matrix chained together increase the number
             }
-
             SetBrightnesses(matrix);
             return matrix;
         }
@@ -930,7 +943,9 @@ namespace NusbioMatrixNS
                 var matrixChainedCount = 1;
                 var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner;
 #endif
-            
+
+            //Nusbio.BaudRate = Nusbio.FastestBaudRate / 4;
+
             using (var nusbio = new Nusbio(serialNumber))
             {
                 var matrix = InitializeMatrix(nusbio, origin, matrixChainedCount);

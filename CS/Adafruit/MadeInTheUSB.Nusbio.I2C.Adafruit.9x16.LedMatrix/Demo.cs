@@ -339,8 +339,8 @@ namespace MadeInTheUSB
             // The chip IS31FL3731 is I2C 400 000 Hz
             // http://www.issi.com/WW/pdf/31FL3731.pdf
             // Nusbio default is 912 600 baud which is 
-            Nusbio.BaudRate = IS31FL3731.MAX_BAUD_RATE;
-            
+            Nusbio.BaudRate = IS31FL3731.MAX_BAUD_RATE/8;
+
             using (var nusbio = new Nusbio(serialNumber))
             {
                 var ledMatrix16x9 = new IS31FL3731(nusbio, sdaPin, sclPin);

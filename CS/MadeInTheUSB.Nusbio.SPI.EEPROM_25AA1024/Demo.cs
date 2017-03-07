@@ -170,7 +170,7 @@ namespace MadeInTheUSB
 
             for (var p = 0; p < numberOfPageToRead; p++)
             {
-                if (p % 50 == 0 || p < 5)
+                if (p % 50 == 0 || p <= 10)
                     Console.WriteLine("Reading page {0}", p);
 
                 // The method ReadPage, use the default SPI method to transfer data
@@ -202,9 +202,12 @@ namespace MadeInTheUSB
                 }
             }
             t.Stop();
-            Console.WriteLine("{0} error(s), Data:{1}kb, Time:{2}, {3:0.00} kb/s",
+            Console.WriteLine("{0} error(s), Data:{1}kb, Time:{2}, {3:0.00} b/s, {4:0.00} Kb/s",
                 totalErrorCount,
-                _eeprom.PAGE_SIZE * numberOfPageToRead, t.ElapsedMilliseconds, _eeprom.MaxByte * 1.0 / t.ElapsedMilliseconds);
+                _eeprom.PAGE_SIZE * numberOfPageToRead / 1024.0, 
+                t.ElapsedMilliseconds,
+                _eeprom.PAGE_SIZE * numberOfPageToRead * 1.0 / t.ElapsedMilliseconds * 1000,
+                _eeprom.PAGE_SIZE * numberOfPageToRead * 1.0 / t.ElapsedMilliseconds * 1000 / 1024);
             Console.WriteLine("Hit enter key");
             Console.ReadLine();
         }
@@ -298,21 +301,18 @@ namespace MadeInTheUSB
 
             using (var nusbio = new Nusbio(serialNumber))
             {
-                //_eeprom = new EEPROM_25AA1024(
-                //   nusbio: nusbio,
-                //   clockPin: NusbioGpio.Gpio4,
-                //   mosiPin: NusbioGpio.Gpio5,
-                //   misoPin: NusbioGpio.Gpio2,
-                //   selectPin: NusbioGpio.Gpio6
-                //   );
-
                 _eeprom = new EEPROM_25AA1024(
-                    nusbio: nusbio,
-                    clockPin: NusbioGpio.Gpio0,
-                    mosiPin: NusbioGpio.Gpio1,
-                    misoPin: NusbioGpio.Gpio2,
+                    nusbio   : nusbio,
+                    clockPin : NusbioGpio.Gpio0,
+                    mosiPin  : NusbioGpio.Gpio1,
+                    misoPin  : NusbioGpio.Gpio2,
                     selectPin: NusbioGpio.Gpio3
                     );
+
+                if (nusbio.Type == NusbioType.NusbioType1_Light)
+                {
+                    _eeprom._spi.SoftwareBitBangingMode = true;
+                }
 
                 _eeprom.Begin();
 
@@ -321,7 +321,7 @@ namespace MadeInTheUSB
                 // But return a buffer with garbage mostly all byte set to 255
                 // So based on the expected data of the first page we could 
                 // detect of the EEPROM is connected or not
-                var r = _eeprom.ReadPage(0, _eeprom.PAGE_SIZE * 4);
+                var r = _eeprom.ReadPage(0, _eeprom.PAGE_SIZE);
                 if (r.Succeeded)
                 {
                     if(r.Buffer[0] == 255)
@@ -370,8 +370,11 @@ namespace MadeInTheUSB
 
                         if (k == ConsoleKey.A)
                         {
-                            ReadAndVerifyEEPROMPage_BatchRead(512);
-                            ReadAndVerifyEEPROMPage(512);
+                            if (nusbio.Type != NusbioType.NusbioType1_Light)
+                            {
+                                ReadAndVerifyEEPROMPage_BatchRead(512);
+                            }
+                            //ReadAndVerifyEEPROMPage(512);
                         }
                         if (k == ConsoleKey.B)
                         {

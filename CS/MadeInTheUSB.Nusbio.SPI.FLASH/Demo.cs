@@ -56,7 +56,7 @@ namespace MadeInTheUSB
             return null;
         }
 
-        static void WriteEEPROMPage(int numberOfPageToRead, int valueToWrite = -1)
+        static void WriteFlashNORMemory(int numberOfPageToRead, int valueToWrite = -1)
         {
             Console.Clear();
             var totalErrorCount = 0;
@@ -155,7 +155,7 @@ namespace MadeInTheUSB
         }
 
 
-        static void ReadAndVerifyEEPROMPage(int numberOfPageToRead, int expectedSingleValue = -1)
+        static void ReadAndVerifyFlashNORMemory(int numberOfPageToRead, int expectedSingleValue = -1)
         {
             Console.Clear();
             ConsoleEx.TitleBar(0, string.Format("Performance test reading all {0}k no batch standard SPI code", _flash.MaxKByte));
@@ -256,7 +256,7 @@ namespace MadeInTheUSB
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
 
-            ConsoleEx.WriteMenu(-1, 4, "R)ead all 2k  W)rite 2k");
+            ConsoleEx.WriteMenu(-1, 4, "R)ead all   W)rite all");
             ConsoleEx.WriteMenu(-1, 6, "Q)uit");
            
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
@@ -301,18 +301,17 @@ namespace MadeInTheUSB
                             var a = ConsoleEx.Question(23, "Execute Write/Read/Write Test 2k now Y)es, N)o", new List<char>()  { 'Y', 'N' });
                             if (a == 'Y') {
                                 var testValue = 1+4+16+64;
-                                WriteEEPROMPage(_flash.MaxPage, testValue);
-                                ReadAndVerifyEEPROMPage(_flash.MaxPage, testValue);
-                                WriteEEPROMPage(_flash.MaxPage);
-                                ReadAndVerifyEEPROMPage(_flash.MaxPage);
+                                WriteFlashNORMemory(_flash.MaxPage, testValue);
+                                ReadAndVerifyFlashNORMemory(_flash.MaxPage, testValue);
+                                WriteFlashNORMemory(_flash.MaxPage);
+                                ReadAndVerifyFlashNORMemory(_flash.MaxPage);
                             }
                         }
 
                         if (k == ConsoleKey.R)
                         {
-                            ReadAndVerifyEEPROMPage(_flash.MaxPage);
+                            ReadAndVerifyFlashNORMemory(_flash.MaxPage);
                         }
-
 
                         if (k == ConsoleKey.Q) break;
 

@@ -56,6 +56,8 @@ function NusbioClass(host, hostPort, getCallBack) {
         if (typeof(callBack) === 'undefined')
             callBack = this.__getCallBack;
 
+        console.log(url);
+
         var url = this._baseUrl + url;
         this.__get(url, "", callBack);
     }

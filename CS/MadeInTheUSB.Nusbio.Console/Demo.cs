@@ -117,13 +117,15 @@ namespace NusbioConsole
             int delay = min;
             bool on   = false;
 
+            max = 36 + (36/2) ;
+
             while(true) {
 
                 if (Console.KeyAvailable && Console.ReadKey(true).Key!=  ConsoleKey.Attention)
                     break;
 
-                for(var i=0; i<maxGpio; i++ ){
-                
+                for(var i=0; i<maxGpio; i++ )
+                {
                     nusbio[gpiosSequence[i]].DigitalWrite(PinState.High);
                     TimePeriod.Sleep(delay);
                     nusbio[gpiosSequence[i]].DigitalWrite(PinState.Low);
@@ -212,14 +214,15 @@ namespace NusbioConsole
             }
         }
 
-        private static void AnimateBlocking5(Nusbio nusbio)
+        private static void Three5VoltDevicesDemos(Nusbio nusbio)
         {
-            var waitTime0     = 500;
+            var waitTime0      = 500;
             var quit           = false;
             var lampGpio       = 0;
             var fiberOpticGpio = 1;
             var fanGpio        = 2;
-            while (!quit) {
+            while (!quit)
+            {
                 nusbio[lampGpio].DigitalWrite(PinState.High);
                 for (var g = 0; g < 10; g++)
                 {
@@ -230,7 +233,10 @@ namespace NusbioConsole
                         Thread.Sleep(waitTime0);
                         nusbio[fiberOpticGpio].DigitalWrite(PinState.Low);
                         Thread.Sleep(waitTime0);
-                        if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention) { quit = true; break; }
+                        if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
+                        {
+                            g = 11; quit = true; break;
+                        }
                     }
                 }
             }
@@ -241,7 +247,6 @@ namespace NusbioConsole
         {
             var maxRepeat = 3;
             var maxGpio   = 8;
-
             while (true)
             {
                 for (var i = 0; i < maxRepeat; i++)
@@ -253,7 +258,6 @@ namespace NusbioConsole
                         nusbio[g].DigitalWrite(PinState.Low);
                     Thread.Sleep(200);
                 }
-
                 if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
                     break;
 
@@ -394,7 +398,7 @@ namespace NusbioConsole
                         else
                         {
                             //if (key == ConsoleKey.F4) ClockGpio0(nusbio);
-                            if (key == ConsoleKey.F3) AnimateBlocking5(nusbio);
+                            //if (key == ConsoleKey.F5) Three5VoltDevicesDemos(nusbio);
                             if (key == ConsoleKey.F1) AnimateBlocking1(nusbio);
                             if (key == ConsoleKey.F2)
                             {

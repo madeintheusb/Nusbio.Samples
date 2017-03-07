@@ -75,7 +75,7 @@ namespace MadeInTheUSB.Display
                 mosi  :NusbioGpio.Gpio6,  // Named D1 on OLED
                 reset :NusbioGpio.Gpio5,
                 dc    :NusbioGpio.Gpio4,
-                select:NusbioGpio.Gpio3   // Named CS on OLED
+                select:NusbioGpio.Gpio3   // Named CS on OLEDfq
                 );
             return oledDisplay;
         }

@@ -52,7 +52,7 @@ namespace MadeInTheUSB
     /// </summary>
     public class MCP300X_Base
     {
-        readonly SPIEngine _spiEngine;
+        public SPIEngine _spiEngine;
 
         public int MaxAdConverterConverter = 8;
 

@@ -37,7 +37,7 @@ namespace MadeInTheUSB.EEPROM
     {
         const int WRSR   = 1; // Write Status Register Instruction 
         const int WRITE  = 2;
-        const int READ   = 3;
+        protected const int READ   = 3;
         const int WRDI   = 4; // Write Disable
         const int RDSR   = 5; // Read Status Register Instruction 
         const int WREN   = 6; // Write Enable
@@ -127,7 +127,9 @@ namespace MadeInTheUSB.EEPROM
         {
             return this.SendCommand(WRDI);
         }
-        
+
+
+
         public override bool WritePage(int addr, byte [] buffer)
         {
             this.SetWriteRegisterEnable();
@@ -182,7 +184,7 @@ namespace MadeInTheUSB.EEPROM
 #if NUSBIO2
             var r             = new SPIResult();
             var tmpReadBuffer = new byte[bytes.Count];
-            var ok            = Nusbio2NAL.__SPI_Helper_SingleReadWrite(bytes.ToArray(), tmpReadBuffer, bytes.Count) == 1;
+            var ok            = Nusbio2NAL.SPI_Helper_SingleReadWrite(bytes.ToArray(), tmpReadBuffer, bytes.Count);
             if (ok)
             {
                 r.Buffer    = tmpReadBuffer.ToList();
@@ -197,10 +199,16 @@ namespace MadeInTheUSB.EEPROM
         protected virtual bool SendCommand(byte cmd)
         {
 #if NUSBIO2
-            var r = new SPIResult();
+            //var r             = new SPIResult();
+            //var tmpReadBuffer = new byte[1];
+            //var bufferOut     = new List<byte>() { cmd }.ToArray();
+            //var ok            = Nusbio2NAL.SPI_Helper_Write(bufferOut, bufferOut.Length);
+            //return ok;
+            var r = SpiTransfer(new List<byte>() {cmd});
             return r.Succeeded;
 #else
-            return this._spi.Transfer(new byte[] { cmd }.ToList()).Succeeded;
+            var b = this._spi.Transfer(new byte[] { cmd }.ToList());
+            return b.Succeeded;
 #endif
         }
 

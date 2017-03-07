@@ -34,8 +34,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.36.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib">
       <HintPath>..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -75,12 +74,14 @@
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
     <Compile Include="EEPROM\EEPROM_BASE_CLASS.cs" />
+    <Compile Include="EEPROM\SPI\NOR_FLASH.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.Nusbio.1.cs" />
     <Compile Include="FLASH\FLASH_S25FL1xxK.cs" />
     <Compile Include="GpioExpander\MCP230XX_Base.cs" />
     <Compile Include="GpioExpander\McpGpio.cs" />
     <Compile Include="Oled\OLED.cs" />
     <Compile Include="Oled\OLED_SSD1306.cs" />
+    <Compile Include="SENSOR\Gesture\GY-9960LLC APDS-9960 Sensors.cs" />
     <Compile Include="SENSOR\Temperature\SPI.TC77.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AA1024.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AA1204.UnitTests.cs" />

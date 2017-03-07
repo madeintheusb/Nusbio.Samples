@@ -84,6 +84,8 @@ namespace MadeInTheUSB
 
         public static bool OptimizeSpiDataLine = true;
 
+        public Int32 BytesSentOutCounter = 0;
+
         static List<object> __CHAR_TABLE = new List<object>() { 
 
              " " ,3, 8, "B00000000", "B00000000", "B00000000", "B00000000", "B00000000", // space
@@ -307,6 +309,14 @@ namespace MadeInTheUSB
         /// 
         /// </summary>
         private SPIEngine   _spiEngine;
+
+        public SPIEngine SPIEngine
+        {
+            get
+            {
+                return _spiEngine;
+            }
+        }
 
         /// <summary>
         /// 
@@ -1056,13 +1066,15 @@ namespace MadeInTheUSB
         private SPIResult SpiTransferBuffer(List<byte> buffer, bool software = false)
         {
             var r = new SPIResult();
-            if(software)
+            //software = true;
+            if (software)
             {
                 for(var i = 0; i < buffer.Count; i++)
                     Shift.ShiftOut(this._nusbio, Nusbio.GetGpioIndex(this._spiEngine.MosiGpio), Nusbio.GetGpioIndex(this._spiEngine.ClockGpio), buffer[i]);
             }
             else
             {
+                BytesSentOutCounter += buffer.Count;
                 r = this._spiEngine.Transfer(buffer, optimizeDataLine: OptimizeSpiDataLine);
             }
             return r;

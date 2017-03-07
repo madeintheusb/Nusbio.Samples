@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Nusbio - Flash Memory Demo")]
+[assembly: AssemblyTitle("Nusbio - Flash NOR Memory FLASH_S25FL164K 8 Mbyte Demo")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MadeInTheUSB LLC")]

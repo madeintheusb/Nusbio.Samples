@@ -56,7 +56,7 @@ namespace MadeInTheUSB.Sensor
     /// </summary>
     public class TC77 : AnalogTemperatureSensor // Just inherited to inherit some methods
     {
-        private SPIEngine _spi;
+        public SPIEngine _spi;
 
         public TC77(Nusbio nusbio, 
             NusbioGpio clockGpio, 

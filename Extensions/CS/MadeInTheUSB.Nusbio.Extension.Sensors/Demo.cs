@@ -138,6 +138,12 @@ namespace DigitalPotentiometerSample
                     selectGpio: NusbioGpio.Gpio4
                     );
                 tc77.Begin();
+                
+                if(nusbio.Type == NusbioType.NusbioType1_Light)
+                {
+                    tc77._spi.SoftwareBitBangingMode = true;
+                    ad._spiEngine.SoftwareBitBangingMode = true;
+                }
 
                 while(nusbio.Loop())
                 {                    

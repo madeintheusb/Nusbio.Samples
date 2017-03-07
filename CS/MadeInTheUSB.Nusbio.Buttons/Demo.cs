@@ -59,6 +59,8 @@ namespace ButtonConsole
                 return;
             }
 
+            var halfSecondTimeOut = new TimeOut(500);
+
             using (var nusbio = new Nusbio(serialNumber))
             {
                 Cls(nusbio);
@@ -75,6 +77,11 @@ namespace ButtonConsole
 
                 while (nusbio.Loop())
                 {
+                    //if(halfSecondTimeOut.IsTimeOut())
+                    //{
+                    //    nusbio[2].DigitalWrite(!nusbio[2].State);
+                    //}
+
                     for (var x = 0; x < buttons.Count; x++)
                     {
 

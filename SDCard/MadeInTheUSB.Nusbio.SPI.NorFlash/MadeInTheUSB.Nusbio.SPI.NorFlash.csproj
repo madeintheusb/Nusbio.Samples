@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D4F651EB-8E40-4CA5-AE5B-144627F503CF}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MadeInTheUSB</RootNamespace>
+    <AssemblyName>MadeInTheUSB.Nusbio.I2C.EEPROM_24LC256</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.37.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Arduino\S25FLx\Ardunio\README.md" />
+    <None Include="Arduino\S25FLx\examples\S25FLx example.ino" />
+    <None Include="Arduino\S25FLx\README.md" />
+    <None Include="Linux\spi-nor\Kconfig" />
+    <None Include="Linux\spi-nor\Makefile" />
+    <None Include="README.md" />
+    <Compile Include="Demo.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Arduino\S25FLx\keywords.txt" />
+    <Content Include="Arduino\S25FLx\S25FLx.cpp" />
+    <Content Include="Arduino\S25FLx\S25FLx.h" />
+    <Content Include="Linux\spi-nor.h" />
+    <Content Include="Linux\spi-nor\atmel-quadspi.c" />
+    <Content Include="Linux\spi-nor\cadence-quadspi.c" />
+    <Content Include="Linux\spi-nor\fsl-quadspi.c" />
+    <Content Include="Linux\spi-nor\hisi-sfc.c" />
+    <Content Include="Linux\spi-nor\mtk-quadspi.c" />
+    <Content Include="Linux\spi-nor\nxp-spifi.c" />
+    <Content Include="Linux\spi-nor\spi-nor.c" />
+    <Content Include="Linux\spi\ad7877.h" />
+    <Content Include="Linux\spi\adi_spi3.h" />
+    <Content Include="Linux\spi\ads7846.h" />
+    <Content Include="Linux\spi\at73c213.h" />
+    <Content Include="Linux\spi\at86rf230.h" />
+    <Content Include="Linux\spi\cc2520.h" />
+    <Content Include="Linux\spi\corgi_lcd.h" />
+    <Content Include="Linux\spi\ds1305.h" />
+    <Content Include="Linux\spi\eeprom.h" />
+    <Content Include="Linux\spi\flash.h" />
+    <Content Include="Linux\spi\ifx_modem.h" />
+    <Content Include="Linux\spi\l4f00242t03.h" />
+    <Content Include="Linux\spi\libertas_spi.h" />
+    <Content Include="Linux\spi\lms283gf05.h" />
+    <Content Include="Linux\spi\max7301.h" />
+    <Content Include="Linux\spi\mc33880.h" />
+    <Content Include="Linux\spi\mcp23s08.h" />
+    <Content Include="Linux\spi\mmc_spi.h" />
+    <Content Include="Linux\spi\mxs-spi.h" />
+    <Content Include="Linux\spi\pxa2xx_spi.h" />
+    <Content Include="Linux\spi\rspi.h" />
+    <Content Include="Linux\spi\s3c24xx.h" />
+    <Content Include="Linux\spi\sh_hspi.h" />
+    <Content Include="Linux\spi\sh_msiof.h" />
+    <Content Include="Linux\spi\spi.h" />
+    <Content Include="Linux\spi\spi_bitbang.h" />
+    <Content Include="Linux\spi\spi_gpio.h" />
+    <Content Include="Linux\spi\spi_oc_tiny.h" />
+    <Content Include="Linux\spi\tdo24m.h" />
+    <Content Include="Linux\spi\tle62x0.h" />
+    <Content Include="Linux\spi\tsc2005.h" />
+    <Content Include="Linux\spi\xilinx_spi.h" />
+    <Content Include="TestFiles\FILE0000.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
+      <Project>{89aac166-2058-4657-9a64-aaf602f06327}</Project>
+      <Name>MadeInTheUSB.Nusbio.Components</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

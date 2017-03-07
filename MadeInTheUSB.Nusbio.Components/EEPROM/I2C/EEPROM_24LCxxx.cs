@@ -50,7 +50,6 @@ using System.Collections.Generic;
 using System.Threading;
 
 #if NUSBIO2
-using MadeInTheUSB.Nusbio2.Console;
 #endif
 
 namespace MadeInTheUSB.EEPROM
@@ -97,10 +96,9 @@ namespace MadeInTheUSB.EEPROM
                 Thread.Sleep(this._waitTimeAfterWriteOperation);
             return v;
 #else
-
             var outBuffer = new List<byte>() { (byte)(addr >> 8), (byte)(addr & 0xFF) };
             outBuffer.AddRange(buffer);
-            var r = Nusbio2NAL.__I2C_Helper_Write(base.DeviceId, outBuffer.ToArray()) == 1;
+            var r = Nusbio2NAL.I2C_Helper_Write(base.DeviceId, outBuffer.ToArray()) == 1;
 
             if (this._waitTimeAfterWriteOperation > 0)
                 System.Threading.Thread.Sleep(this._waitTimeAfterWriteOperation);
@@ -136,7 +134,7 @@ namespace MadeInTheUSB.EEPROM
 #if NUSBIO2
             var inBuffer = new List<byte>() { (byte)(addr >> 8), (byte)(addr & 0xFF) };
             r.Buffer = new byte[len]; // Must pre allocate the buffer for now
-            r.Succeeded = Nusbio2NAL.__I2C_Helper_WriteRead(base.DeviceId, inBuffer.ToArray(), r.Buffer) == 1;
+            r.Succeeded = Nusbio2NAL.I2C_Helper_WriteRead(base.DeviceId, inBuffer.ToArray(), r.Buffer) == 1;
             return r;
 #else
 

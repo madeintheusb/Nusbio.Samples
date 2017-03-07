@@ -76,6 +76,36 @@ namespace MadeInTheUSB.Display
 
         public int DeviceID;
 
+        private static List<int> I2C_IDS = new List<int>() { 0x27, 0x3F };
+
+        public static LiquidCrystal_I2C_PCF8574 Detect(Nusbio nusbio, int maxColumn, int maxRow, 
+            NusbioGpio sda = NusbioGpio.Gpio7,
+            NusbioGpio scl = NusbioGpio.Gpio6,
+            List<int> i2cIDs = null,
+            bool displayMessage = true)
+        {
+            if (i2cIDs == null)
+                i2cIDs = I2C_IDS;
+
+            foreach (var lcdI2cId in i2cIDs)
+            {
+                var lcdI2C = new LiquidCrystal_I2C_PCF8574(nusbio, sda, scl, maxColumn, maxRow, deviceId: lcdI2cId);
+                if (lcdI2C.Begin(maxColumn, maxRow))
+                {
+                    if(displayMessage)
+                        Console.WriteLine("I2C LCD ID:0x{0:X} found", lcdI2cId);
+                    System.Threading.Thread.Sleep(1000);
+                    return lcdI2C;
+                }
+                else
+                {
+                    if (displayMessage)
+                        Console.WriteLine("I2C LCD ID:0x{0:X} not found", lcdI2cId);
+                }
+            }
+            return null;
+        }
+
         public LiquidCrystal_I2C_PCF8574(Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin, int cols, int rows, int deviceId = 0x27, bool debug = false, int backlight = LCD_NOBACKLIGHT) : base(nusbio)
         {
             base.NumCols       = (uint8_t)cols;

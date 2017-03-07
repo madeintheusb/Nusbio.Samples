@@ -70,6 +70,7 @@ namespace MadeInTheUSB.Display
 
             if(waitTime> 0)
                 TimePeriod.Sleep(waitTime);
+
         }
         
         public static void NusbioRocks(ILiquidCrystal lc, int wait = 180)

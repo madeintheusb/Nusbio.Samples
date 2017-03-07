@@ -55,7 +55,7 @@ namespace MadeInTheUSB.EEPROM
 
 #else
         protected I2CEngine _i2c;
-        protected SPIEngine _spi;
+        public SPIEngine _spi;
 #endif
 
         abstract public bool WritePage(int addr, byte [] buffer);

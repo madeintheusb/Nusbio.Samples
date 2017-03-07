@@ -37,7 +37,8 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib">
+    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.37.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />

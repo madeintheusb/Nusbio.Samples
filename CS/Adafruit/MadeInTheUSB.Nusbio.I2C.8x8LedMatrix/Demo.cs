@@ -289,6 +289,9 @@ namespace MadeInTheUSB
             var clockPin           = NusbioGpio.Gpio0; // White
             var dataOutPin         = NusbioGpio.Gpio1; // Green
 
+            clockPin   = NusbioGpio.Gpio6;
+            dataOutPin = NusbioGpio.Gpio7;
+
             // The first Led matrix must have the default I2C id which is 0x70
             // The second one if plugged must have the is 0x71 (A0 Shorted)
             // Or change the I2C Id
@@ -310,6 +313,13 @@ namespace MadeInTheUSB
             });
             if(_ledMatrix00 == null)
                 return false;
+
+            // With Nusbio Light because there is no I2C data-in we cannot detect the response
+            // from the connected device. Make sure this first device above is connected.
+            // All other devices below must be connected for the program works correclty.
+            // Or we just do not initialize them
+            if (nusbio.Type == NusbioType.NusbioType1_Light)
+                return true;
 
             const byte LED_MATRIX_01_I2C_ADDR = 0x71;
             _ledMatrix01 = _multiLEDBackpackManager.Add(8, 8, nusbio, dataOutPin, clockPin, LED_MATRIX_01_I2C_ADDR);
@@ -372,7 +382,8 @@ namespace MadeInTheUSB
                 return;
             }
 
-            //Nusbio.BaudRate = 9600/8;
+            Nusbio.BaudRate = 115200;
+            //Nusbio.BaudRates = 115200;
 
             using (var nusbio = new Nusbio(serialNumber)) // , 
             {
