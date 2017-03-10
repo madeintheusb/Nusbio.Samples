@@ -54,6 +54,7 @@
     <None Include="..\..\Components\Nusbio.psm1">
       <Link>Nusbio.psm1</Link>
     </None>
+    <None Include="MotionSensor.ps1" />
     <None Include="i2cLCD.ps1" />
     <None Include="I2CTemperaturSensor.ps1" />
     <None Include="ReplDemo.ps1" />

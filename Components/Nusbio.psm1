@@ -139,10 +139,11 @@ function Nusbio_AddGpioProperties($nusbio) {
     Add-Member -InputObject $nusbio -MemberType NoteProperty -Name "Gpio7" -Value $nusbio.GetGPIO("Gpio7")
 }
 
-Write-Host "Nusbio PowerShell Module Initialization"
+Write-Host "`r`nNusbio PowerShell Module Initialization`r`n"
 Nusbio_CheckVersion
 try {
-	Write-Host "Loading $MadeInTheUSB_Nusbio_Lib_dll"
+    
+	Write-Host "Loading $([System.IO.Path]::GetFileName($MadeInTheUSB_Nusbio_Lib_dll))"
     Add-Type -ErrorAction Continue -Path $MadeInTheUSB_Nusbio_Lib_dll
 }
 catch [System.Exception] {
@@ -152,7 +153,7 @@ catch [System.Exception] {
     }
 }
 try {
-	Write-Host "Loading $MadeInTheUSB_Nusbio_Components_dll"
+	Write-Host "Loading $([System.IO.Path]::GetFileName($MadeInTheUSB_Nusbio_Components_dll))"
     Add-Type -ErrorAction Continue -Path $MadeInTheUSB_Nusbio_Components_dll
 }
 catch [System.Exception] {
@@ -181,9 +182,17 @@ $Kelvin     = [MadeInTheUSB.TemperatureType]::Kelvin
 $High  = [MadeInTheUSB.GPIO.PinState]::High
 $Low   = [MadeInTheUSB.GPIO.PinState]::Low
 
+$InputMode   = [MadeInTheUSB.GPIO.PinMode]::Input
+$OutputMode  = [MadeInTheUSB.GPIO.PinMode]::Output
+$InputPullUp = [MadeInTheUSB.GPIO.PinMode]::InputPullUp
+    
 Export-ModuleMember -function pUsing, Nusbio_RegisterWebServerUrlEvent, Nusbio_AddGpioProperties, Nusbio_GetGpioState, Nusbio_Help
+Export-ModuleMember -Variable $InputMode, $OutputMode, $InputPullUp
 Export-ModuleMember -Variable $Gpio0, $Gpio1, $Gpio2, $Gpio3, $Gpio4, $Gpio5, $Gpio6, $Gpio7
 Export-ModuleMember -Variable $High, $Low
 Export-ModuleMember -Variable $Celsius, $Fahrenheit, $Kelvin
+
+
 #Export-ModuleMember -Variable $script:__WebServerUrlEvent__ 
+
 
