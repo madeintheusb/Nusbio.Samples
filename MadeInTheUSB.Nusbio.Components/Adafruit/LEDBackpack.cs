@@ -289,9 +289,7 @@ namespace MadeInTheUSB.Adafruit
 
         bool Ii2cOut.i2c_WriteBuffer(byte[] buffer)
         {
-            var b = new List<byte>() {(byte)this.DeviceId};
-            b.AddRange(buffer);
-            return Nusbio2NAL.I2C_Helper_Write(this.DeviceId, b.ToArray()) == 1;
+            return Nusbio2NAL.I2C_Helper_Write(this.DeviceId, buffer.ToArray()) == 1;
         }
         bool Ii2cOut.i2c_WriteReadBuffer(byte[] writeBuffer, byte[] readBuffer)
         {

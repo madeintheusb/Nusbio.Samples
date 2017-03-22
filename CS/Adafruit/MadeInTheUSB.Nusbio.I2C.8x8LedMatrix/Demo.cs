@@ -289,8 +289,8 @@ namespace MadeInTheUSB
             var clockPin           = NusbioGpio.Gpio0; // White
             var dataOutPin         = NusbioGpio.Gpio1; // Green
 
-            clockPin   = NusbioGpio.Gpio6;
-            dataOutPin = NusbioGpio.Gpio7;
+            //clockPin   = NusbioGpio.Gpio6;
+            //dataOutPin = NusbioGpio.Gpio7;
 
             // The first Led matrix must have the default I2C id which is 0x70
             // The second one if plugged must have the is 0x71 (A0 Shorted)
@@ -382,7 +382,7 @@ namespace MadeInTheUSB
                 return;
             }
 
-            Nusbio.BaudRate = 115200;
+            //Nusbio.BaudRate = 115200;
             //Nusbio.BaudRates = 115200;
 
             using (var nusbio = new Nusbio(serialNumber)) // , 

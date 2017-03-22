@@ -200,7 +200,9 @@ namespace MadeInTheUSB.EEPROM
         {
             var b = this.MaxByte;
             var p = this.MaxPage;
+            base._spi.Unselect();
             this.SetWriteRegisterEnable();
+            
             //this.SetWriteRegisterDisable();
         }
 #endif

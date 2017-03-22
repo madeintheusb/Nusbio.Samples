@@ -64,7 +64,7 @@ namespace DigitalPotentiometerSample
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
             //ConsoleEx.WriteMenu(-1, 2, "0) --- ");
-            ConsoleEx.WriteMenu(-1, 12, "Q)uit");
+            ConsoleEx.WriteMenu(-1, 13, "Q)uit");
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
             ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
         }
@@ -74,10 +74,10 @@ namespace DigitalPotentiometerSample
             switch (type)
             {
                 case AnalogLightSensor.LightSensorType.CdsPhotoCell_3mm_45k_140k:
-                    lightSensor.AddCalibarationValue("Dark", 0, 20);
-                    lightSensor.AddCalibarationValue("Office Night", 21, 65);
-                    lightSensor.AddCalibarationValue("Office Day", 65, 100);
-                    lightSensor.AddCalibarationValue("Outdoor Sun Light", 101, 1024);
+                    lightSensor.AddCalibarationValue("Dark", 0, 35);
+                    lightSensor.AddCalibarationValue("Office Night", 35, 100);
+                    lightSensor.AddCalibarationValue("Office Day", 101, 175);
+                    lightSensor.AddCalibarationValue("Outdoor Sun Light", 151, 1024);
                     break;
                 case AnalogLightSensor.LightSensorType.Unknown:
                 case AnalogLightSensor.LightSensorType.CdsPhotoCell_5mm_5k_200k:
@@ -103,6 +103,12 @@ namespace DigitalPotentiometerSample
             using (var nusbio = new Nusbio(serialNumber))
             {
                 Cls(nusbio);
+
+                const int lightSensorAnalogPort       = 6;
+                const int motionSensorAnalogPort      = 1;
+                const int temperatureSensorAnalogPort = 0;
+                const int multiButtonPort             = 3;
+
                 var halfSeconds = new TimeOut(500);
                 /*
                     Mcp300X - SPI Config
@@ -125,16 +131,17 @@ namespace DigitalPotentiometerSample
                 analogMotionSensor.Begin();
 
                 var lightSensor = CalibrateLightSensor(new AnalogLightSensor(nusbio), AnalogLightSensor.LightSensorType.CdsPhotoCell_3mm_45k_140k);
-
                 lightSensor.Begin();
+
+                AnalogSensor multiButton = null;
+                //multiButton = new AnalogSensor(nusbio, multiButtonPort);
+                //multiButton.Begin();
 
                 while (nusbio.Loop())
                 {
                     if (halfSeconds.IsTimeOut())
                     {
-                        const int lightSensorAnalogPort = 6;
-                        const int motionSensorAnalogPort = 1;
-                        const int temperatureSensorAnalogPort = 0;
+                       
 
                         ConsoleEx.WriteLine(0, 2, string.Format("{0,-20}", DateTime.Now, lightSensor.AnalogValue), ConsoleColor.Cyan);
 
@@ -144,8 +151,8 @@ namespace DigitalPotentiometerSample
                             lightSensor.AnalogValue,
                             lightSensor.Voltage), ConsoleColor.Cyan);
 
-                        var aaa= ad.Read(temperatureSensorAnalogPort);
-                        analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort));
+                        const int TMP36_AccuracyCorrection = 13;
+                        analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort, TMP36_AccuracyCorrection));
                         ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",
                             analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius),
                             analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Fahrenheit),
@@ -156,7 +163,16 @@ namespace DigitalPotentiometerSample
                         var motionType = analogMotionSensor.MotionDetected();
                         if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected || motionType == DigitalMotionSensorPIR.MotionDetectedType.None)
                         {
-                            ConsoleEx.Write(0, 8, string.Format("Motion Sensor     : {0,-20} (ADValue:{1:000.000}, Volt:{2:000.000})", motionType, analogMotionSensor.AnalogValue, analogMotionSensor.Voltage), ConsoleColor.Cyan);
+                            ConsoleEx.Write(0, 8, string.Format("Motion Sensor      : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})", motionType, analogMotionSensor.AnalogValue, analogMotionSensor.Voltage), ConsoleColor.Cyan);
+                        }
+
+                        if(multiButton != null)
+                        {
+                            multiButton.SetAnalogValue(ad.Read(multiButtonPort));
+                            ConsoleEx.Write(0,10, string.Format("Multi Button       : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})",
+                                multiButton.AnalogValue > 2 ? "Down" : "Up  ", 
+                                multiButton.AnalogValue, 
+                                multiButton.Voltage), ConsoleColor.Cyan);
                         }
                     }
 

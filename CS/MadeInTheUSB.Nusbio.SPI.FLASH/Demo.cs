@@ -287,6 +287,7 @@ namespace MadeInTheUSB
                     );
 
                 _flash.Begin();
+                
 
                 var r1 = _flash.GetRegister1();
 

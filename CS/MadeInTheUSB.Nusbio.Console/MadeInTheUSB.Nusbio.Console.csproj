@@ -72,6 +72,12 @@
   <ItemGroup>
     <Folder Include="Ref\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
+      <Project>{89aac166-2058-4657-9a64-aaf602f06327}</Project>
+      <Name>MadeInTheUSB.Nusbio.Components</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

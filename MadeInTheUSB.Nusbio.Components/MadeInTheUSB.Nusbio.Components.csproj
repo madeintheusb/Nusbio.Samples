@@ -107,7 +107,6 @@
     <Compile Include="POTENTIOMETER\MCP413x.cs" />
     <Compile Include="POTENTIOMETER\Potentiometer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExpEval\Nusbio.ExpressionEval.cs" />
     <Compile Include="Relay\Relay.cs" />
     <Compile Include="SENSOR\AnalogSensor.cs" />
     <Compile Include="SENSOR\Motion\DigitalMotionSensorPIR.cs" />

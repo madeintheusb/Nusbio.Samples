@@ -29,6 +29,8 @@ using MadeInTheUSB;
 using MadeInTheUSB.GPIO;
 using DynamicSugar;
 using MadeInTheUSB.WinUtil;
+using MadeInTheUSB.Sensor;
+using static MadeInTheUSB.Sensor.DigitalMotionSensorPIR;
 
 namespace NusbioConsole
 {
@@ -88,7 +90,6 @@ namespace NusbioConsole
                     Console.ReadKey();
                 }
             }
-
         }
 
         private static void AnimateBlocking3(Nusbio nusbio)
@@ -357,6 +358,87 @@ namespace NusbioConsole
             ConsoleEx.Gotoxy(0, 24);
         }
 
+        const NusbioGpio _motionSensor = NusbioGpio.Gpio1;
+        const NusbioGpio _cameraGpio = NusbioGpio.Gpio0;
+
+        static void CameraCapture(Nusbio nusbio, bool wait = true)
+        {
+            if(wait)
+                Console.Write("Capturing picture. ");
+            nusbio[_cameraGpio].Low();
+            Thread.Sleep(55);
+            nusbio[_cameraGpio].High(); // Should be high by default
+            if (wait)
+            {
+                Console.Write("Saving to SD Card.");
+                Thread.Sleep(4 * 1000);
+            }
+            Console.WriteLine("");
+        }
+
+        static ConsoleKeyInfo SmartWait(double dSecond)
+        {
+            if(dSecond < 1)
+            {
+                Thread.Sleep((int)(dSecond * 1000));
+                if (Console.KeyAvailable)
+                {
+                    return Console.ReadKey(true);
+                }
+                else return new ConsoleKeyInfo();
+            }
+
+            for (var s = 0; s < (int)dSecond; s++)
+            {
+                Thread.Sleep(1 * 1000);
+                if (Console.KeyAvailable)
+                {
+                    return Console.ReadKey(true);
+                }
+            }
+            return new ConsoleKeyInfo();
+        }
+
+        static void CameraCaptureModeCls()
+        {
+            var title = "Motion Triggered Camera Capture Application";
+            Console.Clear();
+            ConsoleEx.TitleBar(0, title, ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
+            ConsoleEx.Gotoxy(0, 4);
+        }
+
+        static void CameraCaptureMode(Nusbio nusbio)
+        {
+            CameraCaptureModeCls();
+            var motionSensor = new DigitalMotionSensorPIR(nusbio, _motionSensor, 6);
+            nusbio[_cameraGpio].High(); // Should be high by default
+
+            if(ConsoleEx.Question(2, "Nusbio ready, turn camera on, Continue Y)es N)o", new List<char>() { 'Y', 'N'} ) == 'Y')
+            {
+                CameraCaptureModeCls();
+
+                // it seems that the first pulse does not trigger a photo
+                // and a second pulse is necessary
+                Console.WriteLine("Initializing Camera...");
+                CameraCapture(nusbio, false);
+                CameraCapture(nusbio, true);
+                CameraCaptureModeCls();
+
+                while (nusbio.Loop(20))
+                {
+                    var k = SmartWait(.5);
+                    if (k.Key == ConsoleKey.Q)
+                        break;
+                    if (motionSensor.MotionDetected() == MotionDetectedType.MotionDetected)
+                    {
+                        Console.WriteLine("Motion detected at {0}", DateTime.Now);
+                        CameraCapture(nusbio);
+                    }
+                }
+            }
+        }
+
         public static void Run(string[] args)
         {
             Console.WriteLine("Nusbio Initializing");
@@ -373,6 +455,9 @@ namespace NusbioConsole
             {
                 nusbio.UrlEvent += NusbioUrlEvent;
                 Cls(nusbio);
+                //CameraCaptureMode(nusbio);
+                //return;
+
                 while (nusbio.Loop(20))
                 {
                     if (Console.KeyAvailable)
@@ -408,6 +493,17 @@ namespace NusbioConsole
                                     AnimateNonBlocking2(nusbio);
                             }
 
+                            if (key == ConsoleKey.Z)
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Pulse gpio1");
+                                ReverseGpio(_cameraGpio, nusbio);
+                                Thread.Sleep(50);
+                                ReverseGpio(_cameraGpio, nusbio);
+                                Console.WriteLine("Done");
+                                Console.ReadKey();
+                            }
+
                             if (key == ConsoleKey.F3) AnimateBlocking3(nusbio);
                             if (key == ConsoleKey.C) Configuration(nusbio);
 
@@ -435,3 +531,4 @@ namespace NusbioConsole
         }
     }
 }
+

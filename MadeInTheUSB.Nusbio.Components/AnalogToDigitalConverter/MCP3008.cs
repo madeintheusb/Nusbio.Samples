@@ -129,7 +129,7 @@ namespace MadeInTheUSB
         /// </summary>
         /// <param name="port"></param>
         /// <returns></returns>
-        public int Read(int port)
+        public int Read(int port, int percentageAdjust = -1)
         {
             if ((port > 7) || (port < 0))
                 throw new ArgumentException(string.Format("Invalid analog port {0}", port));
@@ -138,7 +138,12 @@ namespace MadeInTheUSB
             var port2       = (byte)((_channelInSingleMode[port] << 4));
             var r1          = this._spiEngine.Transfer(new List<Byte>() { 0x1, port2, junk });
 
-            return ValidateOperation(r1);
+            var v = ValidateOperation(r1);
+            if(percentageAdjust != -1)
+            {
+                v = v + (v * percentageAdjust / 100);
+            }
+            return v;
         }
 
         private int ValidateOperation(SPIResult result)

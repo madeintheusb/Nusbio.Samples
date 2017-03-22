@@ -46,7 +46,7 @@ namespace MadeInTheUSB.Sensor
         /// <summary>
         /// 5 Volt reference voltage -- Nusbio is a 5 volt device
         /// </summary>
-        public double ReferenceVoltage = 3.258;//5.09 3.258
+        public double ReferenceVoltage = 5;
 
         public AnalogSensor(Nusbio nusbio, int adPort = -1)
         {
