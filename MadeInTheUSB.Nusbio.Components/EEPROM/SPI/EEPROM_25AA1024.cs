@@ -27,6 +27,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace MadeInTheUSB.EEPROM
 {
@@ -80,20 +83,23 @@ namespace MadeInTheUSB.EEPROM
 
         public bool WriteAll(int addr, List<byte> buffer, Action<int, int> notifyWritePage = null)
         {
-            if (buffer.Count%this.PAGE_SIZE != 0)
+            if (buffer.Count % this.PAGE_SIZE != 0)
                 throw new ArgumentException(string.Format("Buffer length must be a multiple of {0}", this.PAGE_SIZE));
 
-            var cAddr = addr;
+            var cAddr       = addr;
+            var bufferIndex = 0;
+
             var pageToWrite = buffer.Count/this.PAGE_SIZE;
             for (var p = 0; p < pageToWrite; p++)
             {
                 if(notifyWritePage != null)
                     notifyWritePage(p, pageToWrite);
 
-                var tmpBuffer = buffer.GetRange(cAddr, this.PAGE_SIZE);
+                var tmpBuffer = buffer.GetRange(bufferIndex, this.PAGE_SIZE);
                 if(!this.WritePage(cAddr, tmpBuffer.ToArray()))
                     return false;
                 cAddr += this.PAGE_SIZE;
+                bufferIndex += this.PAGE_SIZE;
             }
             return true;
         }

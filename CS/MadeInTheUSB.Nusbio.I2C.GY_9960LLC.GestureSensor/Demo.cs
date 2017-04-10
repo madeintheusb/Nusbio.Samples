@@ -196,8 +196,8 @@ namespace MadeInTheUSB
                         var k = Console.ReadKey(true).Key;
                         if (k == ConsoleKey.A)
                             Cls(nusbio);
-                        if (k == ConsoleKey.G)
-                            LightSensor(nusbio, gy_9960LLC);
+                        //if (k == ConsoleKey.G)
+                        //    LightSensor(nusbio, gy_9960LLC);
                         if (k == ConsoleKey.G)
                             GestureMode(nusbio, gy_9960LLC);
                         if (k == ConsoleKey.Q)

@@ -109,10 +109,7 @@ namespace DigitalPotentiometerSample
             {
                 Cls(nusbio);
 
-                nusbio[ledGpio].High();
-                nusbio[ledGpio].Low();
-
-                var halfSeconds = new TimeOut(350);
+                var halfSeconds = new TimeOut(333);
 
                 // Mcp300X Analog To Digital - SPI Config
                 ad = new MCP3008(nusbio, 
@@ -129,7 +126,14 @@ namespace DigitalPotentiometerSample
 
                 var lightSensor = CalibrateLightSensor(new AnalogLightSensor(nusbio), AnalogLightSensor.LightSensorType.CdsPhotoCell_3mm_45k_140k);
                 lightSensor.Begin();
-                
+
+                // Analog Port 5, 6, 7 are only available in
+                // Analog Extension PCBv2
+                const int multiButtonPort = 5;
+                AnalogSensor multiButton = null;
+                //multiButton = new AnalogSensor(nusbio, multiButtonPort);
+                //multiButton.Begin();
+
                 // TC77 Temperature Sensor SPI
                 var tc77 = new TC77(nusbio,
                     clockGpio:  NusbioGpio.Gpio0,
@@ -171,6 +175,15 @@ namespace DigitalPotentiometerSample
                         button.SetAnalogValue(ad.Read(buttonSensorAnalogPort));
                         ConsoleEx.WriteLine(0, 10, string.Format("Button             : {0,-18} [{1:0000}, {2:0.00}V]   ",  
                             button.Down ? "Down" : "Up", button.AnalogValue, button.Voltage), ConsoleColor.Cyan);
+
+                        if (multiButton != null)
+                        {
+                            multiButton.SetAnalogValue(ad.Read(multiButtonPort));
+                            ConsoleEx.Write(0, 12, string.Format("Multi Button       : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})",
+                                multiButton.AnalogValue > 2 ? "Down" : "Up  ",
+                                multiButton.AnalogValue,
+                                multiButton.Voltage), ConsoleColor.Cyan);
+                        }
                     }
 
                     if (Console.KeyAvailable)

@@ -87,6 +87,18 @@ namespace MadeInTheUSB.Sensor
         }
 
         /// <summary>
+        /// http://www.microchip.com/wwwproducts/en/TC77
+        /// ±1°C Accuracy from +25°C to +65°C
+        /// ±2°C Accuracy from -40°C to +85°C
+        /// Testing at +21°C the sensor return +23°C which ±2°C Accuracy 
+        /// that is ok according the datasheet, but is not great in term of
+        /// accuracy, specially in Fahrenheit. 
+        /// Set this value to 0.059 to approximate a better temperature.
+        /// TODO: Re test when temperature is > +25°C
+        /// </summary>
+        public double CelciusConverter = 0.0625; // 0.0625 0.059
+
+        /// <summary>
         /// // http://www.kerrywong.com/2012/10/10/mcp2210-library-spi-example-using-tc77/
         /// </summary>
         /// <returns></returns>
@@ -102,7 +114,7 @@ namespace MadeInTheUSB.Sensor
             else
                 tempVal = (((r.Buffer[0] & 0x7f) << 8 | r.Buffer[1]) >> 3) - 4096;
  
-            double tempC = tempVal * 0.0625;
+            double tempC = tempVal * CelciusConverter;
 
             return tempC;
 

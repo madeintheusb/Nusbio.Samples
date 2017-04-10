@@ -109,7 +109,7 @@ namespace DigitalPotentiometerSample
                 const int temperatureSensorAnalogPort = 0;
                 const int multiButtonPort             = 3;
 
-                var halfSeconds = new TimeOut(500);
+                var halfSeconds = new TimeOut(200);
                 /*
                     Mcp300X - SPI Config
                     gpio 0 - CLOCK
@@ -134,16 +134,16 @@ namespace DigitalPotentiometerSample
                 lightSensor.Begin();
 
                 AnalogSensor multiButton = null;
-                //multiButton = new AnalogSensor(nusbio, multiButtonPort);
-                //multiButton.Begin();
+                multiButton = new AnalogSensor(nusbio, multiButtonPort);
+                multiButton.Begin();
+
+                ulong loopCounter = 0;
 
                 while (nusbio.Loop())
                 {
                     if (halfSeconds.IsTimeOut())
                     {
-                       
-
-                        ConsoleEx.WriteLine(0, 2, string.Format("{0,-20}", DateTime.Now, lightSensor.AnalogValue), ConsoleColor.Cyan);
+                        ConsoleEx.WriteLine(0, 2, string.Format("{0,-20}, {1}", DateTime.Now, loopCounter++), ConsoleColor.Cyan);
 
                         lightSensor.SetAnalogValue(ad.Read(lightSensorAnalogPort));
                         ConsoleEx.WriteLine(0, 4, string.Format("Light Sensor       : {0} (ADValue:{1:000.000}, Volt:{2:000.000})    ",
@@ -151,7 +151,7 @@ namespace DigitalPotentiometerSample
                             lightSensor.AnalogValue,
                             lightSensor.Voltage), ConsoleColor.Cyan);
 
-                        const int TMP36_AccuracyCorrection = 13;
+                        const int TMP36_AccuracyCorrection = -1;
                         analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort, TMP36_AccuracyCorrection));
                         ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",
                             analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius),
@@ -161,17 +161,19 @@ namespace DigitalPotentiometerSample
 
                         analogMotionSensor.SetAnalogValue(ad.Read(motionSensorAnalogPort));
                         var motionType = analogMotionSensor.MotionDetected();
-                        if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected || motionType == DigitalMotionSensorPIR.MotionDetectedType.None)
+                        if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected
+                            || motionType == DigitalMotionSensorPIR.MotionDetectedType.None
+                            || motionType == DigitalMotionSensorPIR.MotionDetectedType.SameMotionDetected)
                         {
                             ConsoleEx.Write(0, 8, string.Format("Motion Sensor      : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})", motionType, analogMotionSensor.AnalogValue, analogMotionSensor.Voltage), ConsoleColor.Cyan);
                         }
 
-                        if(multiButton != null)
+                        if (multiButton != null)
                         {
                             multiButton.SetAnalogValue(ad.Read(multiButtonPort));
-                            ConsoleEx.Write(0,10, string.Format("Multi Button       : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})",
-                                multiButton.AnalogValue > 2 ? "Down" : "Up  ", 
-                                multiButton.AnalogValue, 
+                            ConsoleEx.Write(0, 10, string.Format("Multi Button       : {0,-18} (ADValue:{1:000.000}, Volt:{2:000.000})",
+                                multiButton.AnalogValue > 2 ? "Down" : "Up  ",
+                                multiButton.AnalogValue,
                                 multiButton.Voltage), ConsoleColor.Cyan);
                         }
                     }

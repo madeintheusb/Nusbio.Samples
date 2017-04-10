@@ -39,63 +39,47 @@ namespace MadeInTheUSB.Sensor
     /// </summary>
     public class AnalogMotionSensor : AnalogSensor
     {
-        private DateTime?    _motionDetectedTimeStamp;
         private readonly int _resetTimeInSecond;
+
+        TimeOut _timeOut;
 
         public AnalogMotionSensor(Nusbio nusbio, int resetTimeInSecond = 4) : base(nusbio)
         {
             this._resetTimeInSecond = resetTimeInSecond;
+            this._timeOut = null;
+            
         }
 
         public virtual bool Begin()
         {
             return true;
         }
-        
-        private bool IsResetTimeOver()
-        {
-            if (this._motionDetectedTimeStamp.HasValue)
-            {
-                TimeSpan span = DateTime.Now - this._motionDetectedTimeStamp.Value;
-                return span.TotalSeconds > this._resetTimeInSecond;
-            }
-            else return false;
-        }
 
         public DigitalMotionSensorPIR.MotionDetectedType MotionDetected()
         {
-            //return this.AnalogValue > 1 ? DigitalMotionSensorPIR.MotionDetectedType.MotionDetected : DigitalMotionSensorPIR.MotionDetectedType.None; 
-
             if (this.AnalogValue > 1)
             {
-                if (!_motionDetectedTimeStamp.HasValue)
+                if(this._timeOut == null)
                 {
-                    // Just detected a motion, start counting for reset and return true
-                    this._motionDetectedTimeStamp = DateTime.Now;
+                    // Start a timeout and return MotionDetected
+                    this._timeOut = new TimeOut(this._resetTimeInSecond);
                     return DigitalMotionSensorPIR.MotionDetectedType.MotionDetected;
                 }
                 else
                 {
-                    if (this.IsResetTimeOver())
+                    if (this._timeOut.IsTimeOut())
                     {
-                        // Just detected a new motion, start counting for reset and return true
-                        //Console.WriteLine("RE DETECTTION = "+DateTime.Now );
-                        this._motionDetectedTimeStamp = DateTime.Now;
+                        // this is a new timeout
+                        this._timeOut = new TimeOut(this._resetTimeInSecond);
                         return DigitalMotionSensorPIR.MotionDetectedType.MotionDetected;
                     }
                     else
-                    {
-                        // We are in the 4 seconds reset period, let's say it is the same motion detected previously
                         return DigitalMotionSensorPIR.MotionDetectedType.SameMotionDetected;
-                    }
                 }
             }
             else
             {
-                if (this.IsResetTimeOver())
-                {
-                    this._motionDetectedTimeStamp = null;
-                }
+                this._timeOut = null;
                 return DigitalMotionSensorPIR.MotionDetectedType.None;
             }
         }

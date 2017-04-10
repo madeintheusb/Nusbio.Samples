@@ -74,6 +74,7 @@
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
     <Compile Include="EEPROM\EEPROM_BASE_CLASS.cs" />
+    <Compile Include="EEPROM\SPI\EEPROM_25AA1024.FileSystem.cs" />
     <Compile Include="EEPROM\SPI\NOR_FLASH.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.Nusbio.1.cs" />
     <Compile Include="FLASH\FLASH_S25FL1xxK.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="GpioExpander\McpGpio.cs" />
     <Compile Include="Oled\OLED.cs" />
     <Compile Include="Oled\OLED_SSD1306.cs" />
+    <Compile Include="PrivatePublicKeyHelper\PrivatePublicKeyHelper.cs" />
     <Compile Include="SENSOR\Gesture\GY-9960LLC APDS-9960 Sensors.cs" />
     <Compile Include="SENSOR\Temperature\SPI.TC77.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AA1024.cs" />
@@ -112,6 +114,13 @@
     <Compile Include="SENSOR\Motion\DigitalMotionSensorPIR.cs" />
     <Compile Include="SENSOR\Temperature\AnalogTemperatureSensor.cs" />
     <Compile Include="SENSOR\Temperature\TMP36_Analog_Temperature Sensor.cs" />
+    <Compile Include="Utils\Encryptor\Aes.cs" />
+    <Compile Include="Utils\Encryptor\CleaningByteArray.cs" />
+    <Compile Include="Utils\Encryptor\PublicEncryptor.cs" />
+    <Compile Include="Utils\Encryptor\Md5.cs" />
+    <Compile Include="Utils\Encryptor\RijndaelManaged.cs" />
+    <Compile Include="Utils\ExecuteProgram.cs" />
+    <Compile Include="Utils\Serializer.cs" />
     <None Include="Adafruit\Nusbio1 Nusbio2 Support.md" />
     <None Include="packages.config" />
     <Compile Include="SENSOR\Light\AnalogLightSensor.cs" />

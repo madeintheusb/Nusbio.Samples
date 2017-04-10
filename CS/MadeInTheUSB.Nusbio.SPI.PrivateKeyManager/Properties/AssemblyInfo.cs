@@ -1,16 +1,16 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MadeInTheUSB.Nusbio.Components")]
+[assembly: AssemblyTitle("Nusbio - Private/Public Keys Manager")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MadeInTheUSB LCC")]
-[assembly: AssemblyProduct("MadeInTheUSB.Nusbio.Components")]
-[assembly: AssemblyCopyright("Copyright © MadeInTheUSB LCC 2015")]
+[assembly: AssemblyCompany("MadeInTheUSB LLC")]
+[assembly: AssemblyProduct("Nusbio - Private/Public Keys Manager")]
+[assembly: AssemblyCopyright("Copyright (C) MadeInTheUSB LLC 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("de6004dd-a260-4af7-ae48-499fa5fd7108")]
+[assembly: Guid("657b57ba-5f3f-4a3e-8d07-1a4eadfea87a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.38.0")]
-[assembly: AssemblyFileVersion("1.0.38.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

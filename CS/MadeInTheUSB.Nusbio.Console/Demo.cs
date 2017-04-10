@@ -450,7 +450,7 @@ namespace NusbioConsole
             }
 
             var halfSecondTimeOut = new TimeOut(20);
-
+            
             using (var nusbio = new Nusbio(serialNumber: serialNumber, webServerPort: 1964))
             {
                 nusbio.UrlEvent += NusbioUrlEvent;

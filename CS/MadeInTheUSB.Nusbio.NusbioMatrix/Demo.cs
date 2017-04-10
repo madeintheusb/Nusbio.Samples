@@ -944,7 +944,7 @@ namespace NusbioMatrixNS
                 var origin = NusbioMatrix.MAX7219_WIRING_TO_8x8_LED_MATRIX.OriginBottomRightCorner;
 #endif
 
-            //Nusbio.BaudRate = Nusbio.FastestBaudRate / 4;
+            //Nusbio.BaudRate = Nusbio.FastestBaudRate / 16;
 
             using (var nusbio = new Nusbio(serialNumber))
             {

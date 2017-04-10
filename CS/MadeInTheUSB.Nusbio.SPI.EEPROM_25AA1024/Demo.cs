@@ -299,6 +299,8 @@ namespace MadeInTheUSB
                 return;
             }
 
+            //Nusbio.BaudRate = Nusbio.BaudRate / 16;
+
             using (var nusbio = new Nusbio(serialNumber))
             {
                 _eeprom = new EEPROM_25AA1024(
