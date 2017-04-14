@@ -74,7 +74,7 @@
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
     <Compile Include="EEPROM\EEPROM_BASE_CLASS.cs" />
-    <Compile Include="EEPROM\SPI\EEPROM_25AA1024.FileSystem.cs" />
+    <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.cs" />
     <Compile Include="EEPROM\SPI\NOR_FLASH.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.Nusbio.1.cs" />
     <Compile Include="FLASH\FLASH_S25FL1xxK.cs" />

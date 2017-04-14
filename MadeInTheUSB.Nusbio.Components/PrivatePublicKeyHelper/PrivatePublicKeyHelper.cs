@@ -1,7 +1,6 @@
 /*
-    
-   Copyright (C) 2015 MadeInTheUSB LLC
-   Ported to C# and Nusbio by FT for MadeInTheUSB
+   Copyright (C) 2017 MadeInTheUSB LLC
+   by FT for MadeInTheUSB
 
    The MIT License (MIT)
 
@@ -24,26 +23,6 @@
         THE SOFTWARE.
   
     MIT license, all text above must be included in any redistribution
- 
-   Based from:
- 
-        This is a "Fast SH1106 Library". It is designed to be used with
-        128x64 OLED displays, driven by the SH1106 controller.
-        This library uses hardware SPI of your Arduino microcontroller,
-        and does not supprt 'software SPI' mode.
- 
-        Written by Arthur Liberman (aka 'The Coolest'). http://www.alcpu.com
-        Special thanks goes out to 'robtillaart' for his help with debugging
-        and optimization.
-
-        BSD license, check license.txt for more information.
-        All text above must be included in any redistribution.
- 
-   Also based 
-       on stanleyhuangyc/MultiLCD
-       https://github.com/stanleyhuangyc/MultiLCD/tree/master/MicroLCD
-       officeboy/sh1106
-       https://github.com/officeboy/sh1106/blob/master/firmware/sh1106.cpp
 */
 
 using System;
@@ -69,7 +48,7 @@ namespace MadeInTheUSB.Security
     {
         public string PrivateKey { get { return keys.PrivateKey; } set { keys.PrivateKey = value; } }
         public string PublicKey { get { return keys.PublicKey; } set { keys.PublicKey = value; } }
-        EncryptorRSAKeys keys;
+        EncryptorKeys keys;
 
         public enum KeyType
         {
@@ -103,7 +82,6 @@ namespace MadeInTheUSB.Security
             return EncryptorRSA.EncryptBuffer(buffer, publicKey);
         }
 
-
         public bool UnitTest()
         {
             string data0 = @"To Sherlock Holmes she is always the woman. I have seldom heard him mention her under any other name. In his eyes she eclipses and predominates the whole of her sex. It was not that he felt any emotion akin to love for Irene Adler. All emotions, and that one particularly, were abhorrent to his cold, precise but admirably balanced mind. He was, I take it, the most perfect reasoning and observing machine that the world has seen, but as a lover he would have placed himself in a false position. He never spoke of the softer passions, save with a gibe and a sneer. They were admirable things for the observer—excellent for drawing the veil from men’s motives and actions. But for the trained reasoner to admit such intrusions into his own delicate and finely adjusted temperament was to introduce a distracting factor which might throw a doubt upon all his mental results. Grit in a sensitive instrument, or a crack in one of his own high-power lenses, would not be more disturbing than a strong emotion in a nature such as his. And yet there was but one woman to him, and that woman was the late Irene Adler, of dubious and questionable memory.";
@@ -120,9 +98,8 @@ namespace MadeInTheUSB.Security
         }
     }
 
-
     [Serializable]
-    public class EncryptorRSAKeys
+    public class EncryptorKeys
     {
         public string PublicKey { get; set; }
         public string PrivateKey { get; set; }
@@ -133,12 +110,12 @@ namespace MadeInTheUSB.Security
     {
         private static bool _optimalAsymmetricEncryptionPadding = false;
 
-        public static EncryptorRSAKeys GenerateKeys(int keySize)
+        public static EncryptorKeys GenerateKeys(int keySize)
         {
             if (keySize % 2 != 0 || keySize < 512)
                 throw new Exception("Key should be multiple of two and greater than 512.");
 
-            var response = new EncryptorRSAKeys();
+            var response = new EncryptorKeys();
             using (var provider = new RSACryptoServiceProvider(keySize))
             {
                 response.PublicKey = provider.ToXmlString(false);
@@ -152,20 +129,18 @@ namespace MadeInTheUSB.Security
 
         public static byte[] DecryptBuffer(byte[] buffer, string privateKey)
         {
-            
             string publicAndPrivateKeyXml = privateKey;
-
-            //GetKeyFromEncryptionString(privateKey, out keySize, out publicAndPrivateKeyXml);
 
             using (var provider = new RSACryptoServiceProvider(PrivatePublicKeyHelper.KeySize))
             {
                 provider.FromXmlString(publicAndPrivateKeyXml);
-                var allBuffer = new List<byte>();
 
-                var tmpBuffer = new byte[MAX_CHAR_DEENCRYPTABLE];
-                var bufferX = 0;
-                var bufferOffSet = 0;
+                var allBuffer      = new List<byte>();
+                var tmpBuffer      = new byte[MAX_CHAR_DEENCRYPTABLE];
+                var bufferX        = 0;
+                var bufferOffSet   = 0;
                 bool invalidBuffer = false;
+
                 while (buffer.Length - bufferOffSet > 0)
                 {
                     for (var i = 0; i < MAX_CHAR_DEENCRYPTABLE; i++)
@@ -184,9 +159,6 @@ namespace MadeInTheUSB.Security
                     {
                         bufferOffSet += MAX_CHAR_DEENCRYPTABLE;
 
-                        //private static byte[] Decrypt(byte[] data, int keySize, string publicAndPrivateKeyXml)
-                        //var decrypted = Decrypt(tmpBuffer, keySize, publicAndPrivateKeyXml);
-
                         if (tmpBuffer == null || tmpBuffer.Length == 0) throw new ArgumentException("Data are empty", "data");
                         if (!IsKeySizeValid(PrivatePublicKeyHelper.KeySize)) throw new ArgumentException("Key size is not valid", "keySize");
                         if (String.IsNullOrEmpty(publicAndPrivateKeyXml)) throw new ArgumentException("Key is null or empty", "publicAndPrivateKeyXml");
@@ -196,24 +168,11 @@ namespace MadeInTheUSB.Security
                 }
                 return allBuffer.ToArray();
             }
-
-            //while (buffer.Length > 0)
-            //{
-            //    var tmpBuffer = buffer.Take(MAX_CHAR_DEENCRYPTABLE).ToArray();
-            //    var decrypted = Decrypt(tmpBuffer, keySize, publicAndPrivateKeyXml);
-            //    allBuffer.AddRange(decrypted);
-            //    buffer = buffer.Skip(MAX_CHAR_DEENCRYPTABLE).ToArray();
-            //}
-            //return allBuffer.ToArray();
         }
 
         public static byte[] EncryptBuffer(byte[] buffer, string key)
         {
-            
             string publicKeyXml = key;
-
-            //GetKeyFromEncryptionString(publicKey, out keySize, out publicKeyXml);
-
             var allBuffer = new List<byte>();
 
             while (buffer.Length > 0)
@@ -257,26 +216,6 @@ namespace MadeInTheUSB.Security
             }
         }
 
-        //public static string DecryptText(string text, string privateKey)
-        //{
-        //    int keySize = 0;
-        //    string publicAndPrivateKeyXml = "";
-
-        //    GetKeyFromEncryptionString(privateKey, out keySize, out publicAndPrivateKeyXml);
-
-        //    var buffer = Convert.FromBase64String(text);
-        //    var allBuffer = new List<byte>();
-
-        //    while (buffer.Length > 0)
-        //    {
-        //        var tmpBuffer = buffer.Take(MAX_CHAR_DEENCRYPTABLE).ToArray();
-        //        var decrypted = Decrypt(tmpBuffer, keySize, publicAndPrivateKeyXml);
-        //        allBuffer.AddRange(decrypted);
-        //        buffer = buffer.Skip(MAX_CHAR_DEENCRYPTABLE).ToArray();
-        //    }
-        //    return Encoding.ASCII.GetString(allBuffer.ToArray());
-        //}
-
         private static byte[] Decrypt(byte[] data, int keySize, string publicAndPrivateKeyXml)
         {
             if (data == null || data.Length == 0) throw new ArgumentException("Data are empty", "data");
@@ -311,27 +250,5 @@ namespace MadeInTheUSB.Security
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(keySize.ToString() + "!" + publicKey));
         }
 
-        //public static void GetKeyFromEncryptionString(string rawkey, out int keySize, out string xmlKey)
-        //{
-        //    keySize = 0;
-        //    xmlKey  = "";
-
-        //    if (rawkey != null && rawkey.Length > 0)
-        //    {
-        //        byte[] keyBytes = Convert.FromBase64String(rawkey);
-        //        var stringKey   = Encoding.UTF8.GetString(keyBytes);
-
-        //        if (stringKey.Contains("!"))
-        //        {
-        //            var splittedValues = stringKey.Split(new char[] { '!' }, 2);
-        //            try
-        //            {
-        //                keySize = int.Parse(splittedValues[0]);
-        //                xmlKey = splittedValues[1];
-        //            }
-        //            catch (Exception e) { }
-        //        }
-        //    }
-        //}
     }
 }

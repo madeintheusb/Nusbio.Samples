@@ -104,10 +104,10 @@ namespace DigitalPotentiometerSample
             {
                 Cls(nusbio);
 
-                const int lightSensorAnalogPort       = 6;
-                const int motionSensorAnalogPort      = 1;
-                const int temperatureSensorAnalogPort = 0;
+                const int motionSensorAnalogPort = 0;
+                const int temperatureSensorAnalogPort = 1;
                 const int multiButtonPort             = 3;
+                const int lightSensorAnalogPort       = 6; // Has a pull down resistor
 
                 var halfSeconds = new TimeOut(200);
                 /*
@@ -124,7 +124,7 @@ namespace DigitalPotentiometerSample
                     clockGpio: NusbioGpio.Gpio0);
                 ad.Begin();
 
-                var analogTempSensor = new Tmp36AnalogTemperatureSensor(nusbio);
+                var analogTempSensor = new Tmp36AnalogTemperatureSensor(nusbio, 5);
                 analogTempSensor.Begin();
 
                 var analogMotionSensor = new AnalogMotionSensor(nusbio, 4);
@@ -134,8 +134,8 @@ namespace DigitalPotentiometerSample
                 lightSensor.Begin();
 
                 AnalogSensor multiButton = null;
-                multiButton = new AnalogSensor(nusbio, multiButtonPort);
-                multiButton.Begin();
+                //multiButton = new AnalogSensor(nusbio, multiButtonPort);
+                //multiButton.Begin();
 
                 ulong loopCounter = 0;
 
@@ -151,7 +151,10 @@ namespace DigitalPotentiometerSample
                             lightSensor.AnalogValue,
                             lightSensor.Voltage), ConsoleColor.Cyan);
 
-                        const int TMP36_AccuracyCorrection = -1;
+                        // There is an issue with the TMP36 and the ADC MCP3008
+                        // The correction is to add a 2k resistors between the out of the temperature sensor
+                        // and the AD port and increase the value by 14%
+                        const int TMP36_AccuracyCorrection = 14;
                         analogTempSensor.SetAnalogValue(ad.Read(temperatureSensorAnalogPort, TMP36_AccuracyCorrection));
                         ConsoleEx.WriteLine(0, 6, string.Format("Temperature Sensor : {0:00.00}C, {1:00.00}F     (ADValue:{2:0000}, Volt:{3:000.000})      ",
                             analogTempSensor.GetTemperature(AnalogTemperatureSensor.TemperatureType.Celsius),

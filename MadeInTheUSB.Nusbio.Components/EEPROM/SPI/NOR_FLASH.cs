@@ -47,7 +47,7 @@ namespace MadeInTheUSB.FLASH
     /// Nusbio SPI in optimized mode can do 26 K byte/S with the S25FL164K api.
     /// so it will take 315 second (8*1024/26) about 5 minutes to read 8 M byte of data.
     /// 
-    /// With Nusbio 2, we could acheive 4.7 M byte/S at 40Mhz.
+    /// With Nusbio 2, I reached 2.4 Mbyte/S at 30Mhz.
     /// 
     /// http://www.mouser.com/ds/2/100/002-00497_S25FL116K_S25FL132K_S25FL164K_16_Mbit_2_-933056.pdf
     /// https://github.com/BleepLabs/S25FLx/blob/master/S25FLx.cpp
@@ -59,9 +59,10 @@ namespace MadeInTheUSB.FLASH
     /// </summary>
     public class NOR_FLASH_S25FL164K : EEPROM_25AAXXX_BASE
     {
-        const int MAX_TRY = 10;
+        const int MAX_TRY = 16;
 
-        const int NOR_FLASH_S25FL164K_kBit = 64 * 1024;  // 64 Mbit = 8 Mbyte
+        public const int NOR_FLASH_S25FL164K_kBit = 64 * 1024;  // 64 Mbit = 8 Mbyte
+        public const int NOR_FLASH_S25FL127S_kBit = 128 * 1024;  // 128 Mbit = 16 Mbyte
 
         //public const int WREN        = 0x06;/* Write Enable */
         //public const int WRDI        = 0x04;/* Write Disable */ 
@@ -141,7 +142,7 @@ namespace MadeInTheUSB.FLASH
 
             b.AppendFormat("Manufacturer:{0} ({1}), FlashType:{2}, ", Manufacturer, ManufacturerID, this.FlashType);
             b.AppendFormat("MemoryType:{0} ", DeviceType).AppendLine();
-            b.AppendFormat("Capacity: Code:{0}, {1} M byte ", Capacity, this.MaxKByte).AppendLine();
+            b.AppendFormat("Capacity: Code:{0}, {1} K byte ", Capacity, this.MaxKByte).AppendLine();
             b.AppendFormat("SectorSize:{0}, ", SectorSize);
             b.AppendFormat("MaxSector:{0} ", MaxSector);
 
@@ -154,19 +155,22 @@ namespace MadeInTheUSB.FLASH
             S25FL116K = 0x15,
             S25FL132K = 0x16,
             S25FL164K = 0x17, // Based on Capacity number
+            S25FL127S = 0x18
         }
 
         public CYPRESS_S25FLXXX FlashType = CYPRESS_S25FLXXX.Undefined;
 
         public bool ReadInfo()
         {
-            var buffer = new List<byte>() { 0x9F, 0, 0, 0 };
-            var r = this.SpiTransfer(buffer);
-
+            var buffer          = new List<byte>() { 0x9F, 0, 0, 0 };
+            var r               = this.SpiTransfer(buffer);
             this.ManufacturerID = r.Buffer[1];
-            this.DeviceType = r.Buffer[2];
-            this.Capacity = r.Buffer[3];
-            this.FlashType = (CYPRESS_S25FLXXX)this.Capacity;
+            this.DeviceType     = r.Buffer[2];
+            this.Capacity       = r.Buffer[3];
+            this.FlashType      = (CYPRESS_S25FLXXX)this.Capacity;
+
+            if(this.FlashType == CYPRESS_S25FLXXX.S25FL127S)
+                base._kBit = NOR_FLASH_S25FL164K.NOR_FLASH_S25FL127S_kBit;
 
             if (Capacity == 0)
                 return false;
@@ -224,7 +228,10 @@ namespace MadeInTheUSB.FLASH
             if ((loc % (SectorSize)) != 0)
                 throw new ArgumentException(string.Format("Address {0} must be a multiple of {1}", loc, this.SectorSize));
             var b = EraseSector(loc, SPIFLASH_BLOCKERASE_4K);
-            this.WaitForOperation(10, "!");
+            if (this.FlashType == CYPRESS_S25FLXXX.S25FL127S)
+                this.WaitForOperation(15, 10, "!"); // Seems slower
+            else
+                this.WaitForOperation(10, 10, "!");
             return b;
         }
 
@@ -274,19 +281,23 @@ namespace MadeInTheUSB.FLASH
             return status;
         }
 
-        private void WaitForOperation(int wait = 10, string t = "~")
+        private void WaitForOperation(int wait = 10, int minimumWait = 1, string t = "~")
         {
+            Thread.Sleep(minimumWait);
             if (!this.Busy())
                 return;
+
+            Console.Write("minimumWait:{0} is not enough",minimumWait);
+
             var tryCounter = 0;
-            Thread.Sleep(wait / 10);
+            Thread.Sleep(wait / 5);
             while (true)
             {
                 if (!this.Busy()) return;
                 Thread.Sleep(wait);
                 if (tryCounter++ >= MAX_TRY)
                     throw new ApplicationException("Waiting for operation timeout");
-                //Console.Write(t);
+                Console.Write(t);
             }
         }
 
@@ -370,7 +381,7 @@ namespace MadeInTheUSB.FLASH
 
         public EEPROM_BUFFER ReadSector(int sector4kStart, int len, bool optimize = false)
         {
-            this.WaitForOperation();
+            //this.WaitForOperation();
 
             sector4kStart = sector4kStart * this.SectorSize;
 

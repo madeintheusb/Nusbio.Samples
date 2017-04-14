@@ -48,11 +48,12 @@ namespace MadeInTheUSB.Sensor
         /// This should give better result for TMP35
         /// </summary>
         public int AverageOnLastCountSamples = -1;
+
         private Queue<double> _averageOnLastCountSamples;
 
-        public Tmp36AnalogTemperatureSensor(Nusbio nusbio) : base(nusbio)
+        public Tmp36AnalogTemperatureSensor(Nusbio nusbio, int averageOnLastCountSamples = -1) : base(nusbio)
         {
-            
+            this.AverageOnLastCountSamples = averageOnLastCountSamples;
         }
 
         public virtual void SetAnalogValue(double value)

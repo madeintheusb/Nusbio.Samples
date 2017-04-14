@@ -91,7 +91,7 @@ namespace DigitalPotentiometerSample
                     misoGpio  : NusbioGpio.Gpio2,
                     clockGpio : NusbioGpio.Gpio0);
                 adc.Begin();
-                var joyStick = new JoyStick(nusbio, adc, 2, 1, 0);
+                var joyStick = new JoyStick(nusbio, adc, 2, 3, 4);
 
                 while (nusbio.Loop())
                 {
