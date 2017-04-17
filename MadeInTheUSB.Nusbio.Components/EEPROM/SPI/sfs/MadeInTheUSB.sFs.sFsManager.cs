@@ -77,10 +77,25 @@ namespace MadeInTheUSB.sFs
     /// <summary>
     /// The MadeInTheUSB small File System class
     /// </summary>
-    public class sFsManager : EEPROM.EEPROM_25AA1024
+    public class sFsManager 
     {
         public string VolumeName = "MadeInTheUSB.sfs based on USB device Nusbio and EEPROM";
         public List<sFsFileInfo> FileInfos;
+
+        IFATWriterReader _fatWriterReader;
+
+        private IFATWriterReader GetFATWriterReader()
+        {
+            return _fatWriterReader;
+        }
+
+        public long MaxKByte
+        {
+            get
+            {
+                return GetFATWriterReader().DiskMaxByte / 1024;
+            }
+        }
 
         /// <summary>
         /// Encryption password. This should be a SecureString or better.
@@ -102,13 +117,12 @@ namespace MadeInTheUSB.sFs
             NusbioGpio mosiPin,
             NusbioGpio misoPin,
             NusbioGpio selectPin,
-            bool debug = false) : base(nusbio, clockPin, mosiPin, misoPin, selectPin, debug)
+            bool debug = false) 
         {
-            this._pw        = pw;
-            this.VolumeName = volumeName;
-            var b           = this.MaxByte;
-            var p           = this.MaxPage;
-            this.FileInfos = new List<sFsFileInfo>();
+            this._fatWriterReader = new FATWriterReaderEEPROMImpl(nusbio, clockPin, mosiPin, misoPin, selectPin, debug);
+            this._pw              = pw;
+            this.VolumeName       = volumeName;
+            this.FileInfos        = new List<sFsFileInfo>();
         }
 #endif
         /// <summary>
@@ -289,7 +303,7 @@ namespace MadeInTheUSB.sFs
             {
                 if (f.Dirty)
                 {
-                    if (WriteAll(f.StartAddr, PublicEncryptor.C(this._pw, f.GetBufferInMutipleOfPage().ToArray()).ToList()))
+                    if (GetFATWriterReader().WriteFile(f.StartAddr, PublicEncryptor.C(this._pw, f.GetBufferInMutipleOfPage().ToArray())))
                         f.Dirty = false;
                     else
                         errorCount++;
@@ -297,7 +311,7 @@ namespace MadeInTheUSB.sFs
             }
             if (errorCount == 0)
             {
-                if (WriteAll(FAT_START_ADDR, PublicEncryptor.C(this._pw, fatBuffer).ToList())) // Write the FAT 2 page = 512 byte
+                if ((GetFATWriterReader().WriteFAT(0, FAT_START_ADDR, PublicEncryptor.C(this._pw, fatBuffer)))) // Write the FAT 2 page = 512 byte
                     return true;
                 else
                     return false;
@@ -305,13 +319,15 @@ namespace MadeInTheUSB.sFs
             return false;
         }
 
-        private string ReadFile(int addr, int size)
-        {
-            var r = base.ReadPage(addr, BinSerializer.ComputeFileSizePerSector(size, PAGE_SIZE));
-            var encoder = new UnicodeEncoding();
-            var s = encoder.GetString(r.Buffer.Take(size).ToArray());
-            return s;
-        }
+        //private string ReadFile(int addr, int size)
+        //{
+        //    var r = GetFATWriterReader().ReadFile(addr, (uint)BinSerializer.ComputeFileSizePerSector(size, (int)GetFATWriterReader().SectorSize));
+        //    if (r == null)
+        //        return null;
+        //    var encoder = new UnicodeEncoding();
+        //    var s = encoder.GetString(r.Take(size).ToArray());
+        //    return s;
+        //}
 
         public class DiskUsage
         {
@@ -330,14 +346,14 @@ namespace MadeInTheUSB.sFs
 
         public DiskUsage ComputeUsedSpace()
         {
-            var du = new DiskUsage() { TotalSize = base.MaxByte };
+            var du = new DiskUsage() { TotalSize = GetFATWriterReader().DiskMaxByte };
             du.FileCount = this.FileInfos.Count;
             foreach (var f in this.FileInfos)
             {
                 du.TotalUsed += f.Length;
             }
-            du.TotalSectorUsed = (FAT_END_ADDR + du.TotalUsed) / PAGE_SIZE;
-            du.RemainingFree = base.MaxByte - du.TotalUsed;
+            du.TotalSectorUsed = (FAT_END_ADDR + du.TotalUsed) / GetFATWriterReader().SectorSize;
+            du.RemainingFree = GetFATWriterReader().DiskMaxByte - du.TotalUsed;
             return du;
         }
 
@@ -444,12 +460,11 @@ namespace MadeInTheUSB.sFs
         public bool ReadFileSystem()
         {
             var encoder      = new UnicodeEncoding();
-
-            // Read the FAT
-            var r            = base.ReadPage(0, FAT_END_ADDR);
-            FileInfos        = DeSerializeFAT(PublicEncryptor.DC(this._pw, r.Buffer));
+            var r = GetFATWriterReader().LoadFAT(0, FAT_START_ADDR, FAT_END_ADDR);
+            if (r == null)
+                return false;
+            this.FileInfos = DeSerializeFAT(PublicEncryptor.DC(this._pw, r));
             return FileInfos != null;
-
         }
 
         public sFsFileInfo LoadFileContent(string fileName)
@@ -459,10 +474,10 @@ namespace MadeInTheUSB.sFs
 
         public sFsFileInfo LoadFileContent(sFsFileInfo fi)
         {
-            var rr = base.ReadPage(fi.StartAddr, BinSerializer.ComputeFileSizePerSector(fi.Length, PAGE_SIZE));
-            if (rr.Succeeded)
+            var rr = GetFATWriterReader().ReadFile(fi.StartAddr, (uint)BinSerializer.ComputeFileSizePerSector(fi.Length, (int)GetFATWriterReader().SectorSize));
+            if (rr != null)
             {
-                fi.Buffer = PublicEncryptor.DC(this._pw, rr.Buffer).Take(fi.Length).ToArray();
+                fi.Buffer = PublicEncryptor.DC(this._pw, rr).Take(fi.Length).ToArray();
                 return fi;
             }
             else

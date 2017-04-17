@@ -337,7 +337,6 @@ MadeInTheUSB.sfs - simple File system - command
             {
                 pw = AskForPW(nusbio, VolumeName);
                 _sfsManager = new sFs.sFsManager(VolumeName, pw, nusbio: nusbio, clockPin: NusbioGpio.Gpio0, mosiPin: NusbioGpio.Gpio1, misoPin: NusbioGpio.Gpio2, selectPin: NusbioGpio.Gpio3);
-                _sfsManager.Begin();
 
                 Cls(nusbio, true);
                 Console.WriteLine(Environment.NewLine + Environment.NewLine);

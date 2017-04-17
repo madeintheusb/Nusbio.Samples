@@ -74,6 +74,8 @@
     <Compile Include="EEPROM\I2C\EEPROM_24LC512.cs" />
     <Compile Include="EEPROM\I2C\EEPROM_24LCxxx.cs" />
     <Compile Include="EEPROM\EEPROM_BASE_CLASS.cs" />
+    <Compile Include="EEPROM\SPI\sfs\IFATWriterReader.EEPROM.Impl.cs" />
+    <Compile Include="EEPROM\SPI\sfs\IFATWriterReader.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.sFsFileInfo.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.enum.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.sFsManager.cs" />
