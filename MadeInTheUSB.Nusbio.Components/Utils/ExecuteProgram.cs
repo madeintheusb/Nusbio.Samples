@@ -182,5 +182,24 @@ namespace MadeInTheUSB
                 return false;
             }
         }
+
+        public static bool OpenFile(string fileName, ref int exitCode)
+        {
+            try
+            {
+                System.Diagnostics.Process proc;
+                proc = new System.Diagnostics.Process();
+                proc.EnableRaisingEvents = false;
+                proc.StartInfo.FileName = fileName;
+                proc.Start();
+                proc.WaitForExit();
+                exitCode = proc.ExitCode;
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }
