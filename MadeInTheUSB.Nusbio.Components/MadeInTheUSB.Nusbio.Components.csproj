@@ -78,6 +78,7 @@
     <Compile Include="EEPROM\SPI\sfs\IFATWriterReader.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.sFsFileInfo.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.enum.cs" />
+    <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.REPLCommand.cs" />
     <Compile Include="EEPROM\SPI\sfs\MadeInTheUSB.sFs.sFsManager.cs" />
     <Compile Include="EEPROM\SPI\NOR_FLASH.cs" />
     <Compile Include="EEPROM\SPI\EEPROM_25AAXXX_BASE.Nusbio.1.cs" />

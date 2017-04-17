@@ -70,6 +70,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 
 namespace MadeInTheUSB.sFs
@@ -100,7 +101,7 @@ namespace MadeInTheUSB.sFs
         /// <summary>
         /// Encryption password. This should be a SecureString or better.
         /// </summary>
-        private string _pw;
+        private SecureString _pw;
 
 #if NUSBIO2
         // Implementation for Nusbio v2 is not implemented yet
@@ -111,7 +112,7 @@ namespace MadeInTheUSB.sFs
         // Implementation for USB device Nusbio v1
         public sFsManager(
             string volumeName,
-            string pw,
+            SecureString pw,
             Nusbio nusbio,
             NusbioGpio clockPin,
             NusbioGpio mosiPin,
@@ -319,23 +320,13 @@ namespace MadeInTheUSB.sFs
             return false;
         }
 
-        //private string ReadFile(int addr, int size)
-        //{
-        //    var r = GetFATWriterReader().ReadFile(addr, (uint)BinSerializer.ComputeFileSizePerSector(size, (int)GetFATWriterReader().SectorSize));
-        //    if (r == null)
-        //        return null;
-        //    var encoder = new UnicodeEncoding();
-        //    var s = encoder.GetString(r.Take(size).ToArray());
-        //    return s;
-        //}
-
         public class DiskUsage
         {
             public long TotalUsed       = 0;
             public long TotalSectorUsed = 0;
             public long RemainingFree   = 0;
             public long TotalSize       = 0;
-            public long FileCount = 0;
+            public long FileCount       = 0;
 
             public override string ToString()
             {
@@ -357,7 +348,7 @@ namespace MadeInTheUSB.sFs
             return du;
         }
 
-        private string RemoveDoubleQuoteFromFileName(string fileName)
+        internal string RemoveDoubleQuoteFromFileName(string fileName)
         {
             if (fileName.StartsWith(@""""))
                 fileName = fileName.Substring(1);
@@ -376,86 +367,7 @@ namespace MadeInTheUSB.sFs
             return true;
         }
 
-        public string TypeCommand(string fileName)
-        {
-            fileName = this.RemoveDoubleQuoteFromFileName(fileName);
-
-            var s = new System.Text.StringBuilder();
-
-            var f = this[fileName];
-
-            if (f == null)
-                return SFS_COMMAND_ERR_MESSAGE;
-
-            this.LoadFileContent(f);
-            var t = f.GetBufferAsAsciiString();
-            s.Append(t).AppendLine();
-
-            return s.ToString();
-        }
-
-        public string OpenCommand(string fileName)
-        {
-            try
-            {
-                fileName = this.RemoveDoubleQuoteFromFileName(fileName);
-                var fi = this[fileName];
-                if (fi == null)
-                    return SFS_COMMAND_ERR_MESSAGE;
-
-                this.LoadFileContent(fi);
-                var localFile = fi.GetAsLocalTempFile();
-
-                int exitCode = -1;
-                if (fi.IsImage)
-                {
-                    var rr = ExecuteProgram.ExecProgram("mspaint.exe", string.Format(@"""{0}""", localFile), true, ref exitCode, true, false);
-                    if (rr && exitCode == 0)
-                        return "";
-                    else
-                        return "Cannot open the file";
-                }
-                else
-                {
-                    var rr = ExecuteProgram.OpenFile(string.Format(@"""{0}""", localFile), ref exitCode);
-                    if (rr && exitCode == 0)
-                        return "";
-                    else
-                        return "Cannot open the file";
-                }
-            }
-            finally
-            {
-                this.Clean();
-            }
-        }
-
-        public string DirCommand(bool displayDeleted = false)
-        {
-            var s = new System.Text.StringBuilder();
-            s.AppendLine();
-            s.AppendFormat("Volume: {0}, {1} KByte", VolumeName, this.MaxKByte).AppendLine().AppendLine();
-            foreach (var f in this.FileInfos)
-            {
-                if ((displayDeleted) ||((f.Attribute & sFsFileAttribute.Deleted) != sFsFileAttribute.Deleted))
-                {
-                    s.AppendFormat(
-                        //"{0}, {1} bytes, {2}, {3}:{4}, {5}",
-                        "{0}, {1} bytes, {2}, {3}",
-                        f.LastModificationDate.ToString("s"),
-                        f.Length.ToString().PadLeft(6),
-                        f.Attribute.ToString().PadLeft(7),
-                        //f.GetStartPage().ToString().PadLeft(4),
-                        //(f.ComputeFileSizeInPageMultiple() / PAGE_SIZE).ToString().PadRight(4),
-                        f.FileName).AppendLine();
-                }
-            }
-            s.AppendLine();
-            var cu = ComputeUsedSpace();
-            s.Append(cu.ToString());
-            s.AppendLine();
-            return s.ToString();
-        }
+     
 
         public bool ReadFileSystem()
         {

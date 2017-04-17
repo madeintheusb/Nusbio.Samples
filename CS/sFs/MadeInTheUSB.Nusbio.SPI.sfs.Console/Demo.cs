@@ -31,13 +31,15 @@ using MadeInTheUSB.i2c;
 using MadeInTheUSB.GPIO;
 using MadeInTheUSB.EEPROM;
 using MadeInTheUSB.Security;
+using System.Security;
 
 namespace MadeInTheUSB
 {
     class Demo
     {
         private static sFs.sFsManager _sfsManager;
-        
+        private static sFs.sFsREPLCommand _sFsREPLCommand;
+
         static string GetAssemblyProduct()
         {
             Assembly currentAssem = typeof(Program).Assembly;
@@ -56,7 +58,7 @@ written in C#, using the USB Nusbio.net device.
 The first implementation use an 128 Kbyte SPI EEPROM.
 ";
 
-        static bool FormatAndInitDisk(string pw)
+        static bool FormatAndInitDisk()
         {
             var ok = false;
             Console.Clear();
@@ -79,7 +81,7 @@ The first implementation use an 128 Kbyte SPI EEPROM.
             if (rr)
             {
                 Console.WriteLine(string.Format("Keys were generated"), ConsoleColor.Cyan);
-                ok = ReloadFileSystem(pw);
+                ok = ReloadFileSystem();
             }
             else
                 Console.WriteLine(string.Format("Error generating the keys"), ConsoleColor.Red);
@@ -101,7 +103,7 @@ The first implementation use an 128 Kbyte SPI EEPROM.
             ConsoleEx.Gotoxy(0, 1);
         }
 
-        private static string AskForPW(Nusbio nusbio, string volumeName) {
+        private static SecureString AskForPW(Nusbio nusbio, string volumeName) {
 
             Cls(nusbio, true);
             ConsoleEx.Gotoxy(0, 1);
@@ -109,20 +111,20 @@ The first implementation use an 128 Kbyte SPI EEPROM.
             var c = Console.ForegroundColor;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Black;
-            var pw = Console.ReadLine();
+            SecureString ss = PublicEncryptor.ConvertToSecureString(Console.ReadLine());
             Console.ForegroundColor = c;
-            return pw;
+            return ss;
         }
 
         const string VolumeName = "NusbioDisk.sFs";
 
-        private static bool ReloadFileSystem(string pw)
+        private static bool ReloadFileSystem()
         {
             Console.WriteLine("Reading FAT and loading files");
             return _sfsManager.ReadFileSystem();
         }
 
-        static bool AddNewLocalFile(string pw, string fileName = null)
+        static bool AddNewLocalFile(string fileName = null)
         {
             string text = null;
             var ok   = false;
@@ -210,118 +212,14 @@ MadeInTheUSB.sfs - simple File system - command
   compact: reclaim used space from deleted files.
 ";
 
-        private static bool IsFileFromWindowsFileSystem(string f)
-        {
-            return f.Length >= 2 && f[1] == ':';
-        }
 
-        private static byte[] LoadFileInMemory(string f)
-        {
-            if (IsFileFromWindowsFileSystem(f))
-                return File.ReadAllBytes(f);
-            else
-            {
-                var fi = _sfsManager[f];
-                if (fi == null)
-                    return null;
-                else
-                {
-                    _sfsManager.LoadFileContent(fi);
-                    return fi.Buffer;
-                }
-            }
-        }
+     
 
-        private static string CopyFile(CopyCommandInfo c)
-        {
-            
-            try
-            {
-                var srcByte = LoadFileInMemory(c.SourceFile);
-                if (IsFileFromWindowsFileSystem(c.DestinationFile))
-                {
-                    File.WriteAllBytes(c.DestinationFile, srcByte);
-                    return SFS_COMMAND_MESSAGE_ONE_FILE_COPIED;
-                }
-                else
-                {
-                    var fi = _sfsManager.AddFile(c.DestinationFile, srcByte);
-                    if (fi == null)
-                    {
-                        Console.WriteLine(SFS_COMMAND_ERR_COPYING_FILE);
-                    }
-                    else
-                    {
-                        if (_sfsManager.UpdateFileSystem())
-                            return SFS_COMMAND_MESSAGE_ONE_FILE_COPIED;
-                    }
-                }
-            }
-            catch(System.Exception ex)
-            {
-
-            }
-            finally
-            {
-                _sfsManager.Clean();
-            }
-            return SFS_COMMAND_ERR_ZERO_FILE_COPIED;
-        }
-
-        enum ParseCopyCommandMode
-        {
-            Begin,
-            ParseSourceFile,
-            DoneParsingSourceFile,
-            ParseDestinationFile,
-            DoneParsingDestinationFile,
-        }
-
-        class CopyCommandInfo
-        {
-            public string SourceFile, DestinationFile;
-            public bool Succeeded;
-        }
-
-        private static CopyCommandInfo ParseCopyCommand(string cmd)
-        {
-            var r = new CopyCommandInfo();
-            var mode           = ParseCopyCommandMode.Begin;
-            cmd                = cmd.Trim();
-            
-            for(var i=0; i<cmd.Length; i++)
-            {
-                if(cmd[i] == '"')
-                {
-                    switch(mode)
-                    {
-                        case ParseCopyCommandMode.Begin:                 mode = ParseCopyCommandMode.ParseSourceFile; break;
-                        case ParseCopyCommandMode.ParseSourceFile:       mode = ParseCopyCommandMode.DoneParsingSourceFile; break;
-                        case ParseCopyCommandMode.ParseDestinationFile:  mode = ParseCopyCommandMode.DoneParsingDestinationFile; break;
-                        case ParseCopyCommandMode.DoneParsingSourceFile: mode = ParseCopyCommandMode.ParseDestinationFile; break;
-                        case ParseCopyCommandMode.DoneParsingDestinationFile:
-                            r.Succeeded = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (mode)
-                    {
-                        case ParseCopyCommandMode.Begin:break;
-                        case ParseCopyCommandMode.DoneParsingSourceFile: break;
-                        case ParseCopyCommandMode.ParseSourceFile: r.SourceFile += cmd[i].ToString(); break;
-                        case ParseCopyCommandMode.ParseDestinationFile: r.DestinationFile += cmd[i].ToString(); break;
-                    }
-                }
-            }
-            return r;
-        }
-
+        
 
         public static void Run(string[] args)
         {
-            var pw = string.Empty;
+            SecureString pw; 
 
             Console.WriteLine("Nusbio initialization");
             Nusbio.ActivateFastMode();
@@ -336,12 +234,13 @@ MadeInTheUSB.sfs - simple File system - command
             using (var nusbio = new Nusbio(serialNumber))
             {
                 pw = AskForPW(nusbio, VolumeName);
-                _sfsManager = new sFs.sFsManager(VolumeName, pw, nusbio: nusbio, clockPin: NusbioGpio.Gpio0, mosiPin: NusbioGpio.Gpio1, misoPin: NusbioGpio.Gpio2, selectPin: NusbioGpio.Gpio3);
+                _sfsManager     = new sFs.sFsManager(VolumeName, pw, nusbio: nusbio, clockPin: NusbioGpio.Gpio0, mosiPin: NusbioGpio.Gpio1, misoPin: NusbioGpio.Gpio2, selectPin: NusbioGpio.Gpio3);
+                _sFsREPLCommand = new sFs.sFsREPLCommand(_sfsManager);
 
                 Cls(nusbio, true);
                 Console.WriteLine(Environment.NewLine + Environment.NewLine);
 
-                var ok = ReloadFileSystem(pw);
+                var ok = ReloadFileSystem();
                 if (!ok)
                 {
                     Cls(nusbio, true);
@@ -352,7 +251,7 @@ MadeInTheUSB.sfs - simple File system - command
                     Cls(nusbio, true); // Re format - re init key
                     var keyInfo = ConsoleEx.Question(4, string.Format("Would you like to format {0} Y)es N)o", _sfsManager.VolumeName), new List<char> { 'Y', 'N' });
                     if (keyInfo == 'N') return;
-                    FormatAndInitDisk(pw);
+                    FormatAndInitDisk();
                 }
 
                 Cls(nusbio);
@@ -366,7 +265,7 @@ MadeInTheUSB.sfs - simple File system - command
                     if (tokens.Length > 0)
                     {
                         if (tokens[0] == "exit") nusbio.ExitLoop();
-                        if (tokens[0] == "format") FormatAndInitDisk(pw);
+                        if (tokens[0] == "format") FormatAndInitDisk();
                         if (tokens[0] == "cls") Console.Clear();
                         if (tokens[0] == "help") Console.WriteLine(COMMAND_HELP);
                         if (tokens[0] == "del")
@@ -388,13 +287,11 @@ MadeInTheUSB.sfs - simple File system - command
                             else
                                 Console.WriteLine(SFS_COMMAND_ERR_COMPACTAGE_FAILED);
                         }
-                        if (tokens[0] == "type") Console.WriteLine(_sfsManager.TypeCommand(cmd.Substring(5)));
-                        if (tokens[0] == "open") Console.WriteLine(_sfsManager.OpenCommand(cmd.Substring(5)));
-                        if (tokens[0] == "dir") Console.WriteLine(_sfsManager.DirCommand());
-                        if (tokens[0] == "dirall") Console.WriteLine(_sfsManager.DirCommand(true));
-                        if (tokens[0] == "copy")
-                            Console.WriteLine(CopyFile(ParseCopyCommand(cmd.Substring(5))));
-
+                        if (tokens[0] == "type")   Console.WriteLine(_sFsREPLCommand.TypeCommand(cmd.Substring(5)));
+                        if (tokens[0] == "open")   Console.WriteLine(_sFsREPLCommand.OpenCommand(cmd.Substring(5)));
+                        if (tokens[0] == "dir")    Console.WriteLine(_sFsREPLCommand.DirCommand());
+                        if (tokens[0] == "dirall") Console.WriteLine(_sFsREPLCommand.DirCommand(true));
+                        if (tokens[0] == "copy")   Console.WriteLine(_sFsREPLCommand.CopyFileCommand(cmd.Substring(5)));
                     }
                 }
             }

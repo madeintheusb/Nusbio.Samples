@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Runtime.InteropServices;
+using System.Security;
 
 namespace MadeInTheUSB {
 
@@ -20,24 +22,56 @@ namespace MadeInTheUSB {
 
     public class PublicEncryptor {
 
-      
-        public static byte[] C(string pw, byte[] buff)
+        public static SecureString ConvertToSecureString(string p)
+        {
+            if (p == null)
+                throw new ArgumentNullException("password");
+
+            unsafe
+            {
+                fixed (char* pChars = p)
+                {
+                    var sp = new SecureString(pChars, p.Length);
+                    sp.MakeReadOnly();
+                    return sp;
+                }
+            }
+        }
+
+        public static string ConvertToUnsecureString(SecureString sp)
+        {
+            if (sp == null)
+                throw new ArgumentNullException("securePassword");
+
+            IntPtr unmanagedString = IntPtr.Zero;
+            try
+            {
+                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(sp);
+                return Marshal.PtrToStringUni(unmanagedString);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+            }
+        }
+
+        public static byte[] C(SecureString pw, byte[] buff)
         {
             #if DO_NOT_ENCRYPT
             return buff.ToList().ToArray();
             #else
-            return StringCipher.Encrypt(buff, pw);
+            return StringCipher.Encrypt(buff, ConvertToUnsecureString(pw));
             #endif
         }
 
-        public static byte[] DC(string pw, byte[] buffer)
+        public static byte[] DC(SecureString pw, byte[] buffer)
         {
             try
             {
                 #if DO_NOT_ENCRYPT
                     return buffer.ToList().ToArray();
                 #else
-                    return StringCipher.Decrypt(buffer, pw);
+                    return StringCipher.Decrypt(buffer, ConvertToUnsecureString(pw));
                 #endif
             }
             catch(System.OverflowException ox)
@@ -46,14 +80,14 @@ namespace MadeInTheUSB {
             }
         }
 
-        public static byte[] CAndZip(string pw, byte[] inputBuffer)
+        public static byte[] CAndZip(SecureString pw, byte[] inputBuffer)
         {
             var b1 = Zip(inputBuffer);
             var b2 = C(pw, b1);
             return b2;
         }
 
-        public static byte[] DCAndUnZip(string pw, byte[] inputBuffer)
+        public static byte[] DCAndUnZip(SecureString pw, byte[] inputBuffer)
         {
             try
             {
