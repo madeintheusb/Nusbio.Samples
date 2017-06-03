@@ -90,49 +90,14 @@ namespace LedConsole
             ConsoleEx.WriteMenu(-1, 4, "Q)uit");
         }
 
-       
-        public static void Run(string[] args)
-        {
-            Console.WriteLine("Nusbio Initializing");
-            var serialNumber = Nusbio.Detect();
-            if (serialNumber == null) // Detect the first Nusbio available
-            {
-                Console.WriteLine("Nusbio not detected");
-                return;
-            }
 
-            // Set to 8 if only using 1 Shift Register 74HC595
-            const int MAX_EXTENDED_GPIO = 16;
-           
-            using (var nusbio = new Nusbio(serialNumber))
-            {
-                var sr = new ShiftRegister74HC595(nusbio, MAX_EXTENDED_GPIO, dataPin, latchPin, clockPin);
-                Cls(nusbio, sr);
-                sr.SetGpioMask(0);
-                while (nusbio.Loop())
-                {
-                    if (Console.KeyAvailable)
-                    {
-                        var k = Console.ReadKey(true).Key;
-                        if (k == ConsoleKey.Q) break;
-
-                        if (k == ConsoleKey.G)
-                            GpioDemp(sr);
-
-                        Cls(nusbio, sr);
-                    }
-                }
-            }
-            Console.Clear();
-        }
-        
 
         public static void GpioAnimation(ShiftRegister74HC595 sr, int waitTime)
         {
             sr.SetGpioMask(ShiftRegister74HC595.ExGpio.None);
             for (int i = 0; i < sr.MaxGpio; i++)
             {
-                var g = sr.GetGpio(i+sr.MinGpioIndex);
+                var g = sr.GetGpioFromIndex(i + sr.MinGpioIndex);
                 Console.WriteLine(g);
                 sr.SetGpioMask(g);
                 Thread.Sleep(waitTime);
@@ -140,7 +105,7 @@ namespace LedConsole
             }
             for (int i = sr.MaxGpio - 1; i >= 0; i--)
             {
-                var g = sr.GetGpio(i + sr.MinGpioIndex);
+                var g = sr.GetGpioFromIndex(i + sr.MinGpioIndex);
                 Console.WriteLine(g);
                 sr.SetGpioMask(g);
                 Thread.Sleep(waitTime);
@@ -166,10 +131,10 @@ namespace LedConsole
             sr.SetGpioMask(0);
         }
 
-        private static void GpioDemp(ShiftRegister74HC595 sr)
+        private static void GpioDemo(ShiftRegister74HC595 sr)
         {
             Console.Clear();
-            ConsoleEx.TitleBar(0, GetAssemblyProduct()+ " Gpio 16 Demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.TitleBar(0, GetAssemblyProduct() + " Gpio 16 Demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
 
             while (true)
             {
@@ -177,6 +142,46 @@ namespace LedConsole
                 if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Q) break;
             }
         }
+
+
+        public static void Run(string[] args)
+        {
+            Console.WriteLine("Nusbio Initializing");
+            var serialNumber = Nusbio.Detect();
+            if (serialNumber == null) // Detect the first Nusbio available
+            {
+                Console.WriteLine("Nusbio not detected");
+                return;
+            }
+
+            // Set to 8 if only using 1 Shift Register 74HC595
+            const int MAX_EXTENDED_GPIO = 16;
+
+            Nusbio.BaudRate = Nusbio.FastestBaudRate / 32;
+
+            using (var nusbio = new Nusbio(serialNumber))
+            {
+                var sr = new ShiftRegister74HC595(nusbio, MAX_EXTENDED_GPIO, dataPin, latchPin, clockPin);
+                Cls(nusbio, sr);
+                sr.SetGpioMask(0);
+                while (nusbio.Loop())
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        var k = Console.ReadKey(true).Key;
+                        if (k == ConsoleKey.Q) break;
+
+                        if (k == ConsoleKey.G)
+                            GpioDemo(sr);
+
+                        Cls(nusbio, sr);
+                    }
+                }
+            }
+            Console.Clear();
+        }
+        
+
     }
 }
 

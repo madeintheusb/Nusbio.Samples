@@ -92,7 +92,7 @@ namespace MadeInTheUSB
             ExGpio.Gpio20,ExGpio.Gpio21,ExGpio.Gpio22,ExGpio.Gpio23
         };
 
-        public ExGpio GetGpio(int gpioIndex)
+        public ExGpio GetGpioFromIndex(int gpioIndex)
         {
             if (gpioIndex >= MinGpioIndex && gpioIndex <= MaxGpioIndex)
             {
@@ -224,7 +224,7 @@ namespace MadeInTheUSB
 
         public void DigitalWrite(int pin, PinState state)
         {
-            var gpio = GetGpio(pin);
+            var gpio = GetGpioFromIndex(pin);
 
             if (((IDigitalWriteRead)this).DigitalRead(pin) == PinState.High)
             {
@@ -241,7 +241,7 @@ namespace MadeInTheUSB
 
         public PinState DigitalRead(int pin)
         {
-            var gpio = GetGpio(pin);
+            var gpio = GetGpioFromIndex(pin);
             if (((int)GpioStates & (int)gpio) == (int)gpio)
                 return PinState.High;
             else
