@@ -64,7 +64,7 @@ namespace MadeInTheUSB.Sensor
             this._gpio              = gpio;
             this._resetTimeInSecond = resetTimeInSecond;
             this._digitalWriteRead  = digitalWriteRead;
-            _digitalWriteRead.SetPullUp(gpio, PinState.High);
+            //_digitalWriteRead.SetPullUp(gpio, PinState.High);
             _digitalWriteRead.SetPinMode(gpio, PinMode.Input);
         }
 
@@ -98,13 +98,14 @@ namespace MadeInTheUSB.Sensor
                     if (this.IsResetTimeOver())
                     {
                         // Just detected a new motion, start counting for reset and return true
-                        //Console.WriteLine("RE DETECTTION = "+DateTime.Now );
+                        Console.WriteLine("RE DETECTTION = "+DateTime.Now );
                         this._motionDetectedTimeStamp = DateTime.Now;
                         return MotionDetectedType.MotionDetected;
                     }
                     else
                     {
                         // We are in the 4 seconds reset period, let's not say we detected a motion
+                        //Console.WriteLine("SameMotionDetected ");
                         return MotionDetectedType.SameMotionDetected;
                     }
                 }

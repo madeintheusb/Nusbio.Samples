@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C62CBB2E-0EB3-4E9F-B9CF-1DCC4495316F}</ProjectGuid>
+    <ProjectGuid>{3D5E6AFD-F944-4984-9DDC-B8D59F8DE4F7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MadeInTheUSB</RootNamespace>
-    <AssemblyName>MadeInTheUSB.Nusbio.MoreLED</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <AssemblyName>MadeInTheUSB.Nusbio.TheButton</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -37,13 +37,8 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="MadeInTheUSB.Nusbio.Components, Version=1.0.38.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Components.dll</HintPath>
-    </Reference>
-    <Reference Include="MadeInTheUSB.Nusbio.Lib, Version=1.0.38.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Components\bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
+    <Reference Include="MadeInTheUSB.Nusbio.Lib">
+      <HintPath>..\..\Components\Bin\MadeInTheUSB.Nusbio.Lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,13 +49,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <Compile Include="Demo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MadeInTheUSB.Nusbio.Components\MadeInTheUSB.Nusbio.Components.csproj">
+      <Project>{89aac166-2058-4657-9a64-aaf602f06327}</Project>
+      <Name>MadeInTheUSB.Nusbio.Components</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

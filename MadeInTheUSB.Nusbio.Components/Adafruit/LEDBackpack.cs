@@ -63,17 +63,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MadeInTheUSB.Components.Interface;
+#if FT232H
+    using XIOTCore.FTDI.I2C;
+#else
 #if !NUSBIO2
 using MadeInTheUSB.i2c;
+    #endif
+    using MadeInTheUSB.Components.Interface;
+    using MadeInTheUSB.i2c;
 #endif
 
 using int16_t = System.Int16; // Nice C# feature allowing to use same Arduino/C type
 using uint16_t = System.UInt16;
 using uint8_t = System.Byte;
 using MadeInTheUSB.WinUtil;
-using MadeInTheUSB.Components.Interface;
-using MadeInTheUSB.i2c;
-//using abs = System.Math..
+
+
+namespace MadeInTheUSB.Components.Interface
+{
+}
 
 namespace MadeInTheUSB.Adafruit
 {
@@ -94,24 +103,35 @@ namespace MadeInTheUSB.Adafruit
         public byte[] _displayBuffer = new byte[_displayBufferRowCount];
 
         public int DeviceId;
-#if !NUSBIO2
-        protected I2CEngine _i2c;
-        private Nusbio _nusbio;
-#endif
-#if NUSBIO2
-            public LEDBackpack(int16_t width, int16_t height)
+
+
+#if FT232H
+    private I2CDevice_FTDI _i2c;
+        public LEDBackpack(I2CDevice_FTDI i2c, int16_t width, int16_t height): base(width, height)
+        {
+            _i2c = i2c;
+            this.DeviceId = _i2c.DeviceId;
+        }
+#else     
+    #if !NUSBIO2
+            protected I2CEngine _i2c;
+            private Nusbio _nusbio;
+    #endif
+    #if NUSBIO2
+                public LEDBackpack(int16_t width, int16_t height)
+                : base(width, height)
+                {
+                }
+
+    #else
+
+            public LEDBackpack(int16_t width, int16_t height, Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin)
             : base(width, height)
             {
+                this._nusbio = nusbio;
+                this._i2c = new I2CEngine(nusbio, sdaOutPin, sclPin, 0);
             }
-
-#else
-
-        public LEDBackpack(int16_t width, int16_t height, Nusbio nusbio, NusbioGpio sdaOutPin, NusbioGpio sclPin)
-        : base(width, height)
-        {
-            this._nusbio = nusbio;
-            this._i2c = new I2CEngine(nusbio, sdaOutPin, sclPin, 0);
-        }
+    #endif
 #endif
 
         public void DrawPixel(int x, int y, bool color)
@@ -186,11 +206,14 @@ namespace MadeInTheUSB.Adafruit
         private void _begin(byte addr = 0x70)
         {
             this.DeviceId = addr;
+#if FT232H
+#else
 #if NUSBIO2
             
 #else
             if (this._i2c.DeviceId == 0)
                 this._i2c.DeviceId = (byte)(addr);
+#endif
 #endif
 
             this._ii2cOut.i2c_Send1ByteCommand(HT16K33_CMD_TURN_OSCILLATOR_ON);
@@ -275,6 +298,31 @@ namespace MadeInTheUSB.Adafruit
             }
         }
 
+
+#if FT232H
+
+         //MadeInTheUSB.Components.Interface.Ii2cOut
+        bool Ii2cOut.i2c_Send1ByteCommand(byte c)
+        {
+            return _i2c.Write(new List<byte>() {c}.ToArray());
+        }
+
+        bool Ii2cOut.i2c_Send2ByteCommand(byte c0, byte c1)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool Ii2cOut.i2c_WriteBuffer(byte[] buffer)
+        {
+            return _i2c.Write(buffer);
+        }
+
+        bool Ii2cOut.i2c_WriteReadBuffer(byte[] writeBuffer, byte[] readBuffer)
+        {
+            throw new NotImplementedException();
+        }
+#else
+
 #if NUSBIO2
          //MadeInTheUSB.Components.Interface.Ii2cOut
         bool Ii2cOut.i2c_Send1ByteCommand(byte c)
@@ -317,6 +365,7 @@ namespace MadeInTheUSB.Adafruit
         {
             throw new NotImplementedException();
         }
+#endif
 #endif
     }
 }

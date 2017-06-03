@@ -69,11 +69,11 @@ namespace MotionSensorPIRConsole
 
             using (var nusbio = new Nusbio(serialNumber))
             {
-                var motionSensor = new DigitalMotionSensorPIR(nusbio, motionSensorGpio, 3);
+                var motionSensor = new DigitalMotionSensorPIR(nusbio, motionSensorGpio, 6);
                 
-                var redLed       = nusbio.GPIOS[red].AsLed;   // Blink fast for 3 seconds when motion is detected
-                var greenLed     = nusbio.GPIOS[green].AsLed; // Blink every 1/2 second just to tell system is running and is ok
-                greenLed.SetBlinkMode(500);
+                //var redLed       = nusbio.GPIOS[red].AsLed;   // Blink fast for 3 seconds when motion is detected
+                //var greenLed     = nusbio.GPIOS[green].AsLed; // Blink every 1/2 second just to tell system is running and is ok
+                //greenLed.SetBlinkMode(500);
 
                 Cls(nusbio);
                 while (nusbio.Loop())
@@ -82,19 +82,20 @@ namespace MotionSensorPIRConsole
                     if (motionType == DigitalMotionSensorPIR.MotionDetectedType.MotionDetected)
                     {
                         ConsoleEx.Write(0, 8, string.Format("[{0}] MotionSensor:{1,-20}", DateTime.Now, motionType), ConsoleColor.DarkCyan);
-                        redLed.SetBlinkMode(200);
+                        //redLed.SetBlinkMode(200);
                     }
 
                     else if (motionType == DigitalMotionSensorPIR.MotionDetectedType.None)
                     {
                         ConsoleEx.Write(0, 8, string.Format("[{0}] MotionSensor:{1,-20}", DateTime.Now, motionType), ConsoleColor.DarkCyan);
-                        redLed.SetBlinkModeOff();
+                        //redLed.SetBlinkModeOff();
                     }
 
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
                         if (k == ConsoleKey.Q) break;
+                        if (k == ConsoleKey.C) Cls(nusbio);
                     }
                 }
             }

@@ -29,8 +29,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if FT232H
+using XIOTCore.FTDI.I2C;
+#else
 using MadeInTheUSB.i2c;
+#endif
 using MadeInTheUSB.WinUtil;
+
 using int16_t = System.Int16; // Nice C# feature allowing to use same Arduino/C type
 using uint16_t = System.UInt16;
 using uint8_t = System.Byte;
@@ -55,6 +60,18 @@ namespace MadeInTheUSB.Adafruit
             get { return this._backpacks; }
         }
 
+#if FT232H
+        public LEDBackpack Add(I2CDevice_FTDI i2c, int16_t  width, int16_t height, int addr)
+        {
+            var b = new LEDBackpack(i2c, width, height);
+            if (b.Detect((byte)addr)) { 
+                b.Begin(addr);
+                this._backpacks.Add(b);
+                return b;
+            }
+            else return null;
+        }
+#else
 #if NUSBIO2
         public LEDBackpack Add(int16_t width, int16_t height, byte addr)
         {
@@ -77,6 +94,7 @@ namespace MadeInTheUSB.Adafruit
             }
             else return null;
         }
+#endif
 #endif
         
         public void DrawRoundRect(int x, int y, int w, int h, int r, int color)

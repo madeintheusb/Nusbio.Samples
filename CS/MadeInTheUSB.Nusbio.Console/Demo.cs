@@ -181,38 +181,47 @@ namespace NusbioConsole
                 nusbio.GPIOS[led].AsLed.ReverseSet();
         }
 
-        private static void ClockGpio(Nusbio nusbio, NusbioGpio g, int wait = 0)
+        private static void ClockGpio(Nusbio nusbio, NusbioGpio g, int wait = 0, int waitHigh = 1000)
         {
             nusbio[g].DigitalWrite(PinState.High);
+            if(waitHigh > 0)
+                System.Threading.Thread.Sleep(waitHigh);
             nusbio[g].DigitalWrite(PinState.Low);
             if (wait > 0)
                 System.Threading.Thread.Sleep(wait);
         }
 
-        private static void ClockGpio0(Nusbio nusbio)
+        private static void ClockGpio(Nusbio nusbio)
         {
-            const int maxLed = 10;
+            const int maxClockCount = 16;
             Console.Clear();
-            ConsoleEx.TitleBar(0, "Clock Gpio0 for 10 LED control with a 4017 chip");
+            ConsoleEx.TitleBar(0, "Clock Gpio0");
             ConsoleEx.WriteMenu(-1, 5, "Q)uit");
 
-            int ledIndex  = 0;
-            var clockGpio = NusbioGpio.Gpio0;
-            var resetGpio = NusbioGpio.Gpio0;
-            ClockGpio(nusbio, resetGpio); // Reset Chip 4017 to index 0, LED 0 is on
+            var clockCount = 0;
+            var clockGpio  = NusbioGpio.Gpio0;
+            var resetGpio  = NusbioGpio.Gpio1;
+
+            // Reset Chip 4017 to index 0, LED 0 is on
+            // Reset 74LS293 Low, High, Low on R0(1) and R(2)
+            ClockGpio(nusbio, resetGpio); 
             while (true)
             {
-                ConsoleEx.WriteLine(0, 3, string.Format("Led {0} on", ledIndex), ConsoleColor.Cyan);
-                ClockGpio(nusbio, clockGpio, 64); // Reset Chip 4017 to index 0, LED 0 is on
-                ledIndex += 1;
-                if (ledIndex == maxLed)
-                    ledIndex = 0;
+                ConsoleEx.WriteLine(0, 3, string.Format("clockCount {0:00}", clockCount), ConsoleColor.Cyan);
+
+                // Clock chip 4017 or 74LS293
+                ClockGpio(nusbio, clockGpio, 0); 
+
+                clockCount += 1;
+                if (clockCount == maxClockCount)
+                    clockCount = 0;
                 if (Console.KeyAvailable)
                 {
                     if (Console.ReadKey().Key == ConsoleKey.Q)
                         break;
                 }
             }
+            ClockGpio(nusbio, resetGpio);
         }
 
         private static void Three5VoltDevicesDemos(Nusbio nusbio)
@@ -246,6 +255,7 @@ namespace NusbioConsole
 
         private static void AnimateBlocking1(Nusbio nusbio)
         {
+            var wait      = 200;
             var maxRepeat = 3;
             var maxGpio   = 8;
             while (true)
@@ -254,28 +264,29 @@ namespace NusbioConsole
                 {
                     for (var g = 0; g < maxGpio; g++)
                         nusbio[g].DigitalWrite(PinState.High);
-                    Thread.Sleep(200);
+                    Thread.Sleep(wait);
                     for (var g = 0; g < maxGpio; g++)
                         nusbio[g].DigitalWrite(PinState.Low);
-                    Thread.Sleep(200);
+                    Thread.Sleep(wait);
                 }
                 if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
                     break;
 
-
+                /*
 
                 for (var i = 0; i < maxRepeat; i++)
                 {
                     for (var g = 0; g < maxGpio; g++)
                         nusbio[g].AsLed.Set(true);
-                    Thread.Sleep(200);
+                    Thread.Sleep(wait);
                     for (var g = 0; g < maxGpio; g++)
                         nusbio[g].AsLed.Set(false);
-                    Thread.Sleep(200);
+                    Thread.Sleep(wait);
                 }
 
                 if (Console.KeyAvailable && Console.ReadKey(true).Key!=  ConsoleKey.Attention)
                     break;
+                */
             }
         }
 
@@ -482,9 +493,11 @@ namespace NusbioConsole
                         }
                         else
                         {
-                            //if (key == ConsoleKey.F4) ClockGpio0(nusbio);
+                            if (key == ConsoleKey.F4)
+                                ClockGpio(nusbio);
                             //if (key == ConsoleKey.F5) Three5VoltDevicesDemos(nusbio);
-                            if (key == ConsoleKey.F1) AnimateBlocking1(nusbio);
+                            if (key == ConsoleKey.F1)
+                                AnimateBlocking1(nusbio);
                             if (key == ConsoleKey.F2)
                             {
                                 if (nusbio.IsAsynchronousSequencerOn) // If background sequencer for animation is on then turn it off if we receive any key

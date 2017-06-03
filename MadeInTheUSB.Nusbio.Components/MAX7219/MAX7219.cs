@@ -1075,6 +1075,7 @@ namespace MadeInTheUSB
             else
             {
                 BytesSentOutCounter += buffer.Count;
+
                 r = this._spiEngine.Transfer(buffer, optimizeDataLine: OptimizeSpiDataLine);
             }
             return r;
