@@ -38,7 +38,7 @@ using MadeInTheUSB.GPIO;
 
 namespace MadeInTheUSB
 {
-    public class ShiftRegister74HC595
+    public class ShiftRegister74HC595 : IDigitalWriteRead
     {
         private const int LSBFIRST = 0;
         private const int MSBFIRST = 1;
@@ -67,7 +67,24 @@ namespace MadeInTheUSB
 
         public ExGpio GpioStates = ExGpio.None;
 
-        public static List<ExGpio> ExGpios = new List<ExGpio>()
+        /// <summary>
+        /// Since this class can only works with Nusbio v 1 first 8 Gpios.
+        /// We consider that the first extended gpio will be 8
+        /// </summary>
+        public int MinGpioIndex = 8;
+        public int MaxGpioIndex = 23;
+        /// <summary>
+        /// Return 16 by default
+        /// </summary>
+        public int MaxGpio
+        {
+            get
+            {
+                return MaxGpioIndex - MinGpioIndex + 1;
+            }
+        }
+                
+        public List<ExGpio> ExGpios = new List<ExGpio>()
         {
             ExGpio.Gpio8, ExGpio.Gpio9,
             ExGpio.Gpio10,ExGpio.Gpio11,ExGpio.Gpio12,ExGpio.Gpio13,ExGpio.Gpio14,
@@ -75,7 +92,16 @@ namespace MadeInTheUSB
             ExGpio.Gpio20,ExGpio.Gpio21,ExGpio.Gpio22,ExGpio.Gpio23
         };
 
-        public List<ExGpio> GetExGpios()
+        public ExGpio GetGpio(int gpioIndex)
+        {
+            if (gpioIndex >= MinGpioIndex && gpioIndex <= MaxGpioIndex)
+            {
+                return ExGpios[gpioIndex - MinGpioIndex];
+            }
+            else throw new ArgumentException(string.Format("Invalid gpio index:{0}", gpioIndex));
+        }
+
+        public List<ExGpio> GetGpioEnums()
         {
             return ExGpios;
         }
@@ -90,12 +116,20 @@ namespace MadeInTheUSB
         private NusbioGpio _clockPin;
         private Nusbio     _nusbio;
 
-        public ShiftRegister74HC595(Nusbio nusbio, NusbioGpio dataPin,NusbioGpio latchPin,NusbioGpio clockPin)
+
+        public ShiftRegister74HC595(Nusbio nusbio, int maxGpio, NusbioGpio dataPin, NusbioGpio latchPin, NusbioGpio clockPin)
         {
             this._dataPin  = dataPin;
             this._latchPin = latchPin;
             this._clockPin = clockPin;
             this._nusbio   = nusbio;
+
+            // To handle 8bit shift registers remove the last gpio
+            // from 15 to 23
+            while (ExGpios.Count > maxGpio)
+            {
+                ExGpios.RemoveAt(ExGpios.Count - 1);
+            }
         }
 
         private void ShiftOutFast(Nusbio nusbio, NusbioGpio dataPin, NusbioGpio clockPin, byte val, MadeInTheUSB.GPIO.BitOrder bitOrder = MadeInTheUSB.GPIO.BitOrder.MSBFIRST)
@@ -149,38 +183,95 @@ namespace MadeInTheUSB
 	        return value;
         }
 
-        public void Send8BitValue(ExGpio v)
+        public void SetGpioMask(ExGpio v)
         {
-            Send8BitValue((byte)v);
+            SetGpioMask((int)v);
         }
 
-        public void Send8BitValue(int v)
+        public void SetGpioMask(byte mask)
         {
-            Send8BitValue((byte)v);
+            this.SetGpioMask((int)mask);
         }
 
-        public void Send8BitValue(byte v)
+        public void SetGpioMask(int v)
         {
             _gs.Clear();
             _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
-            ShiftOutFast(_nusbio, _dataPin, _clockPin, v);
+            if (this.MaxGpio == 16)
+            {
+                // 16 bit - 2 Shift Register
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v >> 8));
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v & 0xFF));
+            }
+            else
+            {   // 8 bit - 1 Shift Register
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v & 0xFF));
+            }
             _gs.Send(_nusbio);
             _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
         }
 
-        public void Send16BitValue(ExGpio v)
+        /// <summary>
+        /// ShiftRegister 74HC595 only support output
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <param name="mode"></param>
+        public void SetPinMode(int pin, PinMode mode)
         {
-            Send16BitValue((int)v);
+            if(mode != PinMode.Output)
+                throw new NotImplementedException();
         }
 
-        public void Send16BitValue(int v)
+        public void DigitalWrite(int pin, PinState state)
         {
-            _gs.Clear();
-            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
-            ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v >> 8));
-            ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v & 0xFF));
-            _gs.Send(_nusbio);
-            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            var gpio = GetGpio(pin);
+
+            if (((IDigitalWriteRead)this).DigitalRead(pin) == PinState.High)
+            {
+                if(state == PinState.Low)
+                    GpioStates &= ~gpio;
+            }
+            else
+            {
+                if (state == PinState.High)
+                    GpioStates |= gpio;
+            }
+            this.SetGpioMask((int)GpioStates);
+        }
+
+        public PinState DigitalRead(int pin)
+        {
+            var gpio = GetGpio(pin);
+            if (((int)GpioStates & (int)gpio) == (int)gpio)
+                return PinState.High;
+            else
+                return PinState.Low;
+        }
+
+       
+
+        /// <summary>
+        /// Cannot be implemented because we have 16 bits
+        /// and this interface was designed for Nusbio v1
+        /// </summary>
+        /// <param name="forceRead"></param>
+        /// <returns></returns>
+        public byte GetGpioMask(bool forceRead)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPullUp(int p, PinState d)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte GpioStartIndex
+        {
+            get
+            {
+                return (byte)MinGpioIndex;
+            }
         }
     }
 }

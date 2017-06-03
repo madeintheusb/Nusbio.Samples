@@ -33,6 +33,7 @@ namespace LedConsole
         const NusbioGpio clockPin = NusbioGpio.Gpio0;  // YELLOW Pin connected to SH_CP of 74HC595
         const NusbioGpio dataPin  = NusbioGpio.Gpio1;  // BLUE Pin connected to DS of 74HC595
         const NusbioGpio latchPin = NusbioGpio.Gpio2;  // GREEN Pin connected to ST_CP of 74HC595
+        
 
         //private const int LSBFIRST = 0;
         //private const int MSBFIRST = 1;
@@ -40,7 +41,7 @@ namespace LedConsole
         //static void shiftOut(Nusbio Nusbio, NusbioGpio dataPin , NusbioGpio clockPin , int bitOrder , int val)
         //{
         //    int i;
-            
+
         //    for (i = 0; i < 8; i++)
         //    {
         //        if (bitOrder == LSBFIRST)
@@ -64,7 +65,7 @@ namespace LedConsole
         //    shiftOut(Nusbio, dataPin, clockPin, MSBFIRST, v);
         //    Nusbio.GPIOS[latchPin].DigitalWrite(PinState.High);
         //}
-        
+
 
         static string GetAssemblyProduct()
         {
@@ -75,13 +76,17 @@ namespace LedConsole
             return null;
         }
 
-        static void Cls(Nusbio nusbio)
+        static void Cls(Nusbio nusbio, ShiftRegister74HC595 sr)
         {
             Console.Clear();
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight-2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
+
+            ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 4,string.Format("Extended Gpio Count:{0}, StartIndex:{1}, EndIndex:{2}",sr.MaxGpio, sr.MinGpioIndex, sr.MaxGpioIndex), ConsoleColor.Black, ConsoleColor.DarkCyan);
             ConsoleEx.Bar(0, ConsoleEx.WindowHeight-3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
-            ConsoleEx.WriteMenu(-1, 2, "8) Gpio 1)6 Gpio");
+
+            ConsoleEx.WriteMenu(-1, 2, "G)pio demo");
+
             ConsoleEx.WriteMenu(-1, 4, "Q)uit");
         }
 
@@ -95,110 +100,80 @@ namespace LedConsole
                 Console.WriteLine("Nusbio not detected");
                 return;
             }
+
+            // Set to 8 if only using 1 Shift Register 74HC595
+            const int MAX_EXTENDED_GPIO = 16;
            
             using (var nusbio = new Nusbio(serialNumber))
             {
-                Cls(nusbio);
-                var sr = new ShiftRegister74HC595(nusbio, dataPin, latchPin, clockPin);
-                sr.Send8BitValue(0);
-                sr.Send16BitValue(0);
+                var sr = new ShiftRegister74HC595(nusbio, MAX_EXTENDED_GPIO, dataPin, latchPin, clockPin);
+                Cls(nusbio, sr);
+                sr.SetGpioMask(0);
                 while (nusbio.Loop())
                 {
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
                         if (k == ConsoleKey.Q) break;
-                            
-                        if (k == ConsoleKey.D8)
-                            Gpio8Demo(sr);
 
-                        if (k == ConsoleKey.D1)
-                            Gpio16Demo(sr);
+                        if (k == ConsoleKey.G)
+                            GpioDemp(sr);
 
-                        Cls(nusbio);
+                        Cls(nusbio, sr);
                     }
                 }
             }
             Console.Clear();
         }
+        
 
-
-        public static void Gpio8Demo(ShiftRegister74HC595 sr,int waitTime)
+        public static void GpioAnimation(ShiftRegister74HC595 sr, int waitTime)
         {
-            sr.Send8BitValue(0);
-            for (int i = 0; i < 8; i++)
+            sr.SetGpioMask(ShiftRegister74HC595.ExGpio.None);
+            for (int i = 0; i < sr.MaxGpio; i++)
             {
-                sr.Send8BitValue(sr.GetExGpios()[i]);
+                var g = sr.GetGpio(i+sr.MinGpioIndex);
+                Console.WriteLine(g);
+                sr.SetGpioMask(g);
                 Thread.Sleep(waitTime);
                 if (Console.KeyAvailable) return;
             }
-            for (int i = 8 - 1; i >= 0; i--)
+            for (int i = sr.MaxGpio - 1; i >= 0; i--)
             {
-                sr.Send8BitValue(sr.GetExGpios()[i]);
+                var g = sr.GetGpio(i + sr.MinGpioIndex);
+                Console.WriteLine(g);
+                sr.SetGpioMask(g);
                 Thread.Sleep(waitTime);
                 if (Console.KeyAvailable) return;
             }
-            sr.Send8BitValue(0);
-        }
-
-        public static void Gpio16Demo(ShiftRegister74HC595 sr, int waitTime)
-        {
-            sr.Send16BitValue(0);
-            for (int i = 0; i < sr.GetExGpios().Count; i++)
-            {
-                Console.WriteLine(sr.GetExGpios()[i]);
-                sr.Send16BitValue(sr.GetExGpios()[i]);
-                Thread.Sleep(waitTime);
-                if (Console.KeyAvailable) return;
-            }
-            for (int i = sr.GetExGpios().Count - 1; i >= 0; i--)
-            {
-                Console.WriteLine(sr.GetExGpios()[i]);
-                sr.Send16BitValue(sr.GetExGpios()[i]);
-                Thread.Sleep(waitTime);
-                if (Console.KeyAvailable) return;
-            }
-            sr.Send16BitValue(0);
+            sr.SetGpioMask(0);
             Thread.Sleep(waitTime * 10);
 
-            for (int i = 0; i < sr.GetExGpios().Count; i++)
+            for (int i = 0; i < sr.GetGpioEnums().Count; i++)
             {
-                sr.GpioStates |= sr.GetExGpios()[i];
+                sr.DigitalWrite(i + sr.MinGpioIndex, PinState.High);
                 Console.WriteLine(sr.GpioStates);
-                sr.Send16BitValue(sr.GpioStates);
                 Thread.Sleep(waitTime);
                 if (Console.KeyAvailable) return;
             }
-            for (int i = sr.GetExGpios().Count - 1; i >= 0; i--)
+            for (int i = sr.GetGpioEnums().Count - 1; i >= 0; i--)
             {
-                sr.GpioStates &= ~sr.GetExGpios()[i];
+                sr.DigitalWrite(i + sr.MinGpioIndex, PinState.Low);
                 Console.WriteLine(sr.GpioStates);
-                sr.Send16BitValue(sr.GpioStates);
                 Thread.Sleep(waitTime);
                 if (Console.KeyAvailable) return;
             }
-            sr.Send16BitValue(0);
+            sr.SetGpioMask(0);
         }
 
-        private static void Gpio16Demo(ShiftRegister74HC595 sr)
+        private static void GpioDemp(ShiftRegister74HC595 sr)
         {
             Console.Clear();
             ConsoleEx.TitleBar(0, GetAssemblyProduct()+ " Gpio 16 Demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
 
             while (true)
             {
-                Gpio16Demo(sr, 64);
-                if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Q) break;
-            }
-        }
-
-        private static void Gpio8Demo(ShiftRegister74HC595 sr)
-        {
-            Console.Clear();
-            ConsoleEx.TitleBar(0, GetAssemblyProduct() + " Gpio 8 Demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            while (true)
-            {
-                Gpio8Demo(sr, 64);
+                GpioAnimation(sr, 128);
                 if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Q) break;
             }
         }
