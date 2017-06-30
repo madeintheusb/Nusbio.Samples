@@ -86,10 +86,8 @@ namespace MadeInTheUSB
                 
         public List<ExGpio> ExGpios = new List<ExGpio>()
         {
-            ExGpio.Gpio8, ExGpio.Gpio9,
-            ExGpio.Gpio10,ExGpio.Gpio11,ExGpio.Gpio12,ExGpio.Gpio13,ExGpio.Gpio14,
-            ExGpio.Gpio15,ExGpio.Gpio16,ExGpio.Gpio17,ExGpio.Gpio18,ExGpio.Gpio19,
-            ExGpio.Gpio20,ExGpio.Gpio21,ExGpio.Gpio22,ExGpio.Gpio23
+            ExGpio.Gpio8, ExGpio.Gpio9,ExGpio.Gpio10,ExGpio.Gpio11,ExGpio.Gpio12,ExGpio.Gpio13,ExGpio.Gpio14,ExGpio.Gpio15,
+            ExGpio.Gpio16,ExGpio.Gpio17,ExGpio.Gpio18,ExGpio.Gpio19, ExGpio.Gpio20,ExGpio.Gpio21,ExGpio.Gpio22,ExGpio.Gpio23
         };
 
         public ExGpio GetGpioFromIndex(int gpioIndex)
@@ -123,6 +121,8 @@ namespace MadeInTheUSB
             this._latchPin = latchPin;
             this._clockPin = clockPin;
             this._nusbio   = nusbio;
+
+            this.SetPinDefaultState();
 
             // To handle 8bit shift registers remove the last gpio
             // from 15 to 23
@@ -193,10 +193,47 @@ namespace MadeInTheUSB
             this.SetGpioMask((int)mask);
         }
 
-        public void SetGpioMask(int v)
+        public void SetDataLinesAndAddrLines(byte dataBus8Bit, byte addresseBus8Bit)
         {
-            _gs.Clear();
-            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            SetGpioMask(dataBus8Bit, addresseBus8Bit);
+        }
+
+        public void SetGpioMask(byte b0, byte b1)
+        {
+            int v = (b0 << 8) + b1;
+            SetGpioMask(v);
+        }
+
+        public void Reset(int val = 0, int times = 10)
+        {
+            for (var i = 0; i < times; i++)
+                SetGpioMask(val);
+        }
+
+        public void TestPins()
+        {
+            this._nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            this._nusbio.GPIOS[_clockPin].DigitalWrite(PinState.Low);
+            this._nusbio.GPIOS[_dataPin].DigitalWrite(PinState.Low);
+
+            this._nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            this._nusbio.GPIOS[_clockPin].DigitalWrite(PinState.High);
+            this._nusbio.GPIOS[_dataPin].DigitalWrite(PinState.High);
+
+            SetPinDefaultState();
+        }
+
+        private void SetPinDefaultState()
+        {
+            this._nusbio.GPIOS[_dataPin].DigitalWrite(PinState.Low);
+            this._nusbio.GPIOS[_clockPin].DigitalWrite(PinState.Low);
+            this._nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+        }
+
+        public void SetGpioMaskV1(int v)
+        {
+            this._gs = new GpioSequence(this._nusbio.GetGpioMask(), this._nusbio.GetTransferBufferSize());
+            this._nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
             if (this.MaxGpio == 16)
             {
                 // 16 bit - 2 Shift Register
@@ -209,6 +246,44 @@ namespace MadeInTheUSB
             }
             _gs.Send(_nusbio);
             _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            if (this.MaxGpio == 16)
+            {
+                _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+                _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            }
+            if (this.MaxGpio == 24)
+            {
+                // todo
+            }
+        }
+
+        public void SetGpioMask(int v)
+        {
+            this._gs = new GpioSequence(this._nusbio.GetGpioMask(), this._nusbio.GetTransferBufferSize());
+            //this._nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            if (this.MaxGpio == 16)
+            {
+                // 16 bit - 2 Shift Register
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v >> 8));
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v & 0xFF));
+            }
+            else
+            {   // 8 bit - 1 Shift Register
+                ShiftOutFast(_nusbio, _dataPin, _clockPin, (byte)(v & 0xFF));
+            }
+            _gs.Send(_nusbio);
+            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            //if (this.MaxGpio == 16)
+            //{
+            //    _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.Low);
+            //    _nusbio.GPIOS[_latchPin].DigitalWrite(PinState.High);
+            //}
+            //if (this.MaxGpio == 24)
+            //{
+            //    // todo
+            //}
         }
 
         /// <summary>

@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MadeInTheUSB;
 using MadeInTheUSB.GPIO;
+using MadeInTheUSB.WinUtil;
 
 namespace LedConsole
 {
@@ -85,7 +86,7 @@ namespace LedConsole
             ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 4,string.Format("Extended Gpio Count:{0}, StartIndex:{1}, EndIndex:{2}",sr.MaxGpio, sr.MinGpioIndex, sr.MaxGpioIndex), ConsoleColor.Black, ConsoleColor.DarkCyan);
             ConsoleEx.Bar(0, ConsoleEx.WindowHeight-3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
 
-            ConsoleEx.WriteMenu(-1, 2, "1)6 extra gpio pins demo   2)1 gpio pins demo   3) 16Bit Demo");
+            ConsoleEx.WriteMenu(-1, 2, "1) Program for 0..15 counter");
 
             ConsoleEx.WriteMenu(-1, 4, "Q)uit");
         }
@@ -116,62 +117,6 @@ namespace LedConsole
             Thread.Sleep(waitTime * 10);
         }
 
-
-        public static void TestSetting16bitAtOnce(Nusbio nusbio, ShiftRegister74HC595 sr, int waitTime)
-        {
-            Console.Clear();
-            ConsoleEx.TitleBar(0, GetAssemblyProduct() + " 16 bit value demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            ConsoleEx.Gotoxy(0, 3);
-
-            //sr.TestPins();
-
-            sr.Reset();
-            var p1 = 1;
-            var p2 = 256;
-            for(var i=0; i<8; i++)
-            {
-                sr.SetGpioMask(p1+p2);
-                //sr.SetDataLinesAndAddrLines((byte)p1, (byte)(p2 >> 8));
-                //sr.SetGpioMask((byte)p1, (byte)(p2 >> 8));
-
-                Console.WriteLine("16 bite value:{0:000000} - {1} {2}",
-                    p1 + p2,
-                    MadeInTheUSB.WinUtil.BitUtil.BitRpr(p1),
-                    MadeInTheUSB.WinUtil.BitUtil.BitRpr(p2 >> 8)
-                );
-                Thread.Sleep(waitTime);
-                p1 *= 2;
-                p2 *= 2;
-            }
-
-            Console.WriteLine("---");
-            Thread.Sleep(waitTime);
-
-            sr.SetGpioMask(0);
-            p1      = 1;
-            p2      = 256;
-            var pp1 = p1;
-            var pp2 = p2;
-            for (var i = 0; i < 8; i++)
-            {
-                //sr.SetGpioMask(pp1 + pp2);
-                sr.SetGpioMask((byte)pp1, (byte)(pp2 >> 8));
-
-                Console.WriteLine("16 bite value:{0:000000} - {1} {2}",
-                    pp1 + pp2,
-                    MadeInTheUSB.WinUtil.BitUtil.BitRpr(pp1),
-                    MadeInTheUSB.WinUtil.BitUtil.BitRpr(pp2 >> 8)
-                );
-                Thread.Sleep(waitTime);
-                p1 *= 2;
-                p2 *= 2;
-                pp1 += p1;
-                pp2 += p2;
-            }
-            Console.WriteLine("Hit any key to continue");
-            Console.ReadKey();
-            sr.SetGpioMask(0);
-        }
 
         public static void GpioAnimation(Nusbio nusbio, ShiftRegister74HC595 sr, int waitTime, bool demoGpio3to7Too = false)
         {
@@ -221,17 +166,47 @@ namespace LedConsole
             sr.SetGpioMask(0);
         }
 
-        private static void GpioDemo(Nusbio nusbio, ShiftRegister74HC595 sr, bool demoGpio3to7Too = false)
+        private static void ProgramFor0To15Counter(Nusbio nusbio, MadeInTheUSB.EEPROM.EEPROM_AT28C16 e, bool demoGpio3to7Too = false)
         {
-            Console.Clear();
-            ConsoleEx.TitleBar(0, GetAssemblyProduct() + " Gpio 16 Demo", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            ConsoleEx.Gotoxy(0, 3);
+            var maxAddr = 16;
 
-            int wait = 150;
-            while (true)
+            Console.Clear();
+            ConsoleEx.TitleBar(0, GetAssemblyProduct() + "Program for 0..15 counter", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            
+            if (ConsoleEx.Question(3, "Program Y)es N)o", new List<char>() { 'Y', 'N' } ) == 'Y')
             {
-                GpioAnimation(nusbio, sr, wait, demoGpio3to7Too);
-                if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Q) break;
+                Console.WriteLine("Programming...");
+                var val     = 0;
+                e.EnableOutput(false);
+                for (var a = 0; a < maxAddr; a += 1)
+                {
+                    val = a;
+                    Console.WriteLine("Addr:{0:00} - {1}, set value:{2}", a, BitUtil.BitRpr(a), val);
+                    if (a <= 9)
+                    {
+                        // For digit 0..9 the bit 16 is high. Bit 16 will be use to drive
+                        // The second 7-SegmentDisplay just to display a 1
+                        // When bit 16 is high the second 7-SegmentDisplay will display nothing ActiveLow/Common Annode
+                        val += 16;
+                    }
+                    else
+                    {
+                        val -= 10; // First digit become 10-10:0, 11-10:1, 12-10:2, ...
+                        // Bit 16 will is low and turn on The second 7-SegmentDisplay just to display a 1
+                    }
+                    e.Write(a, val);
+                    Thread.Sleep(500);
+                }
+            }
+
+            e.EnableOutput(true);
+            for (var a = 0; a < maxAddr; a++)
+            {
+                Console.WriteLine("Address:{0:00}:{1}", a, BitUtil.BitRpr(a));
+                e.Read(a);
+                Thread.Sleep(500);
+                if (Console.KeyAvailable)
+                    break;
             }
         }
 
@@ -245,16 +220,22 @@ namespace LedConsole
                 return;
             }
 
-            // Set to 8 if only using 1 Shift Register 74HC595
             const int MAX_EXTENDED_GPIO = 16;
-
-            //Nusbio.BaudRate = Nusbio.FastestBaudRate / 512;
-
+                     
             using (var nusbio = new Nusbio(serialNumber))
             {
                 var sr = new ShiftRegister74HC595(nusbio, MAX_EXTENDED_GPIO, dataPin, latchPin, clockPin);
                 Cls(nusbio, sr);
                 sr.Reset();
+
+                var e = new MadeInTheUSB.EEPROM.EEPROM_AT28C16(
+                    nusbio,
+                    sr, // address line extra gpio 8,9,10,11,12 (5 bit for address range of 0..32)
+                        // data line extra gpio 16,17,18,19,20,21,22,23
+                        
+                    writeEnable: NusbioGpio.Gpio7, outputEnable: NusbioGpio.Gpio6
+                );
+
                 while (nusbio.Loop())
                 {
                     if (Console.KeyAvailable)
@@ -263,11 +244,7 @@ namespace LedConsole
                         if (k == ConsoleKey.Q) break;
 
                         if (k == ConsoleKey.D1)
-                            GpioDemo(nusbio, sr);
-                        if (k == ConsoleKey.D2)
-                            GpioDemo(nusbio, sr, demoGpio3to7Too: true);
-                        if (k == ConsoleKey.D3)
-                            TestSetting16bitAtOnce(nusbio, sr, 400);
+                            ProgramFor0To15Counter(nusbio, e);
 
                         Cls(nusbio, sr);
                     }
@@ -279,4 +256,6 @@ namespace LedConsole
 
     }
 }
+
+
 

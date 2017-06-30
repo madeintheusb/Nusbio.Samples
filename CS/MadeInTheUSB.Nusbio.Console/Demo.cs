@@ -224,6 +224,79 @@ namespace NusbioConsole
             ClockGpio(nusbio, resetGpio);
         }
 
+        private static void Program_EEPROM_AT28C16(Nusbio nusbio)
+        {
+            Console.Clear();
+            ConsoleEx.TitleBar(0, "EEPROM AT28C16 Programming");
+            ConsoleEx.WriteMenu(-1, 5, "Q)uit");
+
+            MadeInTheUSB.EEPROM.EEPROM_AT28C16 e = new MadeInTheUSB.EEPROM.EEPROM_AT28C16(
+                 nusbio, new List<NusbioGpio>() { NusbioGpio.Gpio0, NusbioGpio.Gpio1, NusbioGpio.Gpio2, NusbioGpio.Gpio3, NusbioGpio.Gpio4 }, 
+                 writeEnable: NusbioGpio.Gpio7,
+                 outputEnable: NusbioGpio.Gpio6
+                );
+
+            var maxAddr = 16;
+
+            e.EnableOutput(false);
+            for (var a = 0; a < maxAddr; a += 1)
+            {
+                var val = 0;
+                Console.WriteLine("Addr:{0} - {1}, set value:{2}", a, BitUtil.BitRpr(a), val);
+                //e.Write(a, (byte)val); // Value is not controllable yet
+            }
+            e.EnableOutput(true);
+
+            while (true)
+            {
+                for (var a = 0; a < maxAddr; a++)
+                {
+                    var val = (a % 2) == 0 ? 128 + 32 + 8 + 2 : 0;
+                    Console.WriteLine("Address:{0:00}:{1}, Value:{2}:{3}", 
+                        a, BitUtil.BitRpr(a), val, BitUtil.BitRpr(val));
+                    e.Read(a);
+                    Thread.Sleep(500);
+                    if (Console.KeyAvailable)
+                        break;
+                }
+                if (Console.KeyAvailable)
+                {
+                    if (Console.ReadKey().Key == ConsoleKey.Q)
+                        break;
+                }
+            }
+        }
+        private static void CountFrom0To15InBinaryOnGpio0to3(Nusbio nusbio)
+        {
+            const int maxCounter = 10;
+            Console.Clear();
+            ConsoleEx.TitleBar(0, "Count from 0 to 15 on GPIO 0..3");
+            ConsoleEx.WriteMenu(-1, 5, "Q)uit");
+
+            var counter = 0;
+
+            while (true)
+            {
+                ConsoleEx.WriteLine(0, 3, string.Format("Counter {0:00}", counter), ConsoleColor.Cyan);
+
+                // Clock chip 4017 or 74LS293
+                nusbio[0].DigitalWrite(((counter & 1) == 1));
+                nusbio[1].DigitalWrite(((counter & 2) == 2));
+                nusbio[2].DigitalWrite(((counter & 4) == 4));
+                nusbio[3].DigitalWrite(((counter & 8) == 8));
+
+                counter += 1;
+                if (counter == maxCounter)
+                    counter = 0;
+                if (Console.KeyAvailable)
+                {
+                    if (Console.ReadKey().Key == ConsoleKey.Q)
+                        break;
+                }
+                Thread.Sleep(500);
+            }
+        }
+
         private static void Three5VoltDevicesDemos(Nusbio nusbio)
         {
             var waitTime0      = 500;
@@ -253,9 +326,120 @@ namespace NusbioConsole
             nusbio.SetAllGpioOutputState(PinState.Low);
         }
 
+        private static void SevenSegmentDisplaySequence(Nusbio nusbio, List<TwoNusbioGpio> seq, int repeat)
+        {
+            for (var r = 0; r < repeat; r++)
+            {
+                var wait = 180;
+                var state = true;
+                for (var i = 0; i < seq.Count; i++)
+                {
+                    var g = seq[i];
+                    nusbio[g.g1].DigitalWrite(state);
+                    nusbio[g.g2].DigitalWrite(state);
+                    if (Console.KeyAvailable) break;
+                    Thread.Sleep(wait);
+
+                    if(i + 1 < seq.Count)
+                    {
+                        var g2 = seq[i+1];
+                        nusbio[g2.g1].DigitalWrite(state);
+                        nusbio[g2.g2].DigitalWrite(state);
+                        Thread.Sleep(wait);
+                    }
+
+                    nusbio[g.g1].DigitalWrite(!state);
+                    nusbio[g.g2].DigitalWrite(!state);
+                    Thread.Sleep(wait);
+                    foreach (var gg in seq)
+                    {
+                        nusbio[gg.g1].DigitalWrite(PinState.Low);
+                        nusbio[gg.g2].DigitalWrite(PinState.Low);
+                    }
+                }
+                Thread.Sleep(wait);
+            }
+        }
+
+        private static void SevenSegmentDisplaySequenceAll(Nusbio nusbio, List<NusbioGpio> seq)
+        {
+            var wait = 120;
+            var seqReversed = new List<NusbioGpio>();
+            seqReversed.AddRange(seq);
+            seqReversed.Reverse();
+
+            foreach (var g in seq)
+            {
+                nusbio[g].DigitalWrite(PinState.High);
+                if (Console.KeyAvailable) break;
+                Thread.Sleep(wait);
+            }
+            Thread.Sleep(wait*2);
+            foreach (var g in seqReversed)
+            {
+                nusbio[g].DigitalWrite(PinState.Low);
+                if (Console.KeyAvailable) break;
+                Thread.Sleep(wait);
+            }
+            Thread.Sleep(wait*2);
+        }
+
+        private static void SevenSegmentDisplaySequenceOne(Nusbio nusbio, List<NusbioGpio> seq)
+        {
+            var wait = 170;
+            var seqReversed = new List<NusbioGpio>();
+            seqReversed.AddRange(seq);
+            seqReversed.Reverse();
+            seqReversed.RemoveAt(0);
+            seq.AddRange(seqReversed);
+
+            foreach (var g in seq)
+            {
+                foreach (var gg in seq) nusbio[gg].DigitalWrite(PinState.Low);
+                nusbio[g].DigitalWrite(PinState.High);
+                if (Console.KeyAvailable) break;
+                Thread.Sleep(wait);
+            }
+            //Thread.Sleep(wait);
+        }
+
+        private class TwoNusbioGpio
+        {
+            public NusbioGpio g1, g2;
+        }
+
+        private static void SevenSegmentDisplayDemo(Nusbio nusbio)
+        {
+            var title = "7 Segment Display Demo";
+            Console.Clear();
+            ConsoleEx.TitleBar(0, title, ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
+            ConsoleEx.Gotoxy(0, 4);
+
+            var anim1 = new List<NusbioGpio> () {
+                NusbioGpio.Gpio1,NusbioGpio.Gpio2,NusbioGpio.Gpio3,NusbioGpio.Gpio4, NusbioGpio.Gpio5,NusbioGpio.Gpio6,NusbioGpio.Gpio7,
+            };
+            var anim2 = new List<NusbioGpio>() {
+                NusbioGpio.Gpio3,NusbioGpio.Gpio2, NusbioGpio.Gpio1,NusbioGpio.Gpio6,NusbioGpio.Gpio5,NusbioGpio.Gpio4, NusbioGpio.Gpio7
+            };
+            var anim3 = new List<TwoNusbioGpio>() {
+                new TwoNusbioGpio { g1 = NusbioGpio.Gpio2, g2 = NusbioGpio.Gpio5 },
+                new TwoNusbioGpio { g1 = NusbioGpio.Gpio7, g2 = NusbioGpio.Gpio7 },
+            };
+            while (true)
+            {
+                SevenSegmentDisplaySequenceAll(nusbio, anim1);
+                SevenSegmentDisplaySequenceAll(nusbio, anim2);
+                SevenSegmentDisplaySequence(nusbio, anim3, 4);
+                SevenSegmentDisplaySequenceOne(nusbio, anim1);
+                if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
+                    break;
+            }
+        }
+
         private static void AnimateBlocking1(Nusbio nusbio)
         {
-            var wait      = 200;
+            var wait      = 120;
             var maxRepeat = 3;
             var maxGpio   = 8;
             while (true)
@@ -345,7 +529,8 @@ namespace NusbioConsole
             
             ConsoleEx.WriteMenu(-1, 2, "Gpios: 0) 1) 2) 3) 4) 5) 6) 7) [Shift:Blink Mode]");
             ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation F4) Clock Gpio0");
-            ConsoleEx.WriteMenu(-1, 6, "Q)uit  A)ll off  W)eb UI  C)onfiguration");
+            ConsoleEx.WriteMenu(-1, 6, "F5) 7-Segment Display");
+            ConsoleEx.WriteMenu(-1, 8, "Q)uit  A)ll off  W)eb UI  C)onfiguration");
         }
 
         static void ShowNusbioState(Nusbio nusbio)
@@ -493,8 +678,13 @@ namespace NusbioConsole
                         }
                         else
                         {
-                            if (key == ConsoleKey.F4)
-                                ClockGpio(nusbio);
+                            if (key == ConsoleKey.F4) ClockGpio(nusbio);
+                            //if (key == ConsoleKey.F4) CountFrom0To15InBinaryOnGpio0to3(nusbio);
+                            if (key == ConsoleKey.F6) Program_EEPROM_AT28C16(nusbio);
+                            if (key == ConsoleKey.F5) SevenSegmentDisplayDemo(nusbio);
+                            
+
+
                             //if (key == ConsoleKey.F5) Three5VoltDevicesDemos(nusbio);
                             if (key == ConsoleKey.F1)
                                 AnimateBlocking1(nusbio);
@@ -519,6 +709,8 @@ namespace NusbioConsole
 
                             if (key == ConsoleKey.F3) AnimateBlocking3(nusbio);
                             if (key == ConsoleKey.C) Configuration(nusbio);
+
+                            
 
                             if (key == ConsoleKey.D0) ReverseGpio(NusbioGpio.Gpio0, nusbio);
                             if (key == ConsoleKey.D1) ReverseGpio(NusbioGpio.Gpio1, nusbio);
