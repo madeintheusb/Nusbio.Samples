@@ -87,6 +87,7 @@
     <Compile Include="FLASH\FLASH_S25FL1xxK.cs" />
     <Compile Include="GpioExpander\MCP230XX_Base.cs" />
     <Compile Include="GpioExpander\McpGpio.cs" />
+    <Compile Include="LED\SevenSegmentDirect.cs" />
     <Compile Include="Oled\OLED.cs" />
     <Compile Include="Oled\OLED_SSD1306.cs" />
     <Compile Include="PrivatePublicKeyHelper\PrivatePublicKeyHelper.cs" />
