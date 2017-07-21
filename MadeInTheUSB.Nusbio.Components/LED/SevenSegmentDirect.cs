@@ -46,7 +46,7 @@ namespace MadeInTheUSB.Components
             A,  B,  C,  D,  E,  F,  G,  DP
         };
 
-        private class GpioInfo
+        public class GpioInfo
         {
             public NusbioGpio gpio;
             public bool State;
@@ -74,7 +74,7 @@ namespace MadeInTheUSB.Components
             { 9, new List<Segments>() { Segments.A, Segments.B, Segments.C, Segments.D, Segments.F, Segments.G } },
         };
 
-        Dictionary<Segments, GpioInfo> _segmentToGpioMap = new Dictionary<Segments, GpioInfo>() {
+        public Dictionary<Segments, GpioInfo> SegmentToGpioMap = new Dictionary<Segments, GpioInfo>() {
 
             { Segments.A,   new GpioInfo { gpio = NusbioGpio.Gpio0  }},
             { Segments.B,   new GpioInfo { gpio = NusbioGpio.Gpio1  }},
@@ -92,76 +92,15 @@ namespace MadeInTheUSB.Components
             this.AllOff(clearDot: true);
         }
 
-        public void Test0()
-        {
-            Console.Clear();
-            ConsoleEx.TitleBar(0, "Segments Test", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
-            ConsoleEx.Gotoxy(0, 4);
-
-            var done = false;
-            while (!done)
-            {
-                this.AllOff();
-                for(var i=0; i < _segmentToGpioMap.Count; i++)
-                {
-                    var s = _segmentToGpioMap.Keys.ToList()[i];
-                    ConsoleEx.WriteLine(0, 5, string.Format("Segment {0:0}", s.ToString().PadRight(2, ' ')), ConsoleColor.Cyan);
-                    SetSegmentState(s, true);
-                    if (WaitForKeyQ())
-                    {
-                        done = true; break;
-                    }
-                }
-            }
-        }
-        
-        private bool WaitForKeyQ()
-        {
-            Thread.Sleep(200);
-            if (Console.KeyAvailable)
-            {
-                if (Console.ReadKey().Key == ConsoleKey.Q)
-                    return true;
-            }
-            return false;
-        }
-
-        public void TestDigit()
-        {
-            Console.Clear();
-            ConsoleEx.TitleBar(0, "Digit Test", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
-            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
-            ConsoleEx.Gotoxy(0, 4);
-
-            this.AllOff();
-            var done = false;
-            while (!done)
-            {
-                for (var i = 0; i < _digitDefinitions.Count; i++)
-                {
-                    ConsoleEx.WriteLine(0, 5, string.Format("Digit {0}", i), ConsoleColor.Blue);
-                    this.DrawDigit(i);
-                    Thread.Sleep(1000);
-                    if (Console.KeyAvailable)
-                        if (Console.ReadKey().Key == ConsoleKey.Q)
-                        {
-                            done = true;
-                            break;
-                        }
-                }
-            }
-        }
-
         public void SetSegmentState(Segments s, bool state)
         {
-            _nusbio[_segmentToGpioMap[s].gpio].DigitalWrite(state);
-            _segmentToGpioMap[s].State = state;
+            _nusbio[SegmentToGpioMap[s].gpio].DigitalWrite(state);
+            SegmentToGpioMap[s].State = state;
         }
 
         public void AllOff(bool clearDot = false)
         {
-            foreach (var g in _segmentToGpioMap)
+            foreach (var g in SegmentToGpioMap)
             {
                 if (g.Key != Segments.DP || clearDot == true)
                 {
@@ -177,19 +116,19 @@ namespace MadeInTheUSB.Components
             if (_digitDefinitions.ContainsKey(digit))
             {                
                 var dd = _digitDefinitions[digit];
-                foreach(var s in dd)
+
+                foreach(var s in dd) // TODO: Could be optimized with _nusbio.SetGpioMask()
                 {
                     this.SetSegmentState(s, true);
                 }
-                this.InverseDot();
             }
             else throw new ArgumentException();
         }
 
         public void InverseDot()
         {
-            _segmentToGpioMap[Segments.DP].State = !_segmentToGpioMap[Segments.DP].State;
-            SetSegmentState(Segments.DP, _segmentToGpioMap[Segments.DP].State);
+            SegmentToGpioMap[Segments.DP].State = !SegmentToGpioMap[Segments.DP].State;
+            SetSegmentState(Segments.DP, SegmentToGpioMap[Segments.DP].State);
         }
     }
 }

@@ -195,18 +195,20 @@ namespace NusbioConsole
         {
             Console.Clear();
             ConsoleEx.TitleBar(0, "Fade In Out LED With Gpio With Capacitor/Resistor/Transistor");
-            ConsoleEx.WriteMenu(-1, 5, "Q)uit");
+            ConsoleEx.WriteMenu(-1, 4, "Q)uit");
 
-            const int wait                 = 100;
-            const int redLedChargeTime     = wait * 7;
-            const int redLedDischargeTime  = wait * 39;
-            const int blueLedChargeTime    = wait * 7; // 8
-            const int blueLedDischargeTime = wait * 39; // 42
-            
-            // Pre charge capacitor for 2 seconds
-            nusbio[regLedGpio].DigitalWrite(PinState.High);
-            nusbio[blueLedGpio].DigitalWrite(PinState.High);
-            Thread.Sleep(wait * 12);
+            const int wait                     = 100;
+            const int redLedChargeTime         = wait * 8;
+            const int redLedDischargeTime      = wait * 46;
+            const int blueLedChargeTime        = wait * 12; // 8
+            const int blueLedDischargeTime     = wait * 60; // 42
+            const int capacitorPreChargingTime = wait * 24;
+
+            ConsoleEx.WriteLine(1, 7, string.Format("Pre charging capacitors for {0} ms-seconds ", capacitorPreChargingTime), ConsoleColor.Yellow);
+            nusbio[regLedGpio].High();
+            nusbio[blueLedGpio].High();
+            Thread.Sleep(capacitorPreChargingTime);
+            ConsoleEx.WriteLine(1, 7, "".PadRight(64), ConsoleColor.Cyan);
 
             var redLedTimeout  = new MadeInTheUSB.TimeOut(redLedChargeTime);
             var blueLedTimeout = new MadeInTheUSB.TimeOut(blueLedDischargeTime);
@@ -214,53 +216,32 @@ namespace NusbioConsole
             // Turn blue LED off, red led stay on
             nusbio[blueLedGpio].DigitalWrite(PinState.Low);
             
-            while (true)
-            {
-                if (blueLedTimeout.IsTimeOut())
-                {
-                    if (blueLedTimeout.Duration == blueLedChargeTime)
-                    {
-                        Console.Write("Blue Off. ");
-                        nusbio[blueLedGpio].DigitalWrite(PinState.Low);
+            while (true) {
+                if (blueLedTimeout.IsTimeOut()) {
+                    if (blueLedTimeout.Duration == blueLedChargeTime) {
+                        ConsoleEx.WriteLine(1, 7, "Blue Off".PadRight(64), ConsoleColor.Cyan);
+                        nusbio[blueLedGpio].Low();
                         blueLedTimeout = new TimeOut(blueLedDischargeTime);
                     }
-                    else
-                    {
-                        Console.Write("Blue On. ");
-                        nusbio[blueLedGpio].DigitalWrite(PinState.High);
+                    else {
+                        ConsoleEx.WriteLine(1, 7, "Blue On ".PadRight(64), ConsoleColor.Cyan);
+                        nusbio[blueLedGpio].High();
                         blueLedTimeout = new TimeOut(blueLedChargeTime);
                     }
                 }
-
-                if (redLedTimeout.IsTimeOut())
-                {
-                    if (redLedTimeout.Duration == redLedChargeTime)
-                    {
-                        Console.Write("Red Off. ");
-                        nusbio[regLedGpio].DigitalWrite(PinState.Low);
+                if (redLedTimeout.IsTimeOut()) {
+                    if (redLedTimeout.Duration == redLedChargeTime) {
+                        ConsoleEx.WriteLine(1, 8, "Red  Off".PadRight(64), ConsoleColor.Cyan);
+                        nusbio[regLedGpio].Low();
                         redLedTimeout = new TimeOut(redLedDischargeTime);
                     }
-                    else
-                    {
-                        Console.Write("Red On. ");
-                        nusbio[regLedGpio].DigitalWrite(PinState.High);
+                    else {
+                        ConsoleEx.WriteLine(1, 8, "Red  On ".PadRight(64), ConsoleColor.Cyan);
+                        nusbio[regLedGpio].High();
                         redLedTimeout = new TimeOut(redLedChargeTime);
                     }
                 }
-
-                //Console.Write("On  ");
-                //nusbio[regLedGpio].DigitalWrite(PinState.High);
-                //nusbio[blueLedGpio].DigitalWrite(PinState.Low);
-
-                //Thread.Sleep(redLedChargeTime);
-
-                //Console.Write("Off ");
-                //nusbio[regLedGpio].DigitalWrite(PinState.Low);
-                //nusbio[blueLedGpio].DigitalWrite(PinState.Low);
-                //Thread.Sleep(redLedDischargeTime);
-
-                if (Console.KeyAvailable)
-                {
+                if (Console.KeyAvailable) {
                     if (Console.ReadKey().Key == ConsoleKey.Q)
                         break;
                 }
@@ -497,7 +478,7 @@ namespace NusbioConsole
             NusbioUrlEvent("");
             
             ConsoleEx.WriteMenu(-1, 2, "Gpios: 0) 1) 2) 3) 4) 5) 6) 7) [Shift:Blink Mode]");
-            ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation F4) Clock Gpio0");
+            ConsoleEx.WriteMenu(-1, 4, "F1) Animation  F2) Non Blocking Animation  F3) Animation F4) FadeIn FadeOut LEDs");
             ConsoleEx.WriteMenu(-1, 6, "F5) 7-Segment Display");
             ConsoleEx.WriteMenu(-1, 8, "Q)uit  A)ll off  W)eb UI  C)onfiguration");
         }

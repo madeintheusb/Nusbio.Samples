@@ -128,7 +128,7 @@ void writeEEPROM(int address, byte data)
     Serial.print("pin:");Serial.print(pin);
     Serial.print(" bit:");Serial.print(bit);
     Serial.print(" data:");Serial.println(data);
-    delay(100);    
+    delay(10);    
     data = data >> 1;
   }
   delay(50);
@@ -139,7 +139,8 @@ void writeEEPROM(int address, byte data)
  
   //cli(); // disable global interrupts
   digitalWrite(WRITE_EN, LOW);
-  delayMicroseconds(1);
+  //delayMicroseconds(1);
+  cli(); sei();
   //_delay_us(300);
   //asm("nop;nop;nop;nop;nop;nop;nop;nop;nop;nop;");   
   digitalWrite(WRITE_EN, HIGH);
@@ -307,8 +308,19 @@ void setup() {
   Serial.println("Waiting 2 second before execution");
   delay(1000*2);
   Serial.println("Running");
-
+  
+  
   InitEEPROMFor2SevenSegmentDisplayTheFredWay();
+  
+  writeEEPROM(8, 24);
+  writeEEPROM(9, 25);
+  writeEEPROM(10, 0);
+  writeEEPROM(11, 1);
+  writeEEPROM(12, 2);
+  writeEEPROM(13, 3);
+  writeEEPROM(14, 4);
+  writeEEPROM(15, 5);
+  
   //EraseEEPROM(); 
   //Serial.println("Reading all EEPROM");
   //printContents();

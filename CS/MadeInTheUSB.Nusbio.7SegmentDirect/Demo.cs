@@ -47,7 +47,7 @@ namespace ButtonConsole
 
             ConsoleEx.TitleBar(0, GetAssemblyProduct(), ConsoleColor.Yellow, ConsoleColor.DarkBlue);
 
-            ConsoleEx.WriteMenu(0, 3, "F1) Test Segment  F2) Test Digit");
+            ConsoleEx.WriteMenu(0, 3, "F1) Demo 1   F2) Digit Demo   F3) Demo 2");
             
             ConsoleEx.TitleBar(ConsoleEx.WindowHeight - 2, Nusbio.GetAssemblyCopyright(), ConsoleColor.White, ConsoleColor.DarkBlue);
             ConsoleEx.Bar(0, ConsoleEx.WindowHeight - 3, string.Format("Nusbio SerialNumber:{0}, Description:{1}", nusbio.SerialNumber, nusbio.Description), ConsoleColor.Black, ConsoleColor.DarkCyan);
@@ -91,7 +91,7 @@ namespace ButtonConsole
 
         private static void SevenSegmentDisplaySequenceAll(Nusbio nusbio, List<NusbioGpio> seq)
         {
-            var wait = 120;
+            var wait = 250;
             var seqReversed = new List<NusbioGpio>();
             seqReversed.AddRange(seq);
             seqReversed.Reverse();
@@ -136,7 +136,7 @@ namespace ButtonConsole
             public NusbioGpio g1, g2;
         }
 
-        private static void SevenSegmentDisplayDemo(Nusbio nusbio)
+        private static void Demo2(Nusbio nusbio)
         {
             var title = "7 Segment Display Demo";
             Console.Clear();
@@ -145,10 +145,7 @@ namespace ButtonConsole
             ConsoleEx.Gotoxy(0, 4);
 
             var anim1 = new List<NusbioGpio>() {
-                NusbioGpio.Gpio1,NusbioGpio.Gpio2,NusbioGpio.Gpio3,NusbioGpio.Gpio4, NusbioGpio.Gpio5,NusbioGpio.Gpio6,NusbioGpio.Gpio7,
-            };
-            var anim2 = new List<NusbioGpio>() {
-                NusbioGpio.Gpio3,NusbioGpio.Gpio2, NusbioGpio.Gpio1,NusbioGpio.Gpio6,NusbioGpio.Gpio5,NusbioGpio.Gpio4, NusbioGpio.Gpio7
+                NusbioGpio.Gpio0,NusbioGpio.Gpio1,NusbioGpio.Gpio2,NusbioGpio.Gpio3,NusbioGpio.Gpio4, NusbioGpio.Gpio5,NusbioGpio.Gpio6,NusbioGpio.Gpio7,
             };
             var anim3 = new List<TwoNusbioGpio>() {
                 new TwoNusbioGpio { g1 = NusbioGpio.Gpio2, g2 = NusbioGpio.Gpio5 },
@@ -157,14 +154,75 @@ namespace ButtonConsole
             while (true)
             {
                 SevenSegmentDisplaySequenceAll(nusbio, anim1);
-                SevenSegmentDisplaySequenceAll(nusbio, anim2);
                 SevenSegmentDisplaySequence(nusbio, anim3, 4);
-                SevenSegmentDisplaySequenceOne(nusbio, anim1);
+                //SevenSegmentDisplaySequenceOne(nusbio, anim1);
                 if (Console.KeyAvailable && Console.ReadKey(true).Key != ConsoleKey.Attention)
                     break;
             }
         }
 
+        private static bool WaitForKeyQ()
+        {
+            Thread.Sleep(200);
+            if (Console.KeyAvailable)
+            {
+                if (Console.ReadKey().Key == ConsoleKey.Q)
+                    return true;
+            }
+            return false;
+        }
+
+
+        public static void Demo0(SevenSegmentDirect _7seg)
+        {
+            Console.Clear();
+            ConsoleEx.TitleBar(0, "Segments Test", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
+            ConsoleEx.Gotoxy(0, 4);
+
+            var done = false;
+            while (!done)
+            {
+                _7seg.AllOff();
+                for (var i = 0; i < 8; i++)
+                {
+                    var s = _7seg.SegmentToGpioMap.Keys.ToList()[i];
+                    ConsoleEx.WriteLine(0, 5, string.Format("Segment {0:0}", s.ToString().PadRight(2, ' ')), ConsoleColor.Cyan);
+                    _7seg.SetSegmentState(s, true);
+                    if (WaitForKeyQ())
+                    {
+                        done = true; break;
+                    }
+                }
+            }
+        }
+
+        public static void DigitDemo(SevenSegmentDirect _7seg)
+        {
+            Console.Clear();
+            ConsoleEx.TitleBar(0, "Digit Test", ConsoleColor.Yellow, ConsoleColor.DarkBlue);
+            ConsoleEx.WriteMenu(-1, 2, "Q)uit");
+            ConsoleEx.Gotoxy(0, 4);
+
+            _7seg.AllOff();
+            var done = false;
+            while (!done)
+            {
+                for (var i = 0; i < 10; i++)
+                {
+                    ConsoleEx.WriteLine(0, 5, string.Format("Digit {0}", i), ConsoleColor.Blue);
+                    _7seg.DrawDigit(i);
+                    _7seg.InverseDot();
+                    Thread.Sleep(500);
+                    if (Console.KeyAvailable)
+                        if (Console.ReadKey().Key == ConsoleKey.Q)
+                        {
+                            done = true;
+                            break;
+                        }
+                }
+            }
+        }
 
         public static void Run(string[] args)
         {
@@ -188,13 +246,13 @@ namespace ButtonConsole
                     if (Console.KeyAvailable)
                     {
                         var k = Console.ReadKey(true).Key;
-                        if (k == ConsoleKey.F1)
-                            _7Seg.Test0();
-                        if (k == ConsoleKey.F2)
-                            _7Seg.TestDigit();
+                        if (k == ConsoleKey.F1) Demo0(_7Seg);
 
-                        if (k == ConsoleKey.F5)
-                            SevenSegmentDisplayDemo(nusbio);
+                        if (k == ConsoleKey.F2) DigitDemo(_7Seg);
+
+                        if (k == ConsoleKey.F3)
+                            Demo2(nusbio);
+
                         if (k == ConsoleKey.Q) break;
                         Cls(nusbio);
                     }
